@@ -26,8 +26,18 @@ two `StaticDDS` children on `channel 0` and `channel 1`, and `enable_output(0)`;
 
 The module imports with `-W error::DeprecationWarning`. The docs example's import path
 `labscript_devices.NI_DAQmx.Models.NI_USB_6343` does not exist; the directory is
-`models`. The GitHub Actions dispatch with `labscript-devices=pr/110` is recorded below
-when it completes.
+`models`.
+
+**GitHub Actions, PR head alone:** the dispatch with `labscript-devices=pr/110`,
+[run 39021953009](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39021953009),
+fails the `imports` step in every job because the harness imports
+`labscript_devices.PrawnDO.labscript_devices`, which master gained after this branch was
+made; the branch is 68 commits behind master. The other steps pass in the `numpy<2.5`
+job. A head that is behind master has to be tested merged with master, so the merged
+branch with the fixes was pushed to labscript-suite/labscript-devices as
+`windfreak-110-fixes` (0593f45) and dispatched; its result is recorded below when it
+completes. The harness should derive its module list from the installed package rather
+than a fixed list (`harness/suite.py`, `imports` step).
 
 ## 2026-10-17: blacs #123 plugin-loading fixes
 
