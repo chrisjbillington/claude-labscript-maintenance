@@ -5,6 +5,24 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-17: release tag step on Ubuntu and Windows
+
+`.github/workflows/tag-step-test.yml` in this repository, run
+[39028326108](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39028326108):
+HEAD tagged `v9.9.9rc1` and `v9.9.9`, then the release workflow's "Ignore tags other than
+the pushed tag" step run with the pushed tag given as `REF_NAME=v9.9.9` (`GITHUB_REF_NAME`
+cannot be set in a workflow), once under the runner's default shell and once under bash.
+
+| Runner | Shell | Tags deleted | Left at HEAD |
+|---|---|---|---|
+| windows-latest | default (`pwsh -command`) | `v9.9.9`, `v9.9.9rc1` | none |
+| windows-latest | bash | `v9.9.9rc1` | `v9.9.9` |
+| ubuntu-latest | default (bash) | `v9.9.9rc1` | `v9.9.9` |
+| ubuntu-latest | bash | `v9.9.9rc1` | `v9.9.9` |
+
+This reproduces DEFECTS.md D7 on a Windows runner and shows that `shell: bash` on the step
+fixes it; workflow-sandbox #47 and the sync pull requests carry the change.
+
 ## 2026-10-17: lyse #142 (spinning_top) with the merged masters, every Qt binding
 
 Run [39027308813](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39027308813),

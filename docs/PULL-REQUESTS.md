@@ -10,6 +10,19 @@ updates or sees one merged or closed updates the row. Links go to GitHub.
 | 2026-10-17 | [runmanager #131](https://github.com/labscript-suite/runmanager/pull/131) | same, plus `labscript>=3.5.0rc1` and `labscript_utils>=3.5.0rc1` (head e5283ab); held until the release sequence, merge immediately before the runmanager tag | release plan 4.1 item 6; release sequence step 7 |
 | 2026-10-17 | [labscript-suite #106](https://github.com/labscript-suite/labscript-suite/pull/106) | same, plus the component pins of the 3.4.0 release set in the form `>=x.y.0rc1` (head 4e7de5e); held until the release sequence, merge immediately before the labscript-suite tag | release plan 4.1 item 6; release sequence step 12 |
 | 2026-10-17 | [lyse #142](https://github.com/labscript-suite/lyse/pull/142) | `__getattr__` serves `spinning_top` as well as `path` from `lyse.utils.worker`; `spinning_top` back in `__all__` | DEFECTS.md D8 |
+| 2026-10-17 | [workflow-sandbox #47](https://github.com/rpanderson/workflow-sandbox/pull/47) | release workflow: `shell: bash` on both "Ignore tags other than the pushed tag" steps (7df7261) | DEFECTS.md D7; labscript-suite #56 |
+| 2026-10-17 | [labscript #127](https://github.com/labscript-suite/labscript/pull/127) | sync `release.yml` with workflow-sandbox 7df7261 (the head of #47) | DEFECTS.md D7 |
+| 2026-10-17 | [labscript-devices #152](https://github.com/labscript-suite/labscript-devices/pull/152) | same | DEFECTS.md D7 |
+| 2026-10-17 | [labscript-utils #132](https://github.com/labscript-suite/labscript-utils/pull/132) | same | DEFECTS.md D7 |
+| 2026-10-17 | [blacs #127](https://github.com/labscript-suite/blacs/pull/127) | same | DEFECTS.md D7 |
+| 2026-10-17 | [lyse #143](https://github.com/labscript-suite/lyse/pull/143) | same | DEFECTS.md D7 |
+| 2026-10-17 | [runmanager #133](https://github.com/labscript-suite/runmanager/pull/133) | same | DEFECTS.md D7 |
+| 2026-10-17 | [runviewer #75](https://github.com/labscript-suite/runviewer/pull/75) | same | DEFECTS.md D7 |
+| 2026-10-17 | [labscript-suite #108](https://github.com/labscript-suite/labscript-suite/pull/108) | same | DEFECTS.md D7 |
+| 2026-10-17 | [labscript-c-extensions #12](https://github.com/labscript-suite/labscript-c-extensions/pull/12) | same | DEFECTS.md D7 |
+| 2026-10-17 | [zprocess #31](https://github.com/chrisjbillington/zprocess/pull/31) | same; the v2.28.0rc1 tag needs the fix before Windows conda packages carry the release version | DEFECTS.md D7 |
+| 2026-10-17 | [desktop-app #33](https://github.com/chrisjbillington/desktop-app/pull/33) | same | DEFECTS.md D7 |
+| 2026-10-17 | [qtutils #35](https://github.com/philipstarkey/qtutils/pull/35) | same | DEFECTS.md D7 |
 
 ## Merged or closed
 
