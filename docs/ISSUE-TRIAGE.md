@@ -42,7 +42,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 | 15 | runmanager #123 set_globals comment preservation with raw=True | bug | 4 | fix for next release (accept offered PR) |
 | 16 | labscript-suite #56 release workflow with rc + final tag on one commit | tooling | 4 | fixed 2026-10-17: workflow-sandbox #46 and the sync PR on each of the twelve repos merged; issue closed |
 | 17 | blacs #56 window geometry restoration | bug | 3 | fix for next release (with #52) |
-| 18 | blacs #100 setup_logging crashes when sys.stdout is None | bug | 3 | fix for next release (labscript-utils) |
+| 18 | blacs #100 setup_logging crashes when sys.stdout is None | bug | 3 | fix for next release (labscript-utils); PR opened 2026-10-17: labscript-utils #133 |
 | 19 | blacs #49 StopIteration before first yield gives fatal error | bug | 3 | fix for next release |
 | 20 | blacs #32 report which device paused the queue | feature | 3 | fix for next release |
 | 21 | blacs #7 file dialogs default to "C:\\" | feature | 3 | fix for next release |
@@ -57,7 +57,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 | 30 | PrawnBlaster #34 200 MHz clock | feature | 3 | fix later via PR #37 + host change |
 | 31 | PrawnBlaster #31 uneven instruction split | feature | 3 | fix later via PR #35 rework |
 | 32 | labscript #16 ramp limit check has no tolerance | bug | 3 | Fix for next release |
-| 33 | labscript-utils #60 runmanager.ini in default profile | feature | 3 | Fix for next release with #116 |
+| 33 | labscript-utils #60 runmanager.ini in default profile | feature | 3 | Fix for next release with #116; PR opened 2026-10-17: labscript-utils #133 |
 | 34 | labscript-utils #116 minimal analysis example | docs | 3 | Merge PR #117, close |
 | 35 | labscript #50 wait_delay not applied to resume trigger | bug | 3 | Fix later; ask labs with secondary PulseBlasters |
 | 36 | labscript #44 limits not saved for BLACS | feature | 3 | Fix later (labscript half with #16) |
@@ -929,6 +929,7 @@ Verification notes that apply to several issues:
 - **Rewrite relevance**: requirement (first-run experience: example apparatus loads without manual steps)
 - **Importance**: 3
 - **Recommended action**: fix for next release together with #116/#117 (cheap, visible).
+- **Status 2026-10-17**: labscript-utils #133 opened; `labscript-profile-create` writes the file.
 
 ### labscript-utils #68: FileWatcher has thread unsafe attributes exposed (philipstarkey, opened 2020-10-14, last activity 2020-10-14, 0 comments)
 - **Summary**: `FileWatcher.files`/`folders` are public but mutated under an internal lock; rename to private and clean up.
@@ -1644,6 +1645,7 @@ unless a full path is given.
 - **Rewrite relevance**: moot (shotscript does not relaunch itself via `sys.argv`), but its logging setup must tolerate `sys.stdout is None`.
 - **Importance**: 3. Cheap fix, real crash.
 - **Recommended action**: fix for next release (in labscript-utils; move the issue there or fix and close).
+- **Status 2026-10-17**: labscript-utils #133 opened with the guard. The desktop-app launcher gives the programs a hidden console, so `sys.stdout` is a stream on the supported launch path; the crash needs a direct pythonw.exe launch.
 
 ### blacs #97: Widget sizing on startup (dihm, opened 2023-01-06, last activity 2023-01-06, 0 comments)
 - **Summary**: On first start the output widgets in device tabs are laid out at the wrong size until the container is resized. Suspected cause: `ToolPalette._layout_widgets()` (labscript-utils) runs before the widget has its final width.

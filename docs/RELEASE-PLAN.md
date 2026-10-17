@@ -290,7 +290,9 @@ which give file:line and the reasoning.
   environment is activated; make the imports lazy (desktop-app 0.5.1). PR opened 2026-10-17: desktop-app #34.
 - zprocess #19 and #16: call `zmq.has('curve')` before CURVE APIs and raise a readable
   error; document that conda users need conda-forge's pyzmq.
-- blacs #100: `setup_logging.py:60,73` crash when `sys.stdout` is `None` (pythonw).
+- blacs #100: `setup_logging.py:60,73` crash when `sys.stdout` is `None` (pythonw). PR
+  opened 2026-10-17: labscript-utils #133, which also carries REVIEW.md items 10 and 18,
+  DEFECTS.md D3 and labscript-utils #60.
 - labscript-devices #109: PrawnBlaster runviewer parser drops the instruction after a
   wait; one-line fix at `PrawnBlaster/runviewer_parsers.py:104`.
 - labscript-devices #79: ESRPro500 has no runviewer parser and exposes 21 of 24 flags;

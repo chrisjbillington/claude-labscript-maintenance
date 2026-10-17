@@ -26,6 +26,7 @@ updates or sees one merged or closed updates the row. Links go to GitHub.
 | 2026-10-17 | [labscript-c-extensions #12](https://github.com/labscript-suite/labscript-c-extensions/pull/12) | same | DEFECTS.md D7 |
 | 2026-10-17 | [desktop-app #33](https://github.com/chrisjbillington/desktop-app/pull/33) | same | DEFECTS.md D7 |
 | 2026-10-17 | [qtutils #35](https://github.com/philipstarkey/qtutils/pull/35) | same | DEFECTS.md D7 |
+| 2026-10-17 | [labscript-utils #133](https://github.com/labscript-suite/labscript-utils/pull/133) | `h5_lock.File` default mode `'r'`, kill lock released on zlock failure, locks released once; `setup_logging` with `sys.stdout` None; `excepthook` without tkinter; `aom.py` numpy imports; `labscript-profile-create` writes `runmanager.ini` (head 12f86ac) | REVIEW.md items 10 and 18, labscript-utils B16; blacs #100; labscript-utils #60; DEFECTS.md D3; release sequence step 5 |
 
 ## Merged or closed
 

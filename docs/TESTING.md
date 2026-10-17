@@ -5,6 +5,28 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-17: labscript-utils #133 and labscript compiler fixes
+
+**labscript-utils [#133](https://github.com/labscript-suite/labscript-utils/pull/133)**
+(head 12f86ac): the harness workflow was dispatched with
+`labscript-utils=labscript-suite/labscript-utils@release-3.5.0-fixes` as run
+[39033554974](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39033554974):
+the 24 jobs on Ubuntu and Windows for Python 3.11 to 3.14 with PySide6, PyQt6 and PyQt5
+and the NumPy 2.4 job passed every step; the 6 Python 3.15 jobs failed at "Install the
+components" on h5py as before. Locally (Python 3.14.6, h5py 3.16.0, numpy 2.5.4,
+PySide6, the branch installed into the harness venv) all eight steps passed, and the
+profile that the `profile` step created contains
+`app_saved_configs/example_apparatus/runmanager/runmanager.ini` naming the example
+experiment. Per-fix checks in the same venv: `h5py.File(path)` with no mode opens the
+file read-only after `labscript_utils.h5_lock` is imported (master raises
+`ValueError`); a second `close()` does not raise and the kill lock count returns to
+zero; with `Lock.acquire` replaced by one that raises, `h5py.File` propagates the
+error and the kill lock count is unchanged; `SineAom().fraction_to_base(0)` maps to a
+power of 0 (master: -0.068); `setup_logging` with `sys.stdout` and `sys.stderr` set to
+`None` returns a logger with the zlog handler and replaces both streams with devnull;
+with `tkinter` blocked in `sys.modules`, `labscript_utils.excepthook` imports with a
+`UserWarning` and the installed excepthook prints the traceback.
+
 ## 2026-10-17: checks for the release sequence step 2 to 4 pull requests
 
 Pull requests [labscript-c-extensions #13](https://github.com/labscript-suite/labscript-c-extensions/pull/13),

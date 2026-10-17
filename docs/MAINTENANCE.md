@@ -133,7 +133,7 @@ unaffected. The review's line references map to the new layout as follows.
 | 7 `get_change_times` collision check | open |
 | 8 trigger proximity check | open |
 | 9 Qt6 check states | open |
-| 10 `aom.py` `max` | open |
+| 10 `aom.py` `max` | fixed, labscript-utils PR #133 (open) |
 | 11 BLACS queue `get(2)` | open |
 | 12 BLACS error handlers | open |
 | 13 `_rep` filename | open; the 2022 WIP PRs blacs #90 and runmanager #104 contain a fix |
@@ -141,12 +141,13 @@ unaffected. The review's line references map to the new layout as follows.
 | 15 lyse `blockSignals` | open |
 | 16 lyse on pandas 3 | open |
 | 17 PrawnBlaster wait without monitor | open |
-| 18 `h5_lock` | open |
+| 18 `h5_lock` | fixed, labscript-utils PR #133 (open) |
 | 19 runviewer resampler bounds | fixed, labscript-c-extensions PR #13 (open) |
 | 20 zlock port | fixed, labscript-utils PR #128 |
 
-Item 1 is fixed by the pull requests in the table below; no open pull request addresses
-items 2 to 19.
+Item 1 is fixed by the pull requests in the table below. Items 10 and 18 are fixed by
+labscript-utils PR #133 (open), which also fixes labscript-utils B16 (blacs #100),
+DEFECTS.md D3 and labscript-utils #60. No open pull request addresses the other items.
 
 ## Pull requests opened by the maintenance track
 

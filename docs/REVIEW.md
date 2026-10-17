@@ -100,7 +100,8 @@ Paths are relative to each repo's root unless stated otherwise.
      `2 in [Qt.Checked, Qt.Unchecked]` is false, so the master shuffle checkbox does nothing.
    - `runviewer/runviewer/__main__.py:725-730, 780, 830`: unticking a shot takes the
      "checked" branch, and shutter lines can never be hidden.
-10. **`labscript-utils` `labscript_utils/unitconversions/aom.py:15,59,73` (run).**
+10. **Fixed** by labscript-utils PR #133, opened 2026-10-17.
+    ~~**`labscript-utils` `labscript_utils/unitconversions/aom.py:15,59,73` (run).**~~
     `from numpy import *` exports `max` under numpy 2, so `max(c - A, 0)` becomes
     `np.max(x, axis=0)` and returns `c - A`. With the default parameters, Pmin is -0.068
     instead of 0.
@@ -150,7 +151,8 @@ Paths are relative to each repo's root unless stated otherwise.
     reaches `instruction["reps"]` with `instruction == "WAIT"`. Any PrawnBlaster used as a
     secondary pseudoclock, or with `use_wait_monitor=False`, fails to compile a shot
     containing `wait()`.
-18. **`labscript-utils` `labscript_utils/h5_lock.py:41-66` (run for the mode error).**
+18. **Fixed** by labscript-utils PR #133, opened 2026-10-17.
+    ~~**`labscript-utils` `labscript_utils/h5_lock.py:41-66` (run for the mode error).**~~
     - `File.__init__` has `mode=None` and passes it positionally to h5py 3, which rejects
       None. Once `h5_lock` is imported, `h5py.File(path)` with no mode raises `ValueError`.
       No suite code omits the mode, so this affects user analysis scripts and third-party
@@ -767,7 +769,9 @@ Paths are relative to each repo's root unless stated otherwise.
   registered" message. Eight `register_classes.py` files pass `runviewer_parser=None`.
   After one failing `register_classes.py`, a retry of `populate_registry` raises "already
   registered".
-- **B16. `labscript_utils/setup_logging.py:60, 68` (plausible).** `sys.stdout.fileno()` is
+- **B16. Fixed** by labscript-utils PR #133, opened 2026-10-17 (the `fileno()` call; the
+  mkdir race remains). ~~**`labscript_utils/setup_logging.py:60, 68` (plausible).**~~
+  `sys.stdout.fileno()` is
   called before the `sys.stdout is not None` check. Under plain `pythonw`, stdout is None.
   Lines 43-44 have an exists/mkdir race between processes.
 
