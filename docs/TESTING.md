@@ -63,35 +63,10 @@ for example: "The console rejects the mode. This happens when the process was re
 from a PowerShell prompt: while PSReadLine waits for input it leaves ENABLE_ECHO_INPUT
 set without ENABLE_LINE_INPUT, and SetConsoleMode rejects that combination."
 
-Not yet posted on the PR. Draft of the comment, for the session that posts it:
-
-> Tested on Windows 11 Pro (build 26200) with BLACS 3.2.3, labscript-utils 3.4.1, Python
-> 3.12.7 and pywin32 311, restarting BLACS with "Recompile connection table" then
-> "Restart BLACS":
->
-> - zprocess 2.27.0, BLACS started with `blacs` from Windows PowerShell 5.1 in Windows
->   Terminal: the relaunched process exits at `import labscript_utils` with
->   `pywintypes.error: (87, 'SetConsoleMode', 'The parameter is incorrect.')`, as in #27.
-> - zprocess 2.27.0, started from cmd.exe in Windows Terminal: BLACS restarts.
-> - This branch (81b1b10), started from PowerShell in Windows Terminal: BLACS restarts
->   (two restarts in a row) and the restarted process has quick-edit off (input mode
->   0x1a4).
-> - This branch, started from cmd.exe in a classic conhost window: the start turns
->   quick-edit off (mode 0x1f7 to 0x1b7), the restart works, and quick-edit is on again
->   after BLACS exits.
->
-> The cause is the shell, not ConPTY. While Windows PowerShell (PSReadLine 2.0.0) waits
-> at its prompt, the console input mode is 0x1e4: ENABLE_ECHO_INPUT set and
-> ENABLE_LINE_INPUT clear. `disable_quick_edit` ORs in ENABLE_EXTENDED_FLAGS and clears
-> ENABLE_QUICK_EDIT_MODE, giving 0x1a4, and SetConsoleMode returns error 87 for any mode
-> that has ENABLE_ECHO_INPUT without ENABLE_LINE_INPUT (checked directly: 0x1e4, 0x1a4
-> and 0x1a5 fail; 0x1f7, 0x1b7, 0x1e7, 0x1a7, 0x1a6 and 0x1a0 succeed). cmd.exe leaves
-> 0x1e7 at its prompt, so a relaunch from cmd.exe works. A script that relaunches itself
-> as BLACS does and waits 3 s in the child before calling `disable_quick_edit` fails 3 of
-> 3 times from PowerShell on 2.27.1 and 0 of 3 on this branch, in Windows Terminal and in
-> a classic conhost window alike; Python 3.12 and 3.14 behave the same. Whether a real
-> restart hits the error depends on whether the prompt has returned before the
-> relaunched process imports labscript_utils.
+Posted on the PR on 2026-10-17 as
+[a comment](https://github.com/chrisjbillington/zprocess/pull/28#issuecomment-6231503544);
+the PR description was updated to the same cause, and commit 256ac43 on the branch
+rewords the comment in the `except` branch, with no change in behaviour.
 
 ## 2026-10-17: workflow-sandbox #46 tag step, local simulation
 
