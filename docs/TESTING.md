@@ -12,8 +12,10 @@ Pull requests [labscript-c-extensions #13](https://github.com/labscript-suite/la
 [qtutils #36](https://github.com/philipstarkey/qtutils/pull/36) and
 [qtutils #37](https://github.com/philipstarkey/qtutils/pull/37). The harness workflow
 was dispatched with `labscript-c-extensions=pr/13 desktop-app=pr/34 qtutils=pr/36` as
-run [39031528312](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39031528312);
-its result is recorded below when it finishes.
+run [39031528312](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39031528312):
+the 24 jobs on Ubuntu and Windows for Python 3.11 to 3.14 with PySide6, PyQt6 and PyQt5
+and the NumPy 2.4 job passed every step; the 6 Python 3.15 jobs failed at "Install the
+components" on h5py as before.
 
 **Resampler** (`tools/resample_check.py`, Python 3.13.16, NumPy 2.5.4, the extension
 built from the master and pull request heads with Cython into two venvs):
