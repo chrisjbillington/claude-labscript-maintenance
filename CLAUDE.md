@@ -78,7 +78,12 @@ This repository holds the notes, plans and tooling for maintaining the labscript
 - For every bug report, check the current code before accepting the report's description
   of the state of the suite, and cite file and line.
 - Public comments on GitHub are written to contributors and users of the suite. Keep them
-  factual and specific; name the defect, the file and the suggested change.
+  factual and specific; name the defect, the file and the suggested change. Do not refer
+  to this repository, its documents, its harness or how the work is organised; readers
+  do not know what they are. State verification results directly.
+- Open a pull request only after the test workflow has passed on the pushed branch
+  (`name=owner/repo@branch` in the dispatch refs). Do not open one that says a test is
+  still running.
 - Every comment, review or pull request description that a session posts on GitHub, or
   drafts for the local session to post, goes out from the maintainer's account. Start
   it with this quoted note, so that readers know the maintainer did not write it:
