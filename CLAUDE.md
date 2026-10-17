@@ -28,6 +28,10 @@ This repository holds the notes, plans and tooling for maintaining the labscript
   without being asked.
 - Commits need a clear message that states the change and the issue or PR number it
   addresses. Follow the attribution instructions that the session provides.
+- Describe verification in commit messages and pull request descriptions in plain
+  terms: what was run and what happened ("the module imports without a warning", "the
+  example experiment compiles on NumPy 2.5.4"). Do not quote interpreter flags or the
+  mechanics of the check; a reader who does not know the flag learns nothing from it.
 
 ## Recording work
 

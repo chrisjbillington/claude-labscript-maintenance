@@ -156,8 +156,8 @@ labscript-devices #149, blacs #124), zprocess #28, labscript-utils #129, and the
 3.11 metadata change on twelve repos.
 
 The scheme rename needs setuptools_scm 10, which introduced the name
-`semver-pep440-release-branch` (setuptools_scm 9.2.2 does not have it); conda-forge has
-10.3.4. Both names give the same version: `3.5.0.dev41` on labscript-utils master.
+`semver-pep440-release-branch` (setuptools_scm 9.2.2 does not have it); the default
+conda channel and conda-forge both have 10.3.4. Both names give the same version: `3.5.0.dev41` on labscript-utils master.
 rpanderson/workflow-sandbox still uses `release-branch-semver`; that is part of the
 workflow sync (release plan 4.1 item 5).
 
