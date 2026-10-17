@@ -326,6 +326,13 @@ and semaphore), prawn_digital_output #23 (notebook outputs stripped). PrawnBlast
 and #35 are firmware and need the matching host changes in labscript-devices
 (`PrawnBlaster/labscript_devices.py:150,239`, `blacs_workers.py:137-151`) in the same
 labscript-devices release if they go in.
+Status 2026-10-17: labscript-devices #110 and lyse #132 merged. Maintainer fix commits
+for labscript-utils #117, labscript-devices #126, #144, #87 and #63 and
+prawn_digital_output #23 are in `patches/` with rows in `LOCAL-TASKS.md` to push each to
+its pull request branch, dispatch the test workflow with the pull request refs and merge
+(`TESTING.md`, "fixes for the remaining release pull requests"). PrawnBlaster #37 and #35
+are not prepared: both need firmware changes tested on hardware and a host-side change,
+and neither blocks the release.
 
 The runmanager refactor (#130) was merged on 2026-10-17 as bfe63ba, including the fix
 commit 7c50b46 for the regressions found in review (see MAINTENANCE.md). Merging #130

@@ -1,0 +1,115 @@
+From c20d70a22ee3c55e55a90f9d644ef958f44697bf Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 17 Oct 2026 10:45:10 +0000
+Subject: [PATCH] Fix the example analysis script so that it runs in lyse
+
+The script added by pull request #117 tested `lyse.spinning_top`, which the
+lyse module no longer has: `spinning_top` moved to `lyse.utils.worker` in lyse
+commit 06ce8dc (v3.3.0rc1), so the script raised AttributeError on its first
+statement after the imports whenever lyse ran it. It also saved a dict of the
+two 254-element output arrays with `save_result`, which stores them JSON-encoded
+in a group attribute and gives the lyse dataframe a column of nested series;
+labelled the x axis "time (ms)" although the output table has one row per clock
+tick; and kept an unused globals lookup, an unused pulse program, an unused
+numpy import and comments copied from the camera example.
+
+The script now takes the shot from `lyse.path`, which lyse sets to the shot
+being analysed and which is None otherwise, saves the two output columns with
+`save_result_array` and the maximum analog output with `save_result`, labels the
+x axis "clock tick", and omits the unused code and stale comments.
+
+Verified with the test harness on Python 3.14.6 with PySide6: the profile is
+created with the script in it and the example experiment compiles; the script,
+run the way lyse's analysis subprocess runs it, finishes against the compiled
+shot and saves the `analog_out` and `digital_out` datasets and the
+`analog_out_max` attribute in `results/example_analysis_script`, which
+`lyse.Run` reads back and `get_dataframe_from_shot` includes as a column. The
+script also runs in the deprecated standalone mode with the shot path as a
+command-line argument. The harness lyse step passes on the same shot.
+
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01C99RPsoP9t5Tb3B8h8pwSM
+---
+ .../example_analysis_script.py                | 51 ++++++++-----------
+ 1 file changed, 20 insertions(+), 31 deletions(-)
+
+diff --git a/labscript_profile/default_profile/userlib/analysislib/example_apparatus/example_analysis_script.py b/labscript_profile/default_profile/userlib/analysislib/example_apparatus/example_analysis_script.py
+index 64aa14a..7a6b312 100644
+--- a/labscript_profile/default_profile/userlib/analysislib/example_apparatus/example_analysis_script.py
++++ b/labscript_profile/default_profile/userlib/analysislib/example_apparatus/example_analysis_script.py
+@@ -1,42 +1,32 @@
+ import lyse
+ from pathlib import Path
+ import matplotlib.pyplot as plt
+-import numpy as np
+ import h5py
+ 
+-# Is this script being run from within an interactive lyse session?
+-if lyse.spinning_top:
+-    # If so, use the filepath of the current shot
+-    h5_path = lyse.path
+-else:
+-    # If not, get the filepath of the last shot of the lyse DataFrame
++# Within lyse, lyse.path is the filepath of the shot being analysed. Outside lyse it is
++# None, and we use the filepath of the last shot of the lyse DataFrame instead.
++h5_path = lyse.path
++if h5_path is None:
+     df = lyse.data()
+     h5_path = df.filepath.iloc[-1]
+ 
+ # Instantiate a lyse.Run object for this shot
+ run = lyse.Run(h5_path)
+ 
+-# Get a dictionary of the global variables used in this shot
+-run_globals = run.get_globals()
+-
+-# Open experiment file to pull variables from
++# Read the output table of the dummy intermediate device from the shot file. It has one
++# row per clock tick and one column per output, named after the output.
+ with h5py.File(h5_path, 'r') as h:
+-    
+-    devices = h['devices']
+-    
+-    outputs = devices['intermediate_device']['OUTPUTS']
+-    pulse = devices['pseudoclock']['PULSE_PROGRAM'] # unused
+-    
+-    analog_data = outputs[:]['analog_out']
+-    digital_data = outputs[:]['digital_out']
+-
+-plt.figure()    
+-plt.plot(np.array(analog_data), 'b.', label='analog_out')
+-plt.plot(np.array(digital_data), 'r.', label='digital_out')
+-plt.xlabel('time (ms)')
++    outputs = h['devices']['intermediate_device']['OUTPUTS'][:]
++analog_data = outputs['analog_out']
++digital_data = outputs['digital_out']
++
++# Plot both outputs
++plt.plot(analog_data, 'b.', label='analog_out')
++plt.plot(digital_data, 'r.', label='digital_out')
++plt.xlabel('clock tick')
+ plt.ylabel('intermediate device output')
+ 
+-# # Label the plot with a unique string representing the shot
++# Label the plot with a unique string representing the shot
+ plt.title(Path(run.h5_path).name)
+ 
+ # Plot adornments
+@@ -46,9 +36,8 @@ plt.grid()
+ # Show the plot
+ plt.show()
+ 
+-# Compute a result based on the image processing and save it to the 'results' group of
+-# the shot file
+-result = {}
+-result['analog_data'] = analog_data
+-result['digital_data'] = digital_data
+-run.save_result('foobar', result)
++# Save the outputs as arrays, and the maximum analog output as a scalar result, in the
++# 'results' group of the shot file
++run.save_result_array('analog_out', analog_data)
++run.save_result_array('digital_out', digital_data)
++run.save_result('analog_out_max', analog_data.max())
+-- 
+2.43.0
+

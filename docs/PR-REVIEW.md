@@ -432,6 +432,9 @@ overrides `get_camera` and `get_attributes_as_dict`.
   remove debug prints; either release the semaphore in all modes with a timeout or
   split the semaphore and `setup_acquisition_fast` into a second PR as offered. Then
   merge the `andor_utils.py` fixes before #148 (they do not conflict with it).
+- **Fix prepared 2026-10-17**: `patches/labscript-devices-144-andor-fixes.patch`, a maintainer commit on the PR head, with a
+  local task in `LOCAL-TASKS.md` to push it to the author's branch and merge (`TESTING.md`,
+  "fixes for the remaining release pull requests").
 
 ---
 
@@ -546,6 +549,13 @@ overrides `get_camera` and `get_attributes_as_dict`.
 - **Recommended action**: Merge after small fixes: guard `set_bg_image` when no image
   and when shapes differ; add a tooltip saying subtraction is display-only. Re-apply
   on top of #148 if that merges first.
+- **Correction 2026-10-17** (run): in item 2, a 2-D background and the 3-D block sent after
+  a shot do not raise; NumPy broadcasts the subtraction over the stack and the display is
+  right. A 3-D background and a 2-D frame do not raise either but display a wrong 3-D
+  result. Items 1 and 2 are otherwise as stated.
+- **Fix prepared 2026-10-17**: `patches/labscript-devices-87-imaqdx-background-fixes.patch`, a
+  maintainer commit on the PR head, with a local task in `LOCAL-TASKS.md` to push it to the
+  branch and merge (`TESTING.md`, "fixes for the remaining release pull requests").
 
 ---
 
@@ -588,6 +598,17 @@ overrides `get_camera` and `get_attributes_as_dict`.
 - **Importance**: 2. Small quality-of-life change.
 - **Recommended action**: Merge after small fix (`getLevels` via the histogram; drop
   the pre-0.11 workaround), on whichever tab file is current after #148.
+- **Correction 2026-10-17** (run): item 1 is wrong. `pg.ImageView` has no class-level
+  `getLevels`, but `ImageView.__init__` binds `getLevels` (with `setHistogramRange`,
+  `autoHistogramRange` and `getLookupTable`) from the histogram onto the instance in every
+  pyqtgraph release from 0.10.0 to 0.14.0 and on master, so `self.image.getLevels()` works
+  and `get_save_data` does not raise. Also, `autoRangeEnabled()` returns `False` or the float
+  `1.0`, not bools; `enableAutoRange` accepts it. A defect the review missed: `setRange` in
+  `restore_save_data` applies pyqtgraph's default padding, so the saved range grows by
+  about 20 % on every BLACS restart.
+- **Fix prepared 2026-10-17**: `patches/labscript-devices-63-imaqdx-restore-fixes.patch`, a
+  maintainer commit on the PR head, with a local task in `LOCAL-TASKS.md` to push it to the
+  branch and merge (`TESTING.md`, "fixes for the remaining release pull requests").
 
 ---
 
@@ -906,6 +927,9 @@ Conventions checked against master for every PR:
   not exist; fix `clock_limit` to use the Pico system clock or document that
   `ref_clock_external` requires `ref_clock_frequency` equal to the Pico clock; reject
   `sweep_mode != 0`; replace remaining `assert`s; time-based status timeout; doc fixes.
+- **Fix prepared 2026-10-17**: `patches/labscript-devices-126-ad9959-fixes.patch`, a maintainer commit on the PR head, with a
+  local task in `LOCAL-TASKS.md` to push it to the author's branch and merge (`TESTING.md`,
+  "fixes for the remaining release pull requests").
 
 ---
 
@@ -1329,6 +1353,9 @@ All comparisons are against the PR's base branch as fetched (`origin/pr/N` vs `o
 - **Rewrite relevance**: A scope-driven acceptance test for a pseudoclock/digital-output device is the kind of hardware check shotscript's device tests could reuse; the SCPI helper is generic.
 - **Importance**: 2. Low risk, low urgency; housekeeping before merge.
 - **Recommended action**: Merge after small fixes: strip outputs, move `PORT` and the VISA address to a parameters cell, fix the `if/elif`, guard `conn.close()`, add a one-line requirements note.
+- **Fix prepared 2026-10-17**: `patches/prawn_digital_output-23-testing-notebook-fixes.patch`, a maintainer commit on the PR head, with a
+  local task in `LOCAL-TASKS.md` to push it to the author's branch and merge (`TESTING.md`,
+  "fixes for the remaining release pull requests").
 
 ### pineblasterv2 #1: Modifications to run Wi-Fire board as a pseudoclock (ARFritsch, opened 2020-11-22, last updated 2020-11-23)
 
@@ -1370,6 +1397,14 @@ All comparisons are against the PR's base branch as fetched (`origin/pr/N` vs `o
 - **Rewrite relevance**: A minimal end-to-end example (dummy connection table, experiment, analysis) is the smoke test shotscript needs too; the script itself is legacy-specific.
 - **Importance**: 3. Cheap, gives the default profile a runnable lyse example for integration testing, which is currently missing (the only analysis example needs a remote camera).
 - **Recommended action**: Merge after small fixes: replace the dict `save_result` with `save_result_array` or scalar results, fix the x label, remove the unused variables and stale comments.
+- **Correction 2026-10-17** (run): `save_result` accepts the dict; `_encode_bytestrings`
+  turns the arrays into lists and the dict is stored JSON-encoded as a 5.6 kB group
+  attribute, and the lyse dataframe then holds a 254-element series in each cell. The
+  failure that stops the script is `lyse.spinning_top` on line 8: lyse moved it to
+  `lyse.utils.worker` in 3.3.0rc1 and the module `__getattr__` resolves only `path`, so
+  lyse's analysis subprocess raises `AttributeError` before anything runs. The same line
+  is in `example_IMAQdx_remote.py` on master (`DEFECTS.md` D5). Fix prepared 2026-10-17:
+  `patches/labscript-utils-117-example-analysis-fixes.patch` (`LOCAL-TASKS.md`).
 
 ## Ranking
 

@@ -16,6 +16,7 @@ fix is made, in which case the row names the pull request. Importance uses the s
 | D3 | 2026-10-17 | labscript-utils `labscript_utils/excepthook/__init__.py:99` | `tkinter` is imported at module level, so a Python without tkinter cannot import lyse, blacs, `labscript_utils.connections` or most device classes | 3 | run | open |
 | D4 | 2026-10-17 | labscript-utils `labscript_utils/ls_zprocess.py:332` with zprocess `zlock` | A running zlock server with a different shared secret makes `import labscript_utils.h5_lock` fail with `AuthenticationFailure`; nothing restarts the server or says what to do | 3 | run | open |
 | D5 | 2026-10-17 | labscript-utils `labscript_profile/default_profile/userlib/analysislib/example_apparatus/example_IMAQdx_remote.py:6` | The example analysis script tests `lyse.spinning_top`, which lyse 3.3.0rc1 moved to `lyse.utils.worker`; lyse's lazy attribute loader resolves only `path`, so the script raises `AttributeError` as soon as lyse runs it | 3 | run | open; the same line in the script of labscript-utils #117 is fixed by `patches/labscript-utils-117-example-analysis-fixes.patch` |
+| D6 | 2026-10-17 | labscript-devices `labscript_devices/IMAQdxCamera/blacs_tabs.py:264` | `on_copy_clicked` calls `QtGui.QApplication.instance().clipboard()`; `QtGui` has no `QApplication` under PySide6 or PyQt6, so the Copy button of the attributes dialog raises `AttributeError` with a Qt6 binding | 3 | read | open |
 
 ## Detail
 
@@ -72,3 +73,13 @@ inside lyse. lyse commit 06ce8dc (v3.3.0rc1) moved `spinning_top` to
 labscript-utils #117, which copied the same line, run the way lyse's analysis subprocess
 runs it. Fix: use `lyse.path`, which is the shot being analysed inside lyse and `None`
 outside it, as the fixed #117 script does.
+
+### D6. The camera tab's Copy button fails under Qt6 bindings
+
+`on_copy_clicked` in `labscript_devices/IMAQdxCamera/blacs_tabs.py:264` reads the
+clipboard through `QtGui.QApplication.instance()`. In PySide6 and PyQt6 `QApplication`
+is only in `QtWidgets` (`QtGui` has `QGuiApplication`), so the attribute lookup raises.
+The two `QtGui.QApplication` uses elsewhere in the file were changed to `QtWidgets` in
+the Qt6 work; this one was missed. Fix: `QtWidgets.QApplication.instance().clipboard()`.
+Found while testing the fixes for #87 and #63 (`TESTING.md`); the attribute lookup was
+checked against the installed PySide6 6.12.0, the button was not clicked.
