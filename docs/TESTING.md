@@ -5,6 +5,28 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-17: master branches after the blocker merges, every Qt binding
+
+Dispatch of `.github/workflows/test.yml` with no refs, so every component at its
+upstream default branch, after the last of the blocker pull requests merged (blacs #125
+at 08:44 UTC). [Run 39019282114](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39019282114),
+started 08:57 UTC. Commits: labscript 665a73d, labscript-utils 89457f5, labscript-devices
+2183314, blacs bc3fd1f, lyse 01246cf, runmanager 264434c, runviewer 7ea7dc9,
+labscript-suite 4fbc7fc, labscript-c-extensions 41c0058, zprocess e74b638, desktop-app
+dc6be4e, qtutils 4c9cd95. Ubuntu and Windows, Python 3.11 to 3.15, PySide6, PyQt6 and
+PyQt5, plus the `numpy<2.5` job: 31 jobs.
+
+| Jobs | Result |
+|---|---|
+| 24 jobs: both OSes, Python 3.11 to 3.14, all three Qt bindings | all eight steps pass |
+| Ubuntu 3.14 PySide6 `numpy<2.5` | all eight steps pass |
+| 6 jobs: Python 3.15 on both OSes, each binding | install fails building h5py 3.16.0 from source, as before; nothing else runs |
+
+This is the first run of the master branches that compiles a shot on NumPy 2.5: the
+previous master run (below) failed at the compile step on every job without the
+`numpy<2.5` pin. Jobs took about two minutes on Ubuntu and three to five minutes on
+Windows.
+
 ## 2026-10-17: version specifiers and development versions
 
 Checked with `packaging` 26.3 on Python 3.14.6, the library that pip uses for version
