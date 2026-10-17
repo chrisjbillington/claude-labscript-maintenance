@@ -9,8 +9,7 @@ opened by Claude Code sessions, including cloud sessions, so that each session c
 continue from the recorded state instead of re-deriving it.
 
 Scope: maintenance and release of the existing suite, with its existing design and
-backward compatibility. A from-scratch successor is being developed separately and is not
-part of this repository.
+backward compatibility.
 
 ## Contents
 
