@@ -317,7 +317,8 @@ which give file:line and the reasoning.
 
 ### 4.3 Pull requests to merge in this release
 
-From PR-REVIEW.md, in order: blacs #123 (plugin crash), labscript-devices #110
+From PR-REVIEW.md, in order: blacs #123 (plugin crash; merged 2026-10-17 as d061535,
+with a five-line comment trim to carry in the next blacs pull request), labscript-devices #110
 (Windfreak), #126 (AD9959, after the dead parser is removed), lyse #132 (after the
 overwrite fix), labscript-utils #117 (after the `save_result` fix), labscript-devices
 #87 and #63 (one guard each), #144 (after the author fixes the SyntaxError, model string

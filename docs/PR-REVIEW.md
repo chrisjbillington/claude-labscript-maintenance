@@ -19,7 +19,7 @@ paragraph per PR, section 3 contains the detailed per-group reports.
 
 | # | PR | Type | Imp. | Merges | Recommended action |
 |---|---|---|---|---|---|
-| 1 | blacs #123 plugin-loading bugfixes (ispielma, 2026) | bugfix | 4 | yes | Merge after trimming comments; one rationale in the description is wrong but harmless |
+| 1 | blacs #123 plugin-loading bugfixes (ispielma, 2026) | bugfix | 4 | merged 2026-10-17 (d061535) | Merged as is after testing; the comment trim rides the next blacs pull request |
 | 2 | labscript-devices #110 Windfreak SynthHD (dihm, 2024) | feature | 4 | yes | Merge after three one-line fixes |
 | 3 | labscript-devices #126 AD9959 DDS Sweeper (carterturn, 2025) | feature | 4 | yes | Merge after deleting the dead runviewer parser and fixing `clock_limit` |
 | 4 | zprocess #14 PAIR sockets (mjdoris, 2021) | bugfix, behaviour change | 3 | conflict | Maintainer rework: 14 real lines plus a version check for mixed zprocess versions |
@@ -1054,7 +1054,7 @@ Base: `origin/master` = e5757c7 (2026-06-04, merge of #119). #90 is reviewed els
 - **Rewrite relevance**: Avoid `ConfigParser [DEFAULT]` inheritance surprises in any ini-based config; `shotscript` uses its own config so this is a reminder only.
 - **Importance**: 4. Startup crash for a plausible labconfig, plus two small correctness fixes.
 - **Recommended action**: Merge after small fixes: drop the `has_option` change or keep it without the misleading rationale; shorten the two comment blocks; mention commit 3 in the PR description.
-- **Status 2026-10-17**: checked on the maintenance track: the `[DEFAULT]` collision reproduced on master and is fixed on the branch; the branch merged with master passes the harness on Python 3.14, and the pull request head passes the workflow on Ubuntu and Windows for Python 3.11 to 3.14 with all three Qt bindings (`TESTING.md`, "blacs #123 plugin-loading fixes"). Comment draft written; not yet posted. Awaiting the maintainer's decision on how to apply the comment trim (push to the fork is not possible from the cloud session).
+- **Status 2026-10-17**: merged as is, d061535, after the `[DEFAULT]` collision was reproduced on master and shown fixed on the branch, the branch merged with master passed the harness on Python 3.14, and the pull request head passed the workflow on Ubuntu and Windows for Python 3.11 to 3.14 with all three Qt bindings (`TESTING.md`, "blacs #123 plugin-loading fixes"). A comment on the PR records the test and the `has_option` note. The comment trim (local branch `pr123-work` in `repos/blacs`, commit f1aea3f, five lines) goes into the next blacs pull request.
 
 ### blacs #121: Refactor BLACS for shared plugin support (ispielma, opened 2026-04-26, last updated 2026-05-12)
 
