@@ -150,29 +150,10 @@ addresses items 2 to 19.
 
 ## Pull requests opened by the maintenance track
 
-Opened 2026-10-17 from this repository, for the blockers in `RELEASE-PLAN.md` section 4.1.
-All are open. Each fix was verified before the pull request was opened; the verification
-is in the pull request description and in `TESTING.md`.
-
-| Repo | PR | Change | Addresses |
-|---|---|---|---|
-| labscript | #124 | `'a256'` to `'S256'` in `labscript.py` and `outputs.py` | labscript #123; review Part 1 item 1 |
-| labscript-devices | #149 | `'a256'` to `'S256'` in six device files; `tostring()` to `tobytes()` in `LightCrafterDMD.py` | labscript #123; labscript-devices #131; review Part 1 item 1 |
-| blacs | #124 | `'a'` aliases to `'S'` in `front_panel_settings.py` | labscript #123; review Part 1 item 1 |
-| zprocess | #28 | guard `SetConsoleMode` in `disable_quick_edit` | zprocess #27 |
-| labscript-utils | #129 | ModuleWatcher unloads namespace packages under userlib; `__init__.py` in the default profile's `example_apparatus` directories | labscript-utils #28 |
-| labscript | #125 | `requires-python >= 3.11`, classifiers, `semver-pep440-release-branch`, `setuptools_scm>=10`, no `importlib_metadata` fallback | release plan 4.1 item 6 |
-| labscript-utils | #130 | same, also in `versions.py` | release plan 4.1 item 6 |
-| labscript-devices | #150 | same | release plan 4.1 item 6 |
-| blacs | #125 | same | release plan 4.1 item 6 |
-| lyse | #140 | same | release plan 4.1 item 6 |
-| runmanager | #131 | same, plus `labscript>=3.5.0` and `labscript_utils>=3.5.0` | release plan 4.1 item 6 |
-| runviewer | #73 | same | release plan 4.1 item 6 |
-| labscript-suite | #106 | same, plus the component pins of the 3.4.0 release set; merge last | release plan 4.1 item 6 |
-| labscript-c-extensions | #10 | `requires-python`, classifiers, no `importlib_metadata` fallback (`guess-next-dev` kept) | release plan 4.1 item 6 |
-| zprocess | #29 | `requires-python`, classifiers, scheme name, `setuptools_scm>=10` | release plan 4.1 item 6 |
-| desktop-app | #31 | `requires-python`, classifiers, no `importlib_metadata` fallback in `fix_entry_points.py` and `environment.py` | release plan 4.1 item 6 |
-| qtutils (philipstarkey) | #33 | `requires-python`, classifiers, scheme name, `setuptools_scm>=10` | release plan 4.1 item 6 |
+`PULL-REQUESTS.md` lists every pull request opened from this repository, with links and
+state. On 2026-10-17: three for the NumPy 2.5 dtype alias (labscript #124,
+labscript-devices #149, blacs #124), zprocess #28, labscript-utils #129, and the Python
+3.11 metadata change on twelve repos.
 
 The scheme rename needs setuptools_scm 10, which introduced the name
 `semver-pep440-release-branch` (setuptools_scm 9.2.2 does not have it); conda-forge has

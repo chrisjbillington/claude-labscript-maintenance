@@ -16,6 +16,8 @@ This repository holds the notes, plans and tooling for maintaining the labscript
   successor exists as a separate project and is not discussed or worked on here.
 - Support Python 3.11 to 3.15, PyQt5, PyQt6 and PySide6 through qtutils, pip and conda
   installs, and Windows, Linux and macOS. Windows is the platform most labs run.
+- Prefer dependencies that the default conda channels carry. Before requiring a package
+  or version that only conda-forge has, raise it with the maintainer.
 
 ## Repositories
 

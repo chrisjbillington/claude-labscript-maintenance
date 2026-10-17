@@ -259,7 +259,7 @@ which give file:line and the reasoning.
    versions; `version_scheme = "semver-pep440-release-branch"`; delete the
    `importlib_metadata` fallbacks (every `__version__.py`, `labscript_utils/versions.py`,
    `desktop_app/fix_entry_points.py`).
-   Status 2026-10-17: PRs open on all twelve repos (table in `MAINTENANCE.md`); the
+   Status 2026-10-17: PRs open on all twelve repos (table in `PULL-REQUESTS.md`); the
    scheme rename needs `setuptools_scm>=10`, which conda-forge has.
 
 ### 4.2 Bugs worth fixing in this release (importance 4, all small)

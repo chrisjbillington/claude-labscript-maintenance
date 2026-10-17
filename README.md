@@ -22,6 +22,7 @@ part of this repository.
 | `docs/ARCHITECTURE.md` | Eight structural problems found by the review, with proposed directions (2026-10-01) |
 | `docs/MAINTENANCE.md` | Status of each review finding in the existing suite, and a map from review line numbers to code that later refactors moved |
 | `docs/ISSUE-TRIAGE.md` | All 223 open issues ranked 1 to 5, each checked against current code, with per-repo detail (2026-10-17) |
+| `docs/PULL-REQUESTS.md` | Every pull request opened by this maintenance track, with links and state |
 | `docs/PR-REVIEW.md` | All 30 open pull requests ranked, with defects found and a recommended action for each (2026-10-17) |
 | `docs/RELEASE-PLAN.md` | Plan for the next minor release of every component: Python 3.11 to 3.15, NumPy 2.5, workflow sync, work items, release order (2026-10-17) |
 | `briefs/` | The briefs given to the agents that produced the issue triage and PR review; the criteria and importance scale to reuse |
@@ -49,7 +50,7 @@ and the file:line evidence.
   blacs #124.
 - Seventeen pull requests opened 2026-10-17 for release plan blockers 1, 2, 3 and 6
   (dtype alias, zprocess #27, labscript-utils #28, Python 3.11 metadata); table in
-  `docs/MAINTENANCE.md`. Blockers 4 and 5 (workflow sandbox fix and sync) are not started.
+  `docs/PULL-REQUESTS.md`. Blockers 4 and 5 (workflow sandbox fix and sync) are not started.
 - Python 3.15 works for the code but installs are blocked by missing h5py wheels on PyPI
   and missing pyzmq and PyQt builds on conda-forge.
 - No component repo has a test or lint workflow; only `release.yml`. The harness in this
