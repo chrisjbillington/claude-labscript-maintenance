@@ -399,6 +399,27 @@ Conda packages for steps 1 and 4 are built per Python (3.11 to 3.15); the rest a
 noarch. Nothing needs `CONDA_PYTHONS` set: the py315 packages build now and become
 installable when conda-forge ships pyzmq for 3.15.
 
+### 5.1 Maintenance branches and patch releases
+
+Each minor release of an application repository is tagged on its `maintenance/x.y.x`
+branch, which is created from `master` at the release candidate. The release workflow
+builds development versions on these branches with a patch bump and on `master` with a
+minor bump, so the branch is needed even when no patch release follows. zprocess,
+qtutils and desktop-app tag from `master` and have no maintenance branches.
+
+Only the newest minor release of each package is maintained. A bug fix is merged to
+`master`, cherry-picked to the current maintenance branch and tagged there as a patch
+release (x.y.1, x.y.2, ...). No change goes to a maintenance branch that is not on
+`master`, and no feature, dependency change or workflow change is picked. The maintenance
+branches of earlier minors (3.3.x and 3.4.x at the time of writing) are not updated.
+
+This is the model that the labscript-suite contributing guide describes
+(`docs/source/project/contributing_guide.md`, "Branching model"). The existing patch
+releases are not a precedent to copy: each "Squashed commit of the following" on a
+maintenance branch is a squash merge of the whole of `master`. After this release
+`master` carries changes that must not ship as patches (zprocess #14, labscript-devices
+#148, section 6).
+
 ## 6. Deferred, with the reason
 
 - zprocess #14 (PAIR sockets): correct idea, but it breaks mixed-version remote workers
