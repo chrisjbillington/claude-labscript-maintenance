@@ -52,6 +52,11 @@ and the file:line evidence.
   that remain, runmanager #131 and labscript-suite #106, raise component pins to
   unreleased versions and are held until their step of the release sequence
   (`docs/RELEASE-PLAN.md` section 5).
+- Two pull requests of small fixes opened 2026-10-17 for release sequence steps 5 and 6:
+  labscript-utils #133 (`h5_lock`, `setup_logging`, `excepthook`, `aom.py`, `runmanager.ini`
+  in the default profile) and labscript #128 (compiler checks, limits, duplicate
+  connections, trigger and gate handling). Both passed the harness on every supported
+  Python and Qt binding (`docs/TESTING.md`).
 - Python 3.15 works for the code but installs are blocked by missing h5py wheels on PyPI
   and missing pyzmq and PyQt builds on conda-forge.
 - No component repo has a test or lint workflow; only `release.yml`. The harness in this

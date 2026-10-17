@@ -27,6 +27,7 @@ updates or sees one merged or closed updates the row. Links go to GitHub.
 | 2026-10-17 | [desktop-app #33](https://github.com/chrisjbillington/desktop-app/pull/33) | same | DEFECTS.md D7 |
 | 2026-10-17 | [qtutils #35](https://github.com/philipstarkey/qtutils/pull/35) | same | DEFECTS.md D7 |
 | 2026-10-17 | [labscript-utils #133](https://github.com/labscript-suite/labscript-utils/pull/133) | `h5_lock.File` default mode `'r'`, kill lock released on zlock failure, locks released once; `setup_logging` with `sys.stdout` None; `excepthook` without tkinter; `aom.py` numpy imports; `labscript-profile-create` writes `runmanager.ini` (head 12f86ac) | REVIEW.md items 10 and 18, labscript-utils B16; blacs #100; labscript-utils #60; DEFECTS.md D3; release sequence step 5 |
+| 2026-10-17 | [labscript #128](https://github.com/labscript-suite/labscript/pull/128) | ramp tick count rounding; clock-limit checks with tolerance; collision errors name the outputs; every ramp checked for collisions; the "too soon before a trigger" check; output limits with tolerance and values in the error; duplicate connections rejected; device name check; static outputs and shutters at `t0`; `StaticDDS` gate; `DDS.pulse`; parentless `TriggerableDevice`; script encoding; error paths (head 4549021) | REVIEW.md items 6, 7, 8 and labscript B1, B2, B4, B5 (part), B6, B7, B9, B10, B11 (part); labscript #16, #43, #52; release sequence step 6 |
 
 ## Merged or closed
 

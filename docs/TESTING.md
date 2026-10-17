@@ -27,6 +27,44 @@ power of 0 (master: -0.068); `setup_logging` with `sys.stdout` and `sys.stderr` 
 with `tkinter` blocked in `sys.modules`, `labscript_utils.excepthook` imports with a
 `UserWarning` and the installed excepthook prints the traceback.
 
+**labscript [#128](https://github.com/labscript-suite/labscript/pull/128)** (head
+4549021): the harness workflow was dispatched with
+`labscript=labscript-suite/labscript@compiler-fixes` as run
+[39034242971](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39034242971):
+the 24 jobs on Ubuntu and Windows for Python 3.11 to 3.14 with PySide6, PyQt6 and
+PyQt5 and the NumPy 2.4 job passed every step; the 6 Python 3.15 jobs failed at
+"Install the components" on h5py as before. Locally (Python 3.14.6, numpy 2.5.4, PySide6, the branch installed into the
+harness venv) all eight steps passed. An earlier version of the branch made the final
+clock tick ten periods of the slowest clockline (REVIEW.md labscript B8); the
+`runviewer` step failed because the clockline trace then ended 10 µs after the stop
+time, and the change was dropped. Per-fix checks in the same venv, each in its own
+interpreter, with `DummyPseudoclock` and a test `IntermediateDevice` with a 1 MHz clock
+limit:
+
+| Check | Result |
+|---|---|
+| 200 ramps of 1 to 200 µs at a 1 MHz sample rate | 20302 samples, the expected count; the previous formula gives a wrong tick count for 97 of the 200 |
+| six pulses of exactly one clock period at t = 0.1 to 3.3 s | compile |
+| `ao.ramp(0, 1, ...); ao.ramp(2, 1, ...); ao.constant(2.5, 7)` | `LabscriptError`: collides with a ramp |
+| `do.go_high(1 - 0.5e-6); wait('w', 1)` | `LabscriptError`: too soon before a trigger |
+| `do.go_high(1 - 2e-6); wait('w', 1)` | compiles |
+| `AnalogOut('sin', ...)` | `LabscriptError`: already exists in the Python namespace |
+| outputs named `worker`, `gui`, `connection`, `name`, `location`, `kwargs` | accepted |
+| shutter with 10 ms delays opened at 5 ms, and a `StaticDigitalOut`, on a secondary PineBlaster (`t0` = 350 ns) | compile |
+| `TriggerableDevice(..., parentless=True)` | compiles |
+| `StaticDDS` without a gate, `enable()` | `LabscriptError`: does not have a digital gate |
+| `StaticDDS` with a gate, `enable()` before `setamp` | gate instruction at t = 0; the caller's `digital_gate` dict unchanged |
+| `DDS.pulse` without a gate, with and without a frequency, `print_summary=True` | amplitude 0 at the end of each pulse; summary printed |
+| `quantise_to_pseudoclock` of a set | returns a set |
+| two `DigitalOut` on `port0/line11` | `LabscriptError` naming both outputs |
+| `TriggerableDevice` on a line that has a `DigitalOut` | `LabscriptError` |
+| two `TriggerableDevice` children of one `Trigger` | accepted |
+| two outputs 0.4 µs apart on a 1 MHz clockline | the error ends with "Outputs with an instruction at t=0.5: do1" and names do2 at the second time |
+| `exp_ramp` from 1 to 0 with limits (0, 10), and a constant of 10 + 1e-12 | compile; the raw output is within 0 to 10 |
+| constant 10.1 and a ramp to 11 with limits (0, 10) | `LabscriptError` with the value, and with the range of values the ramp generated |
+| `wait()` with a parentless `TriggerableDevice` and no pseudoclock | `LabscriptError`: requires a pseudoclock |
+| the default profile's example experiment | compiles, stop time 2.75 s |
+
 ## 2026-10-17: checks for the release sequence step 2 to 4 pull requests
 
 Pull requests [labscript-c-extensions #13](https://github.com/labscript-suite/labscript-c-extensions/pull/13),

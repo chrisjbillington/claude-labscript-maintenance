@@ -34,8 +34,8 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 | 7 | labscript-devices #109 PrawnBlaster runviewer drops instruction after wait | bug | 4 | fix for next release (one line) |
 | 8 | labscript-devices #131 NumPy 2 `np.string_` | bug | 4 | close as fixed; the `LightCrafterDMD.py` `tostring()` fix merged 2026-10-17 in labscript-devices #149 |
 | 9 | labscript #104 remove pylab star import | feature/compat | 4 | Fix for next release with curated re-exports and docs |
-| 10 | labscript #52 duplicate output connection is silent | bug | 4 | Fix for next release (uniqueness check in `Device.add_device`) |
-| 11 | labscript #43 collision errors do not name outputs | feature | 4 | Fix for next release |
+| 10 | labscript #52 duplicate output connection is silent | bug | 4 | Fix for next release (uniqueness check in `Device.add_device`); PR opened 2026-10-17: labscript #128 |
+| 11 | labscript #43 collision errors do not name outputs | feature | 4 | Fix for next release; PR opened 2026-10-17: labscript #128 |
 | 12 | labscript #41 no test suite | tooling | 4 | Fix for next release at smoke-test level |
 | 13 | zprocess #19 `curve_keypair` Not supported on conda Windows | bug (upstream) + diagnostics/docs | 4 | fix for next release (clear error, install docs) |
 | 14 | runmanager #66 preparse memory blow-up counting shots | bug | 4 | fix for next release |
@@ -56,7 +56,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 | 29 | labscript-devices #68 manual-mode-only camera attributes | bug | 3 | fix later, on top of #148 |
 | 30 | PrawnBlaster #34 200 MHz clock | feature | 3 | fix later via PR #37 + host change |
 | 31 | PrawnBlaster #31 uneven instruction split | feature | 3 | fix later via PR #35 rework |
-| 32 | labscript #16 ramp limit check has no tolerance | bug | 3 | Fix for next release |
+| 32 | labscript #16 ramp limit check has no tolerance | bug | 3 | Fix for next release; PR opened 2026-10-17: labscript #128 |
 | 33 | labscript-utils #60 runmanager.ini in default profile | feature | 3 | Fix for next release with #116; PR opened 2026-10-17: labscript-utils #133 |
 | 34 | labscript-utils #116 minimal analysis example | docs | 3 | Merge PR #117, close |
 | 35 | labscript #50 wait_delay not applied to resume trigger | bug | 3 | Fix later; ask labs with secondary PulseBlasters |
@@ -467,6 +467,7 @@ Verification notes that apply to several issues:
 - **Rewrite relevance**: requirement (limit checks need a tolerance and informative errors)
 - **Importance**: 3. Cheap fix, long-standing irritation.
 - **Recommended action**: fix for next release.
+- **Status 2026-10-17**: labscript #128 opened.
 
 ### labscript #18: Execution of small or time-critical analysis scripts as part of running shot (ispielma via philipstarkey, opened 2017-04-20, last activity 2018-08-08, 11 comments)
 - **Summary**: Proposes a `ScriptManager` pseudo-device with BLACS tabs that runs Python callables locally or remotely at the end of each shot, with `start_order`/`stop_order`.
@@ -576,6 +577,7 @@ Verification notes that apply to several issues:
 - **Rewrite relevance**: requirement (collision errors must name the instructions and their source lines)
 - **Importance**: 4. Two later issues (#53, #112) are users failing to diagnose this message; a few lines fix it.
 - **Recommended action**: fix for next release.
+- **Status 2026-10-17**: labscript #128 opened.
 
 ### labscript #44: limits should be stored in the connection table (philipstarkey, opened 2018-01-23, last activity 2018-03-22, 5 comments)
 - **Summary**: Output `limits` only apply at compile time; BLACS never sees them because they are not saved. Also undocumented.
@@ -640,6 +642,7 @@ Verification notes that apply to several issues:
 - **Rewrite relevance**: requirement (duplicate channel assignment is a compile error)
 - **Importance**: 4. Silent wrong-wiring bug with a ten-line fix.
 - **Recommended action**: fix for next release.
+- **Status 2026-10-17**: labscript #128 opened.
 
 ### labscript #53: Pseudoclock/clockline collision (dihm via philipstarkey, opened 2019-07-27, last activity 2019-08-02, 4 comments)
 - **Summary**: A slow clockline's limit produces a collision error on the master pseudoclock when an analog update (fast clockline) and DDS updates (slow clockline) are within ~2 ms; runviewer shows both clocklines ticking identically.

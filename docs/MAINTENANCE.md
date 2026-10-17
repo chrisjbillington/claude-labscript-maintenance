@@ -129,9 +129,9 @@ unaffected. The review's line references map to the new layout as follows.
 | 3 NI analog input final read | open |
 | 4 PrawnDO wait insertion | open |
 | 5 PrawnBlaster and PrawnDO clock limit | open |
-| 6 ramp tick count | open |
-| 7 `get_change_times` collision check | open |
-| 8 trigger proximity check | open |
+| 6 ramp tick count | fixed, labscript PR #128 (open) |
+| 7 `get_change_times` collision check | fixed, labscript PR #128 (open) |
+| 8 trigger proximity check | fixed, labscript PR #128 (open) |
 | 9 Qt6 check states | open |
 | 10 `aom.py` `max` | fixed, labscript-utils PR #133 (open) |
 | 11 BLACS queue `get(2)` | open |
@@ -147,7 +147,9 @@ unaffected. The review's line references map to the new layout as follows.
 
 Item 1 is fixed by the pull requests in the table below. Items 10 and 18 are fixed by
 labscript-utils PR #133 (open), which also fixes labscript-utils B16 (blacs #100),
-DEFECTS.md D3 and labscript-utils #60. No open pull request addresses the other items.
+DEFECTS.md D3 and labscript-utils #60. Items 6, 7 and 8 are fixed by labscript PR #128
+(open), which also fixes labscript B1, B2, B4, B6, B7, B9, B10 and most of B5 and B11,
+and labscript #16, #43 and #52. No open pull request addresses the other items.
 
 ## Pull requests opened by the maintenance track
 

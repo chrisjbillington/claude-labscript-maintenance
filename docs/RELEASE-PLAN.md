@@ -299,6 +299,8 @@ which give file:line and the reasoning.
   two users report no output without the extra flags.
 - labscript #52: duplicate `connection` on one parent is silent (`base.py:345-359`).
 - labscript #43: clock-collision errors name clocklines and times but not the outputs.
+  PR opened 2026-10-17 for #52, #43 and #16: labscript #128, which also carries REVIEW.md
+  items 6, 7 and 8 and most of the labscript Part 2 bugs.
 - labscript #95: PrawnBlaster `half_period` overflow for idle clocklines longer than
   about 42 s now truncates silently under NumPy 2; add a range check in labscript-devices.
 - labscript #104: `from pylab import *` in `labscript.py:46` and `functions.py:17`;

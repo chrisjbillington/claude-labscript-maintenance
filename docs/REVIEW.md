@@ -78,17 +78,20 @@ Paths are relative to each repo's root unless stated otherwise.
    `PrawnDO/labscript_devices.py:202` (run).** `self.clock_limit *= factor` scales the clock
    limit in the wrong direction for a non-default `clock_frequency`. With
    `clock_frequency=50e6`, both devices report a 20 MHz limit instead of 5 MHz.
-6. **`labscript` `labscript/core.py:419-426` (run).** The ramp tick count comes from
+6. **Fixed** by labscript PR #128, opened 2026-10-17.
+   ~~**`labscript` `labscript/core.py:419-426` (run).**~~ The ramp tick count comes from
    `divmod((t_next - t)*maxrate, 1)`. When the product is 10.999999 instead of 11, the count
    is one short, and the recovery test only passes if `maxrate` is below the clock limit.
    With ramps at a sample rate equal to the clock limit, 87 of 200 ramps with
    integer-microsecond durations got one tick too few, and the final tick is then two
    periods long.
-7. **`labscript` `labscript/outputs.py:432-447` (run).** `get_change_times` assigns
+7. **Fixed** by labscript PR #128, opened 2026-10-17.
+   ~~**`labscript` `labscript/outputs.py:432-447` (run).**~~ `get_change_times` assigns
    `current_dict_time` once and never updates it, so it only detects collisions with the
    first ramp on each output. `ao.ramp(0,1,...); ao.ramp(2,1,0,1,1e3); ao.constant(2.5, 7)`
    compiles, and the second ramp is truncated at t=2.5.
-8. **`labscript` `labscript/outputs.py:365-374` (run).** The "instruction too soon before a
+8. **Fixed** by labscript PR #128, opened 2026-10-17. The check compares the time before the trigger with the clock period; `compiler.wait_delay` is not included.
+   ~~**`labscript` `labscript/outputs.py:365-374` (run).**~~ The "instruction too soon before a
    trigger" check is `max(self.clock_limit, compiler.wait_delay) < trigger_time - t`. It
    compares a rate in Hz with a time, and the inequality is reversed, so it can never raise
    in practice. The error message has the same unit error.
@@ -228,11 +231,11 @@ Paths are relative to each repo's root unless stated otherwise.
 
 ### Bugs
 
-- **B1. `labscript/core.py:229, 262, 289` (run).** The clock-limit checks compare float
+- **B1. Fixed** by labscript PR #128. ~~**`labscript/core.py:229, 262, 289` (run).**~~ The clock-limit checks compare float
   differences with `<` and no tolerance. With a 1 MHz clockline,
   `do.go_high(0.3); do.go_low(0.3 + 1e-6)` raises "cannot support update delays shorter
   than 1e-06 seconds". A pulse of exactly the minimum period passes or fails depending on t.
-- **B2. `labscript/base.py:128` (run).** The device name check uses `locals()` and
+- **B2. Fixed** by labscript PR #128. ~~**`labscript/base.py:128` (run).**~~ The device name check uses `locals()` and
   `globals()` of `base.py` since `Device` moved there (461344e). `AnalogOut('sin', ...)` is
   accepted, and the user script then fails with "'numpy.ufunc' object has no attribute
   'constant'". Devices named `worker`, `gui`, `connection`, `name`, `location` or `kwargs`
@@ -245,34 +248,34 @@ Paths are relative to each repo's root unless stated otherwise.
   retriggered at t as soon as the master resumes. `Output.wait_delay`
   (`outputs.py:137-146`) is unused. The intent is inferred from the docstring and commit
   8afe91c.
-- **B4. `labscript/outputs.py:1448, 1464, 1581, 1597` (run).**
+- **B4. Fixed** by labscript PR #128. ~~**`labscript/outputs.py:1448, 1464, 1581, 1597` (run).**~~
   `StaticDigitalQuantity.go_high/go_low` call `add_instruction(0, ...)`, and
   `Shutter.open/close` clamp to 0. On a device clocked by a secondary pseudoclock with
   `trigger_delay > 0`, these raise "has an instruction at t=0s". They should use `self.t0`.
-- **B5. `labscript/core.py:634-656, 697-720` (run).** `TriggerableDevice` with
+- **B5. Partly fixed** by labscript PR #128: `parentless=True` compiles. The `do_checks` signature clash remains. ~~**`labscript/core.py:634-656, 697-720` (run).**~~ `TriggerableDevice` with
   `parentless=True` cannot compile, because `self.trigger_device` is only set when a parent
   is given. `PseudoclockDevice.do_checks(outputs)` also overrides
   `TriggerableDevice.do_checks()` with a different signature, so the shared-trigger
   consistency check never runs for secondary pseudoclocks.
-- **B6. `labscript/outputs.py:2077-2087, 2118-2150` (run).** `StaticDDS` never sets
+- **B6. Fixed** by labscript PR #128. ~~**`labscript/outputs.py:2077-2087, 2118-2150` (run).**~~ `StaticDDS` never sets
   `self.gate = None`. Without `digital_gate`, `enable()` raises `AttributeError` instead of
   the intended `LabscriptError`. With a gate, `enable(t=None)` fails in `round(None, 10)`.
-- **B7. `labscript/outputs.py:1962-1965` (run for behaviour, plausible as a bug).**
+- **B7. Fixed** by labscript PR #128. ~~**`labscript/outputs.py:1962-1965` (run for behaviour, plausible as a bug).**~~
   `setamp(t + duration, 0)` is inside `if amplitude != 0 and self.gate is not None`, so
   `DDS.pulse` on a DDS without a gate leaves the amplitude at its pulse value until the end
   of the shot. Line 1955 also fails with `frequency=None` and `print_summary=True`.
-- **B8. `labscript/core.py:520-536` (read).** `local_clock_limit` is computed over all
+- **B8. Open.** A fix was tried in labscript PR #128 and reverted: it lengthens every shot by ten periods of the slowest clockline, and no failure is attributed to the short final tick. **`labscript/core.py:520-536` (read).** `local_clock_limit` is computed over all
   clocklines and then unused. The final tick step is `10.0/self.clock_limit`, which uses
   the pseudoclock limit. With a clockline that is much slower than the pseudoclock, the
   last tick period is shorter than `1/clock_line.clock_limit`.
-- **B9. `labscript/base.py:392-396` (run).** The set branch of `quantise_to_pseudoclock`
+- **B9. Fixed** by labscript PR #128. ~~**`labscript/base.py:392-396` (run).**~~ The set branch of `quantise_to_pseudoclock`
   cannot work: `np.array(a_set)` is a 0-d object array, and the division raises. No current
   caller passes a set.
-- **B10. `labscript/labscript.py:393, 420` (plausible).** Script files are read with
+- **B10. Fixed** by labscript PR #128 with `tokenize.open`. ~~**`labscript/labscript.py:393, 420` (plausible).**~~ Script files are read with
   `open(path).read()` with no encoding, and the files are not closed. On Windows the locale
   encoding is used, so UTF-8 scripts with non-ASCII characters are saved incorrectly or
   raise `UnicodeDecodeError`.
-- **B11. Minor error-path problems (read).**
+- **B11. Fixed** by labscript PR #128 except the last item (`added_properties={}`), which is left because the decorator stores the call value and a `None` default would change the connection table. **Minor error-path problems (read).**
   - `labscript/utils.py:231-234, 248-251`: `suppress_*_warnings` have no `try`/`finally`,
     so an exception inside the `with` block leaves the flag changed.
   - `labscript/core.py:642`: the f-string is missing the opening quote before
