@@ -244,7 +244,8 @@ which give file:line and the reasoning.
 2. **zprocess #27**: `SetConsoleMode` crash on Windows 11 when any suite program is
    restarted from Windows Terminal or VS Code. Two lines in `zprocess/utils.py:190`.
    Needs zprocess 2.28.0, which also carries the heartbeat changes merged in 2026.
-   Status 2026-10-17: PR open, zprocess #28.
+   Status 2026-10-17: PR open, zprocess #28; the branch tested on Windows 11 with BLACS
+   restarted from PowerShell in Windows Terminal and from cmd.exe (`TESTING.md`).
 3. **labscript-utils #28**: compile crash `KeyError: 'labscriptlib'` after editing a
    file, because `labscript-profile-create` lays out `example_apparatus` as a namespace
    package and ModuleWatcher unloads its parent. Ship `__init__.py` in the default
@@ -342,7 +343,8 @@ API and BLACS submission paths specifically.
 - GUI launch of blacs, lyse, runmanager and runviewer under PySide6, PyQt6 and PyQt5
   (blacs #57 and #97 concern launch-time rendering).
 - The Windows restart path (compile-and-restart in BLACS, zprocess #27) from Windows
-  Terminal.
+  Terminal. Done 2026-10-17 on the zprocess #28 branch (`TESTING.md`); repeat on the
+  released zprocess.
 - A real shot on hardware in at least one lab from the rc packages before the final tag.
 
 ## 5. Release sequence

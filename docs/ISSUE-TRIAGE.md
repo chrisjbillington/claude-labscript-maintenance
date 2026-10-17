@@ -285,7 +285,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 - blacs #19: delete `docs/UsingBLACS.pdf`, `docs/UsingBLACS.docx` and `docs/How to add a new device/` before the release.
 ### lyse, runviewer, zprocess, setuptools-conda, qtutils
 
-- zprocess #27: `SetConsoleMode` crash on Windows 11 / Windows Terminal when any labscript program is restarted. Two-line fix in `zprocess/utils.py:190`; needs a zprocess point release. PR open 2026-10-17: zprocess #28.
+- zprocess #27: `SetConsoleMode` crash on Windows 11 / Windows Terminal when any labscript program is restarted. Two-line fix in `zprocess/utils.py:190`; needs a zprocess point release. PR open 2026-10-17: zprocess #28. Tested on Windows 11 2026-10-17: the branch restarts BLACS from PowerShell in Windows Terminal, where 2.27.0 exits with the issue's traceback (`TESTING.md`).
 - zprocess #19 (and #16): conda defaults' Windows zeromq lacks CURVE, so secured installs fail with `ZMQError: Not supported`. Add a `zmq.has('curve')` check with a readable message and state the required pyzmq source in the release installation docs.
 - lyse #139: serial analysis-subprocess start-up is slower under PySide6/PyQt6, which the release moves users to.
 - lyse #14 and #90: small, long-standing behaviour bugs with contained fixes.
@@ -2664,7 +2664,7 @@ setuptools-conda #5). These are covered in PR-REVIEW.md and are only referenced 
 - **Rewrite relevance**: moot (zprocess dropped; shotscript should not alter console modes).
 - **Importance**: 5.
 - **Recommended action**: fix for next release and publish a zprocess point release.
-- **Status (2026-10-17)**: fix open as zprocess PR #28; exercised on Linux with a stand-in `win32console`, not on Windows.
+- **Status (2026-10-17)**: fix open as zprocess PR #28; tested on Windows 11 with BLACS: 2.27.0 exits with the issue's traceback when restarted from PowerShell in Windows Terminal, the branch restarts, and a start from cmd.exe still turns quick-edit off. The cause is the console input mode that PowerShell leaves at its prompt, which `SetConsoleMode` rejects once `ENABLE_QUICK_EDIT_MODE` is cleared; cmd.exe is unaffected (`TESTING.md`).
 
 ### zprocess #19: `make_shared_secret` fails with ZMQError: Not supported (dihm, opened 2024-01-29, last activity 2024-09-20, 3 comments)
 - **Summary**: With the conda defaults channel's zeromq 4.3.5 on Windows, `zmq.curve_keypair()` raises `Not supported` (libzmq built without CURVE), so `python -m zprocess.makesecret` fails. Reported to anaconda-issues#13339; still broken as of 2024-09.
@@ -2888,7 +2888,7 @@ Reviewed in the style of PR-REVIEW.md section 2. Head `453459d` (master merged i
 
 ### Release-relevant issues
 
-- zprocess #27: `SetConsoleMode` crash on Windows 11 / Windows Terminal when any labscript program is restarted. Two-line fix in `zprocess/utils.py:190`; needs a zprocess point release. PR open 2026-10-17: zprocess #28.
+- zprocess #27: `SetConsoleMode` crash on Windows 11 / Windows Terminal when any labscript program is restarted. Two-line fix in `zprocess/utils.py:190`; needs a zprocess point release. PR open 2026-10-17: zprocess #28. Tested on Windows 11 2026-10-17: the branch restarts BLACS from PowerShell in Windows Terminal, where 2.27.0 exits with the issue's traceback (`TESTING.md`).
 - zprocess #19 (and #16): conda defaults' Windows zeromq lacks CURVE, so secured installs fail with `ZMQError: Not supported`. Add a `zmq.has('curve')` check with a readable message and state the required pyzmq source in the release installation docs.
 - lyse #139: serial analysis-subprocess start-up is slower under PySide6/PyQt6, which the release moves users to.
 - lyse #14 and #90: small, long-standing behaviour bugs with contained fixes.

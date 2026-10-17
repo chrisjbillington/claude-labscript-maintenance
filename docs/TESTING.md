@@ -5,6 +5,61 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-17: zprocess #28 on Windows 11, BLACS restart from a console
+
+zprocess PR #28 (head 81b1b10) on Windows 11 Pro build 26200 with Windows Terminal
+1.24.12741.0, Windows PowerShell 5.1 (PSReadLine 2.0.0) and cmd.exe. The labscript
+environment is the machine's Python 3.12.7 install: blacs 3.2.3, labscript-utils 3.4.1,
+labscript 3.4.0, labscript-devices 3.3.0, runmanager 3.3.0, qtutils 4.0.0 on PyQt5
+5.15.11, NumPy 2.4.2, h5py 3.15.1, pywin32 311, with zprocess 2.27.0 before and the PR
+branch (version 2.28.0.dev5) after. One run used a Python 3.14.3 venv with blacs 3.2.3,
+labscript-utils 3.4.3, PyQt6 6.11.0, NumPy 2.4.6 and zprocess 2.27.1. The connection
+table is the default profile's `example_apparatus` with the dummy devices. In each run
+BLACS was started with the `blacs` command, the connection table was recompiled from
+the Connection Table menu (which runs the runmanager batch compiler) and "Restart BLACS"
+was pressed in the recompile dialog. A `sitecustomize` hook on `PYTHONPATH` recorded
+the start, the exit and any unhandled exception of every Python process to a file, and
+a helper attached to the console of the running processes and read the console input
+mode with `GetConsoleMode`.
+
+| Console | Shell | zprocess | Result |
+|---|---|---|---|
+| Windows Terminal | cmd.exe | 2.27.0 | BLACS restarts |
+| Windows Terminal | PowerShell | 2.27.0 | the relaunched process exits at `import labscript_utils` with `pywintypes.error: (87, 'SetConsoleMode', 'The parameter is incorrect.')`, the traceback of zprocess #27; the BLACS log ends with "relaunching BLACS after quit" |
+| Windows Terminal | PowerShell | 2.27.1, Python 3.14 venv | BLACS restarts, twice (timing, see below) |
+| Windows Terminal | PowerShell | PR #28 | BLACS restarts, twice; no exception recorded; input mode of the restarted BLACS 0x1a4, quick-edit off |
+| classic console (`conhost.exe`) | cmd.exe | PR #28 | BLACS starts and the input mode changes from 0x1f7 to 0x1b7, quick-edit off; BLACS restarts with mode 0x1a7, quick-edit off; after BLACS exits the mode is 0x1e7, quick-edit on |
+
+Cause, found with a script that calls `disable_quick_edit`, relaunches itself as BLACS
+does (`Popen([sys.executable] + sys.argv)`, then exits) and calls `disable_quick_edit`
+again in the child:
+
+- While Windows PowerShell waits at its prompt, the console input mode is 0x1e4:
+  `ENABLE_ECHO_INPUT` set and `ENABLE_LINE_INPUT` clear. cmd.exe leaves 0x1e7 at its
+  prompt. `disable_quick_edit` adds `ENABLE_EXTENDED_FLAGS` and clears
+  `ENABLE_QUICK_EDIT_MODE`, so after PowerShell it asks for 0x1a4.
+- `SetConsoleMode` rejects every input mode that has `ENABLE_ECHO_INPUT` without
+  `ENABLE_LINE_INPUT`, which its documentation requires: from a cmd.exe console it
+  accepted 0x1f7, 0x1b7, 0x1e7, 0x1a7, 0x1a6 and 0x1a0 and returned error 87 for 0x1e4,
+  0x1a4 and 0x1a5.
+- With the child waiting 3 s before `disable_quick_edit`, so that the prompt has
+  returned: from PowerShell, zprocess 2.27.1 raised error 87 in 3 of 3 runs and the PR
+  branch returned in 3 of 3; from cmd.exe no run failed on any version. Without the
+  wait, 2.27.0 and 2.27.1 failed in 4 of 7 runs from PowerShell. The failure also
+  occurred in a classic `conhost.exe` window with PowerShell and never in Windows
+  Terminal with cmd.exe, so the ConPTY console is not the cause. Python 3.12 and 3.14,
+  and a venv or the system install, made no difference in the script.
+- The two successful restarts of the 3.14 venv on 2.27.1 are consistent with timing:
+  there the venv launcher process exited one second after the relaunched BLACS started,
+  whereas in the system install the launcher exited in the same second, so the prompt
+  with its 0x1e4 mode may not be back yet when the relaunched process runs
+  `disable_quick_edit`. Plausible, not verified.
+- After the failing call `GetConsoleMode` returns 0x1a4, so quick-edit is off in the
+  relaunched process whether or not the call raised.
+
+The comment that PR #28 adds attributes the failure to ConPTY consoles such as Windows
+Terminal; it should name the console mode that PowerShell leaves at its prompt instead.
+
 ## 2026-10-17: workflow-sandbox #46 tag step, local simulation
 
 The "Ignore tags other than the pushed tag" step of workflow-sandbox #46 (head 6f21e86),
