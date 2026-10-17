@@ -5,6 +5,65 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-17: blacs #123 plugin-loading fixes
+
+blacs PR #123 (head 4ec904f, three commits) merged into blacs master bc3fd1f, with one
+commit on top that shortens the two added comment blocks (local branch `pr123-work`,
+f1aea3f, in `repos/blacs`; not pushed). Every other component at its upstream master
+of 09:00 UTC. Python 3.14.6, PySide6, NumPy 2.5.4, on the Ubuntu container.
+
+**Harness:** all eight steps pass (versions, profile, imports, compile, lyse,
+runviewer, runmanager-api, apps). BLACS starts, loads the `connection_table`,
+`general` and `theme` plugins and runs for five seconds without a traceback.
+
+**The `[DEFAULT]` collision, reproduced.** The active labconfig was given
+`connection_table = %(labscript_suite)s/userlib/connection_table.py` under `[DEFAULT]`
+and the `connection_table = True` line was removed from `[BLACS/plugins]`, which is the
+state of a labconfig that has never had the flag written.
+
+| `blacs/plugins/__init__.py` | `import blacs.plugins` |
+|---|---|
+| master bc3fd1f | raises `ValueError: Not a boolean: /root/labscript-suite/userlib/connection_table.py` from `configparser`, so BLACS cannot start |
+| PR #123 | logs `WARNING BLACS.plugins: Plugin 'connection_table' shares its name with a labconfig [DEFAULT] key; using the default enabled state.` and imports; the plugin is enabled, as it is in `default_plugins` |
+
+The `has_option` change in the same commit does not change behaviour: CPython's
+`RawConfigParser.has_option` returns true for inherited `[DEFAULT]` keys, as `items()`
+does. The `try/except ValueError` block is the fix.
+
+A dispatch of `.github/workflows/test.yml` with `blacs=pr/123` is run 39021000880
+(started 09:24 UTC); its result is added below when it completes.
+
+**Draft comment for the PR**, to post once approved:
+
+> Reviewed for the Python 3.11 to 3.15 release. All three changes are correct and
+> reproduce as described:
+>
+> - With `connection_table = <path>` under `[DEFAULT]` and no `connection_table` flag in
+>   `[BLACS/plugins]`, `import blacs.plugins` on master raises `ValueError: Not a
+>   boolean` from `configparser`; on this branch it logs the warning and BLACS starts.
+> - `str.strip('.h5')` in `compile_and_restart.py` removes any trailing `.`, `h` or `5`
+>   characters, so the `os.path.splitext` change (third commit, not in the description)
+>   is a real fix too.
+>
+> Two small things before merging:
+>
+> 1. `has_option()` also returns true for inherited `[DEFAULT]` keys (CPython
+>    `RawConfigParser.has_option` checks `self._defaults` as well as the section), so
+>    the change from the `items()` membership test is fine but is not part of the fix;
+>    the `try/except ValueError` block is. The description's "asks the question
+>    directly" sentence should go.
+> 2. The two comment blocks describe the alternative that was not taken. Suggested
+>    replacements: in `plugins/__init__.py`, "The section inherits the labconfig
+>    `[DEFAULT]` keys, so a plugin with the same name as one of them reads that key's
+>    value here. An option set in the section itself overrides the inherited value." In
+>    `__main__.py`, "Call `plugin_setup_complete` once, with the arguments its signature
+>    accepts."
+>
+> The branch merged with master passes the suite's end-to-end checks on Python 3.14 with
+> PySide6 (install, import, compile, lyse, runviewer parsers, runmanager API, application
+> start-up) and is being run on Ubuntu and Windows for Python 3.11 to 3.14 with PySide6,
+> PyQt6 and PyQt5.
+
 ## 2026-10-17: master branches after the blocker merges, every Qt binding
 
 Dispatch of `.github/workflows/test.yml` with no refs, so every component at its
