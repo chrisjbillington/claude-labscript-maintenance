@@ -17,6 +17,7 @@ fix is made, in which case the row names the pull request. Importance uses the s
 | D4 | 2026-10-17 | labscript-utils `labscript_utils/ls_zprocess.py:332` with zprocess `zlock` | A running zlock server with a different shared secret makes `import labscript_utils.h5_lock` fail with `AuthenticationFailure`; nothing restarts the server or says what to do | 3 | run | open |
 | D5 | 2026-10-17 | labscript-utils `labscript_profile/default_profile/userlib/analysislib/example_apparatus/example_IMAQdx_remote.py:6` | The example analysis script tests `lyse.spinning_top`, which lyse 3.3.0rc1 moved to `lyse.utils.worker`; lyse's lazy attribute loader resolves only `path`, so the script raises `AttributeError` as soon as lyse runs it | 3 | run | open; the same line in the script of labscript-utils #117 is fixed by `patches/labscript-utils-117-example-analysis-fixes.patch` |
 | D6 | 2026-10-17 | labscript-devices `labscript_devices/IMAQdxCamera/blacs_tabs.py:264` | `on_copy_clicked` calls `QtGui.QApplication.instance().clipboard()`; `QtGui` has no `QApplication` under PySide6 or PyQt6, so the Copy button of the attributes dialog raises `AttributeError` with a Qt6 binding | 3 | read | open |
+| D7 | 2026-10-17 | release workflow `release.yml:45` and `:235` (rpanderson/workflow-sandbox master, synced to ten repositories by the sync PRs listed in `PULL-REQUESTS.md`) | The "Ignore tags other than the pushed tag" step has no `shell: bash`, so on Windows runners it runs under PowerShell, where `${GITHUB_REF_NAME}` is empty, and deletes the pushed tag; a tag push builds a development version on Windows | 5 | run | open |
 
 ## Detail
 
@@ -83,3 +84,21 @@ The two `QtGui.QApplication` uses elsewhere in the file were changed to `QtWidge
 the Qt6 work; this one was missed. Fix: `QtWidgets.QApplication.instance().clipboard()`.
 Found while testing the fixes for #87 and #63 (`TESTING.md`); the attribute lookup was
 checked against the installed PySide6 6.12.0, the button was not clicked.
+### D7. The tag-ignoring step deletes the pushed tag on Windows
+
+The step added by rpanderson/workflow-sandbox #46 runs
+`git tag -d $(git tag --points-at HEAD | grep -vx "${GITHUB_REF_NAME}" || true)` with no
+`shell:` and the workflow has no `defaults.run.shell`, so on a Windows runner it runs under
+PowerShell (`pwsh -command`). There `${GITHUB_REF_NAME}` is a PowerShell variable, which is
+empty (the environment variable is `$env:GITHUB_REF_NAME`), so `grep -vx ""` passes every
+tag at HEAD through and the step deletes the pushed tag as well. On the zprocess
+`v2.28.0rc1` run (39025867956, `TESTING.md`) the Windows job logged
+`Deleted tag 'v2.28.0rc1' (was e74b638)` and built 2.28.0.dev11 while the Ubuntu and
+macOS jobs built 2.28.0rc1. A branch push is unaffected, since every tag at HEAD is
+deleted on every platform. The sandbox test of the step ran only on Ubuntu, because the
+sandbox package is noarch. Fix: add `shell: bash` to both copies of the step (or a
+top-level `defaults: run: shell: bash`, which the sandbox had before #46), in the sandbox
+and in every repository that carries the synced workflow: labscript, labscript-devices,
+labscript-utils, blacs, lyse, runmanager, runviewer, labscript-suite,
+labscript-c-extensions and chrisjbillington/zprocess. Until it is fixed, no tag push
+produces Windows conda packages with the release version.

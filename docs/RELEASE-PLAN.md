@@ -372,7 +372,7 @@ with the final tag once the next package in the chain has been tested against it
 
 | Step | Package | Version | Carries |
 |---|---|---|---|
-| 1 | zprocess | 2.28.0 | #27, #19, heartbeat changes. Branch `maintenance/2.28.x` pushed at e74b638 on 2026-10-17; the `v2.28.0rc1` tag is a local task (`LOCAL-TASKS.md`) |
+| 1 | zprocess | 2.28.0 | #27, #19, heartbeat changes. Branch `maintenance/2.28.x` pushed at e74b638 on 2026-10-17; `v2.28.0rc1` tagged there the same day and on PyPI, but the win-64 conda packages are missing because of defect D7 (`DEFECTS.md`) |
 | 2 | qtutils (philipstarkey) | 4.1.4 | #22 RTD version, optional "Clear output" part of PR #32 |
 | 3 | desktop-app | 0.5.1 | #20 lazy pywin32 |
 | 4 | labscript-c-extensions | 1.3.1 | runviewer #13 resampler fix, py315 and py311+ wheels |

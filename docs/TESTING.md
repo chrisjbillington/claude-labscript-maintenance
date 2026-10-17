@@ -5,6 +5,21 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-17: zprocess v2.28.0rc1 release run
+
+Tag `v2.28.0rc1` pushed at 10:41 UTC on e74b638 of chrisjbillington/zprocess, the head of
+`master` and `maintenance/2.28.x`, with the release workflow synced from
+rpanderson/workflow-sandbox #46 (zprocess PR #30).
+
+| Push | Run | Version built | Published |
+|---|---|---|---|
+| branch `maintenance/2.28.x` at e74b638 | [39025269576](https://github.com/chrisjbillington/zprocess/actions/runs/39025269576) | 2.28.0.dev11 on all four runners | Test PyPI and the Anaconda test label (skipped as already existing from the master run) |
+| tag `v2.28.0rc1` | [39025867956](https://github.com/chrisjbillington/zprocess/actions/runs/39025867956) | 2.28.0rc1 on ubuntu-latest, macos-latest and macos-15-intel; **2.28.0.dev11 on windows-2022** | PyPI (sdist and pure wheel, with attestations), GitHub pre-release with the sdist attached, Anaconda main label for linux-64, osx-64 and osx-arm64 (Python 3.11 to 3.15); the win-64 2.28.0.dev11 packages were skipped as already existing under the test label |
+
+The Windows job's "Ignore tags other than the pushed tag" step logged
+`Deleted tag 'v2.28.0rc1' (was e74b638)`: it ran under PowerShell, where
+`${GITHUB_REF_NAME}` is empty. Recorded as defect D7 in `DEFECTS.md`. The Anaconda main
+label therefore has no win-64 zprocess 2.28.0rc1 packages.
 ## 2026-10-17: zprocess maintenance/2.28.x branch build
 
 Branch `maintenance/2.28.x` pushed at e74b638 (the head of master) for release sequence
