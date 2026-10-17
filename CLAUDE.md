@@ -79,3 +79,15 @@ This repository holds the notes, plans and tooling for maintaining the labscript
   of the state of the suite, and cite file and line.
 - Public comments on GitHub are written to contributors and users of the suite. Keep them
   factual and specific; name the defect, the file and the suggested change.
+- Every comment, review or pull request description that a session posts on GitHub, or
+  drafts for the local session to post, goes out from the maintainer's account. Start
+  it with this quoted note, so that readers know the maintainer did not write it:
+
+  > **Written by Claude.** This comment and the commit it describes were produced by
+  > Claude, the AI model, in a Claude Code session that @chrisjbillington is running
+  > for labscript suite maintenance. It is posted from his account; the commit is
+  > authored as Claude.
+
+  Drop the clause about the commit when the comment describes no commit. Write the
+  rest of the comment in the first person as Claude. Commits are authored as
+  `Claude <noreply@anthropic.com>`.
