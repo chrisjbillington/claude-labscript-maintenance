@@ -1368,3 +1368,11 @@ All comparisons are against the PR's base branch as fetched (`origin/pr/N` vs `o
 | 3 | PrawnBlaster #35 variable instructions per pseudoclock | firmware/feature | 3 | Rework: add `ok` reply, validate before computing offsets, `setb` bound, `getnuminstructions`; then host-side support |
 | 4 | prawn_digital_output #23 testing notebook | tooling | 2 | Merge after small fixes: strip outputs, parameterise port/VISA address, fix `if/elif` |
 | 5 | pineblasterv2 #1 Wi-Fire modifications | firmware/bugfix | 1 | Close as out of scope; archive repo. Root cause is the unread `\n` after `\r` before attaching the serial interrupt |
+
+## 4. Pull requests opened by the maintenance track
+
+Seventeen pull requests were opened on 2026-10-17 from this repository for the release
+blockers (labscript #123 in three repos, zprocess #27, labscript-utils #28, and the Python
+3.11 metadata change in twelve repos). They are listed with their status in
+`MAINTENANCE.md`, not here; this document covers the pull requests that existed when the
+review was made.

@@ -5,6 +5,36 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-17: fix branches on the local container, Python 3.14, NumPy 2.5.4
+
+The pull request branches of the release blockers (`MAINTENANCE.md`, "Pull requests
+opened by the maintenance track"), merged locally onto each master: labscript
+`numpy-2.5-dtype-alias` and `python-3.11-metadata`, labscript-devices and blacs the
+same, labscript-utils `fix-28-namespace-packages` and `python-3.11-metadata`, zprocess
+`fix-27-setconsolemode` and `python-3.11-metadata`, and `python-3.11-metadata` on lyse,
+runmanager, runviewer, labscript-suite, desktop-app and qtutils. Installed into the
+Python 3.14.6 venv of the run below (NumPy 2.5.4, h5py 3.16.0, pandas 3.0.6, PySide6
+6.12.0) with `uv pip install --no-deps`.
+
+| Platform | Python | NumPy | Result |
+|---|---|---|---|
+| local container | 3.14.6 | 2.5.4 | all eight steps pass: compile, lyse, runviewer, runmanager-api and apps now pass on NumPy 2.5 (the known B7 and D1 items still show as known) |
+
+Also run, outside the harness:
+
+- labscript-utils #28: a script that imports a module from a namespace package under a
+  temporary `userlib`, touches it, waits for `ModuleWatcher` to unload, and imports again.
+  master: `KeyError: 'labscriptlib'`. Branch: the import succeeds. A profile created by
+  the branch has `labscriptlib/example_apparatus/__init__.py`.
+- zprocess #27: `disable_quick_edit` with `os.name` patched to `nt` and a stand-in
+  `win32console` whose `SetConsoleMode` raises error 87 returns without registering an
+  `atexit` handler. Not run on Windows.
+- Version scheme: setuptools_scm 10.0.5 computes `3.5.0.dev41` on labscript-utils master
+  with both `release-branch-semver` and `semver-pep440-release-branch`; setuptools_scm
+  9.2.2 does not have the new name.
+- Every package's `__version__` module imports with `-W error::DeprecationWarning`
+  after the `importlib_metadata` fallback removal.
+
 ## 2026-10-17: master branches on Ubuntu 24.04 and Windows Server 2025
 
 Component commits: zprocess 34443e5, qtutils 5d2885f, desktop-app f216ef0,

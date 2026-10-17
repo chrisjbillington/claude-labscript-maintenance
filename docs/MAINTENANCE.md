@@ -124,7 +124,7 @@ unaffected. The review's line references map to the new layout as follows.
 
 | Item | Status |
 |---|---|
-| 1 `'a256'` dtypes | open |
+| 1 `'a256'` dtypes | fix open: labscript PR #124, labscript-devices PR #149 and blacs PR #124 (2026-10-17) |
 | 2 `bitfield` dtype | open |
 | 3 NI analog input final read | open |
 | 4 PrawnDO wait insertion | open |
@@ -145,7 +145,40 @@ unaffected. The review's line references map to the new layout as follows.
 | 19 runviewer resampler bounds | open |
 | 20 zlock port | fixed, labscript-utils PR #128 |
 
-No open pull request on any repo addresses items 1 to 19.
+Item 1 is addressed by the pull requests in the table below; no open pull request
+addresses items 2 to 19.
+
+## Pull requests opened by the maintenance track
+
+Opened 2026-10-17 from this repository, for the blockers in `RELEASE-PLAN.md` section 4.1.
+All are open. Each fix was verified before the pull request was opened; the verification
+is in the pull request description and in `TESTING.md`.
+
+| Repo | PR | Change | Addresses |
+|---|---|---|---|
+| labscript | #124 | `'a256'` to `'S256'` in `labscript.py` and `outputs.py` | labscript #123; review Part 1 item 1 |
+| labscript-devices | #149 | `'a256'` to `'S256'` in six device files; `tostring()` to `tobytes()` in `LightCrafterDMD.py` | labscript #123; labscript-devices #131; review Part 1 item 1 |
+| blacs | #124 | `'a'` aliases to `'S'` in `front_panel_settings.py` | labscript #123; review Part 1 item 1 |
+| zprocess | #28 | guard `SetConsoleMode` in `disable_quick_edit` | zprocess #27 |
+| labscript-utils | #129 | ModuleWatcher unloads namespace packages under userlib; `__init__.py` in the default profile's `example_apparatus` directories | labscript-utils #28 |
+| labscript | #125 | `requires-python >= 3.11`, classifiers, `semver-pep440-release-branch`, `setuptools_scm>=10`, no `importlib_metadata` fallback | release plan 4.1 item 6 |
+| labscript-utils | #130 | same, also in `versions.py` | release plan 4.1 item 6 |
+| labscript-devices | #150 | same | release plan 4.1 item 6 |
+| blacs | #125 | same | release plan 4.1 item 6 |
+| lyse | #140 | same | release plan 4.1 item 6 |
+| runmanager | #131 | same, plus `labscript>=3.5.0` and `labscript_utils>=3.5.0` | release plan 4.1 item 6 |
+| runviewer | #73 | same | release plan 4.1 item 6 |
+| labscript-suite | #106 | same, plus the component pins of the 3.4.0 release set; merge last | release plan 4.1 item 6 |
+| labscript-c-extensions | #10 | `requires-python`, classifiers, no `importlib_metadata` fallback (`guess-next-dev` kept) | release plan 4.1 item 6 |
+| zprocess | #29 | `requires-python`, classifiers, scheme name, `setuptools_scm>=10` | release plan 4.1 item 6 |
+| desktop-app | #31 | `requires-python`, classifiers, no `importlib_metadata` fallback in `fix_entry_points.py` and `environment.py` | release plan 4.1 item 6 |
+| qtutils (philipstarkey) | #33 | `requires-python`, classifiers, scheme name, `setuptools_scm>=10` | release plan 4.1 item 6 |
+
+The scheme rename needs setuptools_scm 10, which introduced the name
+`semver-pep440-release-branch` (setuptools_scm 9.2.2 does not have it); conda-forge has
+10.3.4. Both names give the same version: `3.5.0.dev41` on labscript-utils master.
+rpanderson/workflow-sandbox still uses `release-branch-semver`; that is part of the
+workflow sync (release plan 4.1 item 5).
 
 ## Recording further work
 

@@ -25,7 +25,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 
 | # | Issue | Type | Imp. | Action |
 |---|---|---|---|---|
-| 1 | labscript #123 'a256' dtype fails on NumPy >= 2.5 | bug | 5 | Fix for next release (labscript + labscript-devices), add NumPy 2.5 to CI |
+| 1 | labscript #123 'a256' dtype fails on NumPy >= 2.5 | bug | 5 | Fix for next release (labscript + labscript-devices), add NumPy 2.5 to CI. PRs open 2026-10-17: labscript #124, labscript-devices #149, blacs #124 |
 | 2 | zprocess #27 `disable_quick_edit` crash on ConPTY | bug (crash, Windows 11) | 5 | fix for next release |
 | 3 | blacs #46 queue thread dies when the shot file cannot be written | bug | 4 | fix for next release (with #29) |
 | 4 | blacs #29 crash on shared drive becoming unavailable | bug | 4 | fix for next release (duplicate of #46) |
@@ -254,11 +254,11 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 
 ### labscript, labscript-utils
 
-- labscript #123: `'a256'` dtypes fail on NumPy >= 2.5; compilation is impossible. Four sites in labscript, six files in labscript-devices. Must fix.
+- labscript #123: `'a256'` dtypes fail on NumPy >= 2.5; compilation is impossible. Four sites in labscript, six files in labscript-devices. Must fix. PRs open 2026-10-17: labscript #124, labscript-devices #149, blacs #124.
 - labscript #104: `from pylab import *` in `labscript.py` and `functions.py`; the docs build already needed `numpy<2`. Decide the compatibility policy in the Python 3.11+ release.
 - labscript #41: no automated tests; a compile smoke test across the supported Python/NumPy matrix is the cheapest guard against the two items above.
 - labscript #95: NumPy 2 turns the PrawnBlaster `half_period` overflow (idle clockline longer than 42 s) from a crash into silent truncation; add dtype and range check in labscript-devices.
-- labscript-utils #28: compile crashes (`KeyError: 'labscriptlib'`) after editing a file when the apparatus directory is a namespace package, which is how `labscript-profile-create` lays it out; ship `__init__.py` and fix the ModuleWatcher whitelist.
+- labscript-utils #28: compile crashes (`KeyError: 'labscriptlib'`) after editing a file when the apparatus directory is a namespace package, which is how `labscript-profile-create` lays it out; ship `__init__.py` and fix the ModuleWatcher whitelist. PR open 2026-10-17: labscript-utils #129.
 - labscript-utils #29: zprocess `start_daemon` forks the GUI process; relevant only if macOS is a release target.
 - labscript-utils #104: Tk excepthook subprocess needs `tkinter`; confirm availability on the supported Pythons or add a stderr fallback.
 - labscript-utils #100: already fixed (v3.4.0); mention Python 3.12+ support in release notes.
@@ -285,7 +285,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 - blacs #19: delete `docs/UsingBLACS.pdf`, `docs/UsingBLACS.docx` and `docs/How to add a new device/` before the release.
 ### lyse, runviewer, zprocess, setuptools-conda, qtutils
 
-- zprocess #27: `SetConsoleMode` crash on Windows 11 / Windows Terminal when any labscript program is restarted. Two-line fix in `zprocess/utils.py:190`; needs a zprocess point release.
+- zprocess #27: `SetConsoleMode` crash on Windows 11 / Windows Terminal when any labscript program is restarted. Two-line fix in `zprocess/utils.py:190`; needs a zprocess point release. PR open 2026-10-17: zprocess #28.
 - zprocess #19 (and #16): conda defaults' Windows zeromq lacks CURVE, so secured installs fail with `ZMQError: Not supported`. Add a `zmq.has('curve')` check with a readable message and state the required pyzmq source in the release installation docs.
 - lyse #139: serial analysis-subprocess start-up is slower under PySide6/PyQt6, which the release moves users to.
 - lyse #14 and #90: small, long-standing behaviour bugs with contained fixes.
@@ -764,6 +764,7 @@ Verification notes that apply to several issues:
 - **Rewrite relevance**: moot (no 'a' aliases in rewrite/src)
 - **Importance**: 5
 - **Recommended action**: fix for next release, in both repos, and add NumPy >= 2.5 to the CI matrix.
+- **Status (2026-10-17)**: fix open as labscript PR #124, labscript-devices PR #149 and blacs PR #124; verified by compiling the example experiment on NumPy 2.5.4 (`TESTING.md`).
 
 ---
 
@@ -902,6 +903,7 @@ Verification notes that apply to several issues:
 - **Rewrite relevance**: requirement (user-code reload policy must handle namespace packages, or the profile must create regular packages)
 - **Importance**: 4
 - **Recommended action**: fix for next release ((a) and (b)); keep `import_or_reload` (user scripts call it even though nothing in the suite does).
+- **Status (2026-10-17)**: fix open as labscript-utils PR #129 ((a) and (b)); the `KeyError` was reproduced on master and does not occur with the branch.
 
 ### labscript-utils #29: Cannot autostart servers on macos Catalina (chrisjbillington via philipstarkey, opened 2019-12-06, last activity 2019-12-06, 0 comments)
 - **Summary**: Applications cannot auto-start zlock/zlog on macOS Catalina; starting the servers manually works.
@@ -996,7 +998,7 @@ Verification notes that apply to several issues:
 
 | Rank | Issue | Type | Importance | Recommended action |
 |---|---|---|---|---|
-| 1 | labscript #123 'a256' dtype fails on NumPy >= 2.5 | bug | 5 | Fix for next release (labscript + labscript-devices), add NumPy 2.5 to CI |
+| 1 | labscript #123 'a256' dtype fails on NumPy >= 2.5 | bug | 5 | Fix for next release (labscript + labscript-devices), add NumPy 2.5 to CI. PRs open 2026-10-17: labscript #124, labscript-devices #149, blacs #124 |
 | 2 | labscript #104 remove pylab star import | feature/compat | 4 | Fix for next release with curated re-exports and docs |
 | 3 | labscript #52 duplicate output connection is silent | bug | 4 | Fix for next release (uniqueness check in `Device.add_device`) |
 | 4 | labscript #43 collision errors do not name outputs | feature | 4 | Fix for next release |
@@ -1051,11 +1053,11 @@ Verification notes that apply to several issues:
 
 ### Release-relevant issues
 
-- labscript #123: `'a256'` dtypes fail on NumPy >= 2.5; compilation is impossible. Four sites in labscript, six files in labscript-devices. Must fix.
+- labscript #123: `'a256'` dtypes fail on NumPy >= 2.5; compilation is impossible. Four sites in labscript, six files in labscript-devices. Must fix. PRs open 2026-10-17: labscript #124, labscript-devices #149, blacs #124.
 - labscript #104: `from pylab import *` in `labscript.py` and `functions.py`; the docs build already needed `numpy<2`. Decide the compatibility policy in the Python 3.11+ release.
 - labscript #41: no automated tests; a compile smoke test across the supported Python/NumPy matrix is the cheapest guard against the two items above.
 - labscript #95: NumPy 2 turns the PrawnBlaster `half_period` overflow (idle clockline longer than 42 s) from a crash into silent truncation; add dtype and range check in labscript-devices.
-- labscript-utils #28: compile crashes (`KeyError: 'labscriptlib'`) after editing a file when the apparatus directory is a namespace package, which is how `labscript-profile-create` lays it out; ship `__init__.py` and fix the ModuleWatcher whitelist.
+- labscript-utils #28: compile crashes (`KeyError: 'labscriptlib'`) after editing a file when the apparatus directory is a namespace package, which is how `labscript-profile-create` lays it out; ship `__init__.py` and fix the ModuleWatcher whitelist. PR open 2026-10-17: labscript-utils #129.
 - labscript-utils #29: zprocess `start_daemon` forks the GUI process; relevant only if macOS is a release target.
 - labscript-utils #104: Tk excepthook subprocess needs `tkinter`; confirm availability on the supported Pythons or add a stderr fallback.
 - labscript-utils #100: already fixed (v3.4.0); mention Python 3.12+ support in release notes.
@@ -2662,6 +2664,7 @@ setuptools-conda #5). These are covered in PR-REVIEW.md and are only referenced 
 - **Rewrite relevance**: moot (zprocess dropped; shotscript should not alter console modes).
 - **Importance**: 5.
 - **Recommended action**: fix for next release and publish a zprocess point release.
+- **Status (2026-10-17)**: fix open as zprocess PR #28; exercised on Linux with a stand-in `win32console`, not on Windows.
 
 ### zprocess #19: `make_shared_secret` fails with ZMQError: Not supported (dihm, opened 2024-01-29, last activity 2024-09-20, 3 comments)
 - **Summary**: With the conda defaults channel's zeromq 4.3.5 on Windows, `zmq.curve_keypair()` raises `Not supported` (libzmq built without CURVE), so `python -m zprocess.makesecret` fails. Reported to anaconda-issues#13339; still broken as of 2024-09.
@@ -2885,7 +2888,7 @@ Reviewed in the style of PR-REVIEW.md section 2. Head `453459d` (master merged i
 
 ### Release-relevant issues
 
-- zprocess #27: `SetConsoleMode` crash on Windows 11 / Windows Terminal when any labscript program is restarted. Two-line fix in `zprocess/utils.py:190`; needs a zprocess point release.
+- zprocess #27: `SetConsoleMode` crash on Windows 11 / Windows Terminal when any labscript program is restarted. Two-line fix in `zprocess/utils.py:190`; needs a zprocess point release. PR open 2026-10-17: zprocess #28.
 - zprocess #19 (and #16): conda defaults' Windows zeromq lacks CURVE, so secured installs fail with `ZMQError: Not supported`. Add a `zmq.has('curve')` check with a readable message and state the required pyzmq source in the release installation docs.
 - lyse #139: serial analysis-subprocess start-up is slower under PySide6/PyQt6, which the release moves users to.
 - lyse #14 and #90: small, long-standing behaviour bugs with contained fixes.

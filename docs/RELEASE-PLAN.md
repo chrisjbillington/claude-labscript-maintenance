@@ -240,13 +240,16 @@ which give file:line and the reasoning.
    `front_panel_settings.py:348,387` (BLACS cannot save front-panel settings on NumPy
    2.5 either). Also `LightCrafterDMD.py:348,359` `ndarray.tostring()` (removed in
    NumPy 2). The `np.string_` fixes for the cameras are already on master, unreleased.
+   Status 2026-10-17: PRs open, labscript #124, labscript-devices #149, blacs #124.
 2. **zprocess #27**: `SetConsoleMode` crash on Windows 11 when any suite program is
    restarted from Windows Terminal or VS Code. Two lines in `zprocess/utils.py:190`.
    Needs zprocess 2.28.0, which also carries the heartbeat changes merged in 2026.
+   Status 2026-10-17: PR open, zprocess #28.
 3. **labscript-utils #28**: compile crash `KeyError: 'labscriptlib'` after editing a
    file, because `labscript-profile-create` lays out `example_apparatus` as a namespace
    package and ModuleWatcher unloads its parent. Ship `__init__.py` in the default
    profile and stop whitelisting namespace packages under userlib.
+   Status 2026-10-17: PR open, labscript-utils #129.
 4. **labscript-suite #56**: the release workflow computes `PKGVER` from a commit that
    carries both an rc and a final tag. Fix in the sandbox and deploy before tagging.
 5. **Workflow sync** (section 2): deploy the sandbox to the nine lagging repos and
@@ -256,6 +259,8 @@ which give file:line and the reasoning.
    versions; `version_scheme = "semver-pep440-release-branch"`; delete the
    `importlib_metadata` fallbacks (every `__version__.py`, `labscript_utils/versions.py`,
    `desktop_app/fix_entry_points.py`).
+   Status 2026-10-17: PRs open on all twelve repos (table in `MAINTENANCE.md`); the
+   scheme rename needs `setuptools_scm>=10`, which conda-forge has.
 
 ### 4.2 Bugs worth fixing in this release (importance 4, all small)
 

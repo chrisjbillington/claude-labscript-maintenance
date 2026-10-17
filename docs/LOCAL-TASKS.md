@@ -6,4 +6,4 @@ fills in the status and the date. Delete nothing: a done row is the record.
 
 | Added | Task | Why not from the cloud | Status |
 |---|---|---|---|
-| 2026-10-17 | Delete the branch `claude-access-check-delete-me` in chrisjbillington/zprocess and in labscript-suite/labscript-utils (created to test push access; each points at the then-current master commit) | the session's proxy refuses branch deletion over git and the REST API | open |
+| 2026-10-17 | Delete the branch `claude-access-check-delete-me` in chrisjbillington/zprocess and in labscript-suite/labscript-utils (created to test push access; each points at the then-current master commit) | the session's proxy refuses branch deletion over git and the REST API | done: neither branch existed on 2026-10-17 (`git ls-remote`) |

@@ -43,7 +43,8 @@ Paths are relative to each repo's root unless stated otherwise.
 
 ## 1.1 The suite does not work on numpy 2.5
 
-1. **`'a256'` dtype strings (run).** numpy 2.5 removed the `'a'` dtype alias, and no repo has
+1. **Fix open** as labscript PR #124, labscript-devices PR #149 and blacs PR #124 (opened 2026-10-17).
+   **`'a256'` dtype strings (run).** numpy 2.5 removed the `'a'` dtype alias, and no repo has
    an upper numpy bound. Replace with `'S256'` everywhere.
    - `labscript/labscript/labscript.py:216,268,477` and `labscript/outputs.py:1604`: every
      `stop()` raises `TypeError: data type 'a256' not understood`, so no shot compiles.

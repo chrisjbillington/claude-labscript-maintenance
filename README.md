@@ -45,7 +45,11 @@ and the file:line evidence.
   20 and parts of several others (`docs/MAINTENANCE.md`).
 - Release blocker: NumPy 2.5 removed the `a256` dtype alias, so no shot compiles on the
   current master branches (labscript #123). With `S256` the suite compiles and lyse reads
-  the shot on Python 3.14.
+  the shot on Python 3.14. Fix PRs are open: labscript #124, labscript-devices #149,
+  blacs #124.
+- Seventeen pull requests opened 2026-10-17 for release plan blockers 1, 2, 3 and 6
+  (dtype alias, zprocess #27, labscript-utils #28, Python 3.11 metadata); table in
+  `docs/MAINTENANCE.md`. Blockers 4 and 5 (workflow sandbox fix and sync) are not started.
 - Python 3.15 works for the code but installs are blocked by missing h5py wheels on PyPI
   and missing pyzmq and PyQt builds on conda-forge.
 - No component repo has a test or lint workflow; only `release.yml`. The harness in this
