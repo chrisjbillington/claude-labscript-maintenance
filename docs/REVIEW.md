@@ -160,7 +160,8 @@ Paths are relative to each repo's root unless stated otherwise.
       no longer be terminated by SIGTERM.
     - `close()` releases unconditionally, so a second `close()` releases the zlock twice and
       raises.
-19. **`labscript-c-extensions` `src/runviewer/resample.pyx:61-67, 109-118` (run).** The
+19. **Fixed** by labscript-c-extensions PR #13, opened 2026-10-17, with runviewer #13.
+    ~~**`labscript-c-extensions` `src/runviewer/resample.pyx:61-67, 109-118` (run).**~~ The
     NaN-fill loop advances `i` by 3 with no bound. runviewer calls it with `N_out=6002` and
     `len(y_out)=6001`. If the first data time is inside the last sample interval of the
     view, `i` becomes 6003 and the code writes `y_out[6003]`, which is two elements past the

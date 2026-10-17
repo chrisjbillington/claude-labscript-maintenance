@@ -5,6 +5,51 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-17: checks for the release sequence step 2 to 4 pull requests
+
+Pull requests [labscript-c-extensions #13](https://github.com/labscript-suite/labscript-c-extensions/pull/13),
+[desktop-app #34](https://github.com/chrisjbillington/desktop-app/pull/34),
+[qtutils #36](https://github.com/philipstarkey/qtutils/pull/36) and
+[qtutils #37](https://github.com/philipstarkey/qtutils/pull/37). The harness workflow
+was dispatched with `labscript-c-extensions=pr/13 desktop-app=pr/34 qtutils=pr/36` as
+run [39031528312](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39031528312);
+its result is recorded below when it finishes.
+
+**Resampler** (`tools/resample_check.py`, Python 3.13.16, NumPy 2.5.4, the extension
+built from the master and pull request heads with Cython into two venvs):
+
+| Case | master (41c0058) | PR #13 (d80a2a8) |
+|---|---|---|
+| 100 µs pulse at t=0, 1 s shot, view padded 5 % before t=0 | visible | visible |
+| same pulse, 100 paddings from 0.05 % to 5 % | dropped for 69 | dropped for 0 |
+| same pulse, view starting at t=0 | visible | visible |
+| first data time inside the last output interval (REVIEW.md item 19) | wrote past the end of `y_out` (guard values changed) | guard intact |
+| two input times inside the first group of three | first value dropped | kept |
+| 50000-point random trace, view from t=0 and zoomed | checksums 9543.146662, 8316.601051 | identical |
+| same trace, view padded 5 % | 8800.748370 | 8802.633414 (the first group now carries data) |
+
+Running every case in one process on the master build ended in a segmentation fault;
+case by case it ran, with the results above.
+
+**qtutils output box** (`tools/outputbox_check.py`, Python 3.13.16, PySide6 6.12.0,
+PyQt6 6.11.0, PyQt5 5.15.11, offscreen platform): text written to the box is displayed,
+`clear_output()` empties it and later text is displayed from the start of a line, and
+triggering "Clear output" from the open context menu does the same, under all three
+bindings. Connecting `clear_output` to `triggered` directly failed under PyQt6 and PyQt5
+with `TypeError: OutputBox.clear_output() takes 1 positional argument but 2 were given`;
+the pull request connects through a lambda.
+
+**qtutils docs** (Python 3.13.16, Sphinx 9.1.0, no recommonmark installed): the dirhtml
+build exits 0 with the three pre-existing warnings (`language = None`, missing
+`_static`). In a clone made like Read the Docs makes it (depth 50, one branch), the
+setuptools_scm version was 0.1.0.dev88 before `git fetch --unshallow` and
+`git fetch --tags` and 4.2.0.dev6 after them.
+
+**desktop-app** (harness venv py3.14, Python 3.14.6, Linux): importing `desktop_app`
+from the pull request head loads no `win32*` module, and the five Windows-only
+functions in `windows.py` raise `EnvironmentError`. The Windows launcher path is only
+covered by the workflow run above.
+
 ## 2026-10-17: release tag step on Ubuntu and Windows
 
 `.github/workflows/tag-step-test.yml` in this repository, run

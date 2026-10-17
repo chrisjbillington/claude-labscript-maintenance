@@ -7,6 +7,10 @@ updates or sees one merged or closed updates the row. Links go to GitHub.
 
 | Opened | Pull request | Change | Addresses |
 |---|---|---|---|
+| 2026-10-17 | [labscript-c-extensions #13](https://github.com/labscript-suite/labscript-c-extensions/pull/13) | `resample.pyx`: NaN lead-in stops at the group containing the first data point; bounds on the lead-in and skip-ahead loops (head d80a2a8) | runviewer #13; REVIEW.md item 19; release sequence step 4 |
+| 2026-10-17 | [desktop-app #34](https://github.com/chrisjbillington/desktop-app/pull/34) | pywin32 and `wineventhook` imported inside the functions in `windows.py` (head ec3d9da) | desktop-app #20; release sequence step 3 |
+| 2026-10-17 | [qtutils #36](https://github.com/philipstarkey/qtutils/pull/36) | "Clear output" context-menu action and `OutputBox.clear_output()`; CHANGELOG entry (head 3d0cad3). Context-menu part of PR #32, author co-credited; comment left on #32 | qtutils #2, PR #32; release sequence step 2 |
+| 2026-10-17 | [qtutils #37](https://github.com/philipstarkey/qtutils/pull/37) | `readthedocs.yaml` unshallows and fetches tags before install; `recommonmark` dropped from the docs extra (head e507f36) | qtutils #22; release sequence step 2 |
 | 2026-10-17 | [runmanager #131](https://github.com/labscript-suite/runmanager/pull/131) | same, plus `labscript>=3.5.0rc1` and `labscript_utils>=3.5.0rc1` (head e5283ab); held until the release sequence, merge immediately before the runmanager tag | release plan 4.1 item 6; release sequence step 7 |
 | 2026-10-17 | [labscript-suite #106](https://github.com/labscript-suite/labscript-suite/pull/106) | same, plus the component pins of the 3.4.0 release set in the form `>=x.y.0rc1` (head 4e7de5e); held until the release sequence, merge immediately before the labscript-suite tag | release plan 4.1 item 6; release sequence step 12 |
 | 2026-10-17 | [lyse #142](https://github.com/labscript-suite/lyse/pull/142) | `__getattr__` serves `spinning_top` as well as `path` from `lyse.utils.worker`; `spinning_top` back in `__all__` | DEFECTS.md D8 |

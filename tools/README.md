@@ -20,3 +20,14 @@ With `gh` authenticated, `gh issue view <N> --comments` is the simpler alternati
 The scripts that produced the results in `docs/RELEASE-PLAN.md` section 3 have been
 replaced by the test harness in `harness/`, which runs the same install, import, compile
 and read-back checks and more. See `harness/README.md`.
+
+## Checks behind individual pull requests
+
+`resample_check.py` exercises `labscript_c_extensions.runviewer.resample` the way
+runviewer calls it (6002 output times, 6001 output values) with the cases from runviewer
+#13 and `docs/REVIEW.md` item 19, and prints a checksum for a long random trace so that
+builds can be compared. Run it with the Python of an environment that has the extension
+installed. `outputbox_check.py <PySide6|PyQt6|PyQt5>` writes to a `qtutils.OutputBox`
+under the offscreen platform, clears it through `clear_output()` and through the
+context menu, and checks the displayed text after each step. Both were written for
+labscript-c-extensions #13 and qtutils #36 (`docs/TESTING.md`, 2026-10-17).

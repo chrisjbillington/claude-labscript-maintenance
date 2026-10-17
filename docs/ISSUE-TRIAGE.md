@@ -30,7 +30,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 | 3 | blacs #46 queue thread dies when the shot file cannot be written | bug | 4 | fix for next release (with #29) |
 | 4 | blacs #29 crash on shared drive becoming unavailable | bug | 4 | fix for next release (duplicate of #46) |
 | 5 | blacs #52 lost window after compile and restart | bug | 4 | fix for next release (with #56) |
-| 6 | desktop-app #20 launcher imports pywin32 before activating the env | bug | 4 | fix for next release |
+| 6 | desktop-app #20 launcher imports pywin32 before activating the env | bug | 4 | fix for next release; PR opened 2026-10-17: desktop-app #34 |
 | 7 | labscript-devices #109 PrawnBlaster runviewer drops instruction after wait | bug | 4 | fix for next release (one line) |
 | 8 | labscript-devices #131 NumPy 2 `np.string_` | bug | 4 | close as fixed; the `LightCrafterDMD.py` `tostring()` fix merged 2026-10-17 in labscript-devices #149 |
 | 9 | labscript #104 remove pylab star import | feature/compat | 4 | Fix for next release with curated re-exports and docs |
@@ -64,7 +64,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 | 37 | lyse #14 multishot runs while paused | bug | 3 | fix for next release (one condition) |
 | 38 | lyse #90 dict results flattened inconsistently | bug | 3 | fix for next release |
 | 39 | lyse #139 serial subprocess start-up | bug (performance) | 3 | fix for next release |
-| 40 | runviewer #13 pulses at t=0 dropped by resampler | bug (in labscript-c-extensions) | 3 | fix for next release, move to labscript-c-extensions |
+| 40 | runviewer #13 pulses at t=0 dropped by resampler | bug (in labscript-c-extensions) | 3 | fix for next release, move to labscript-c-extensions; PR opened 2026-10-17: labscript-c-extensions #13 |
 | 41 | runmanager #33 abort only stops current sequence | bug | 3 | fix for next release (drain queue) |
 | 42 | runmanager #30 no header between shot compilations | bug | 3 | fix for next release |
 | 43 | runmanager #26 .h5 not appended (Linux) | bug | 3 | fix for next release |
@@ -122,9 +122,9 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 | 95 | labscript-utils #29 macOS autostart (fork in GUI process) | bug | 2 | Fix later in zprocess, needs macOS tester |
 | 96 | labscript-utils #104 excepthook uses Tk | question | 2 | Close as answered; optional stderr fallback |
 | 97 | labscript #112 timing limited by slow component | support | 2 | Convert to docs (gated clocks page), close |
-| 98 | qtutils #22 RTD version string | tooling | 2 | fix for next release (one line) |
+| 98 | qtutils #22 RTD version string | tooling | 2 | fix for next release (one line); PR opened 2026-10-17: qtutils #37 |
 | 99 | qtutils #31 PyQt6 aliases tracker | meta | 2 | close |
-| 100 | qtutils #2 / PR #32 clear output box | feature | 2 | rework PR, then merge |
+| 100 | qtutils #2 / PR #32 clear output box | feature | 2 | rework PR, then merge; PR opened 2026-10-17: qtutils #36 (context-menu part of #32, author credited) |
 | 101 | lyse #35 persist hidden columns | feature | 2 | fix later |
 | 102 | lyse #41 plot window size | bug | 2 | fix later |
 | 103 | lyse #53 get_image argument names | API | 2 | fix later |
@@ -276,7 +276,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 
 - blacs #46 / #29: wrap the shot-file cleanup in `experiment_queue.py:808-821` and `:926-947` so the queue-manager thread cannot die on I/O errors.
 - blacs #52 / #56: replace the `move()/resize()` geometry restore (`__main__.py:481-515`) with `saveGeometry()/restoreGeometry()` plus a `QScreen` bounds check; Qt6 and Windows 11 multi-monitor.
-- desktop-app #20: make `desktop_app/windows.py` pywin32 imports lazy so the launcher runs in an unactivated conda env.
+- desktop-app #20: make `desktop_app/windows.py` pywin32 imports lazy so the launcher runs in an unactivated conda env. PR opened 2026-10-17: desktop-app #34.
 - blacs #100: guard `sys.stdout is None` in `labscript_utils/setup_logging.py:60` (and `sys.stderr` at `:73`).
 - blacs #49: handle `StopIteration` from the first `__next__` at `tab_base_classes.py:792`.
 - blacs #32, #7, #72: three trivial usability fixes (device names in pause status; dialog start directories from labconfig; localhost default for lyse).
@@ -289,8 +289,8 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 - zprocess #19 (and #16): conda defaults' Windows zeromq lacks CURVE, so secured installs fail with `ZMQError: Not supported`. Add a `zmq.has('curve')` check with a readable message and state the required pyzmq source in the release installation docs.
 - lyse #139: serial analysis-subprocess start-up is slower under PySide6/PyQt6, which the release moves users to.
 - lyse #14 and #90: small, long-standing behaviour bugs with contained fixes.
-- runviewer #13: resampler drops short pulses at t=0; labscript-c-extensions must be rebuilt for Python 3.13 to 3.15 anyway, so include the fix.
-- qtutils #31 (close; aliases shipped in 4.1.3, which lyse pins) and #22 (RTD shows version 0.1.0.dev1).
+- runviewer #13: resampler drops short pulses at t=0; labscript-c-extensions must be rebuilt for Python 3.13 to 3.15 anyway, so include the fix. PR opened 2026-10-17: labscript-c-extensions #13.
+- qtutils #31 (close; aliases shipped in 4.1.3, which lyse pins) and #22 (RTD shows version 0.1.0.dev1; PR opened 2026-10-17: qtutils #37).
 - setuptools-conda #26 only if conda packages are built for free-threaded Pythons.
 ### runmanager, labscript-suite
 
@@ -2103,7 +2103,7 @@ unless a full path is given.
 | 1 | blacs #46 queue thread dies when the shot file cannot be written | bug | 4 | fix for next release (with #29) |
 | 2 | blacs #29 crash on shared drive becoming unavailable | bug | 4 | fix for next release (duplicate of #46) |
 | 3 | blacs #52 lost window after compile and restart | bug | 4 | fix for next release (with #56) |
-| 4 | desktop-app #20 launcher imports pywin32 before activating the env | bug | 4 | fix for next release |
+| 4 | desktop-app #20 launcher imports pywin32 before activating the env | bug | 4 | fix for next release; PR opened 2026-10-17: desktop-app #34 |
 | 5 | blacs #56 window geometry restoration | bug | 3 | fix for next release (with #52) |
 | 6 | blacs #100 setup_logging crashes when sys.stdout is None | bug | 3 | fix for next release (labscript-utils) |
 | 7 | blacs #49 StopIteration before first yield gives fatal error | bug | 3 | fix for next release |
@@ -2142,7 +2142,7 @@ unless a full path is given.
 
 - blacs #46 / #29: wrap the shot-file cleanup in `experiment_queue.py:808-821` and `:926-947` so the queue-manager thread cannot die on I/O errors.
 - blacs #52 / #56: replace the `move()/resize()` geometry restore (`__main__.py:481-515`) with `saveGeometry()/restoreGeometry()` plus a `QScreen` bounds check; Qt6 and Windows 11 multi-monitor.
-- desktop-app #20: make `desktop_app/windows.py` pywin32 imports lazy so the launcher runs in an unactivated conda env.
+- desktop-app #20: make `desktop_app/windows.py` pywin32 imports lazy so the launcher runs in an unactivated conda env. PR opened 2026-10-17: desktop-app #34.
 - blacs #100: guard `sys.stdout is None` in `labscript_utils/setup_logging.py:60` (and `sys.stderr` at `:73`).
 - blacs #49: handle `StopIteration` from the first `__next__` at `tab_base_classes.py:792`.
 - blacs #32, #7, #72: three trivial usability fixes (device names in pause status; dialog start directories from labconfig; localhost default for lyse).
@@ -2839,10 +2839,10 @@ Reviewed in the style of PR-REVIEW.md section 2. Head `453459d` (master merged i
 | 3 | lyse #14 multishot runs while paused | bug | 3 | fix for next release (one condition) |
 | 4 | lyse #90 dict results flattened inconsistently | bug | 3 | fix for next release |
 | 5 | lyse #139 serial subprocess start-up | bug (performance) | 3 | fix for next release |
-| 6 | runviewer #13 pulses at t=0 dropped by resampler | bug (in labscript-c-extensions) | 3 | fix for next release, move to labscript-c-extensions |
-| 7 | qtutils #22 RTD version string | tooling | 2 | fix for next release (one line) |
+| 6 | runviewer #13 pulses at t=0 dropped by resampler | bug (in labscript-c-extensions) | 3 | fix for next release, move to labscript-c-extensions; PR opened 2026-10-17: labscript-c-extensions #13 |
+| 7 | qtutils #22 RTD version string | tooling | 2 | fix for next release (one line); PR opened 2026-10-17: qtutils #37 |
 | 8 | qtutils #31 PyQt6 aliases tracker | meta | 2 | close |
-| 9 | qtutils #2 / PR #32 clear output box | feature | 2 | rework PR, then merge |
+| 9 | qtutils #2 / PR #32 clear output box | feature | 2 | rework PR, then merge; PR opened 2026-10-17: qtutils #36 (context-menu part of #32, author credited) |
 | 10 | lyse #35 persist hidden columns | feature | 2 | fix later |
 | 11 | lyse #41 plot window size | bug | 2 | fix later |
 | 12 | lyse #53 get_image argument names | API | 2 | fix later |
@@ -2892,8 +2892,8 @@ Reviewed in the style of PR-REVIEW.md section 2. Head `453459d` (master merged i
 - zprocess #19 (and #16): conda defaults' Windows zeromq lacks CURVE, so secured installs fail with `ZMQError: Not supported`. Add a `zmq.has('curve')` check with a readable message and state the required pyzmq source in the release installation docs.
 - lyse #139: serial analysis-subprocess start-up is slower under PySide6/PyQt6, which the release moves users to.
 - lyse #14 and #90: small, long-standing behaviour bugs with contained fixes.
-- runviewer #13: resampler drops short pulses at t=0; labscript-c-extensions must be rebuilt for Python 3.13 to 3.15 anyway, so include the fix.
-- qtutils #31 (close; aliases shipped in 4.1.3, which lyse pins) and #22 (RTD shows version 0.1.0.dev1).
+- runviewer #13: resampler drops short pulses at t=0; labscript-c-extensions must be rebuilt for Python 3.13 to 3.15 anyway, so include the fix. PR opened 2026-10-17: labscript-c-extensions #13.
+- qtutils #31 (close; aliases shipped in 4.1.3, which lyse pins) and #22 (RTD shows version 0.1.0.dev1; PR opened 2026-10-17: qtutils #37).
 - setuptools-conda #26 only if conda packages are built for free-threaded Pythons.
 
 ## 3.x Issue triage: runmanager, labscript-suite, mise, bias

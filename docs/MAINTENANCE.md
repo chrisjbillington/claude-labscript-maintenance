@@ -142,7 +142,7 @@ unaffected. The review's line references map to the new layout as follows.
 | 16 lyse on pandas 3 | open |
 | 17 PrawnBlaster wait without monitor | open |
 | 18 `h5_lock` | open |
-| 19 runviewer resampler bounds | open |
+| 19 runviewer resampler bounds | fixed, labscript-c-extensions PR #13 (open) |
 | 20 zlock port | fixed, labscript-utils PR #128 |
 
 Item 1 is fixed by the pull requests in the table below; no open pull request addresses
