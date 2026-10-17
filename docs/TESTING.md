@@ -62,7 +62,8 @@ jobs.
 | Ubuntu 3.14 PySide6 `numpy<2.5` | all eight steps pass |
 | 6 jobs: Python 3.15 on both OSes, each binding | install fails on h5py as before; nothing else runs |
 
-Fully passing jobs took 2.1 minutes on Ubuntu and 3.4 minutes on Windows.
+Fully passing jobs took 2.1 minutes on Ubuntu and 3.4 minutes on Windows. The results
+were posted as a comment on each of the five pull requests on 2026-10-17.
 
 **Run 39009717709, the metadata pull requests, `numpy<2.5`.** Refs: zprocess pr/29,
 qtutils pr/33, desktop-app pr/31, labscript-c-extensions pr/10, labscript-utils pr/130,
