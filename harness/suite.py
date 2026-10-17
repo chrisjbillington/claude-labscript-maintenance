@@ -185,8 +185,10 @@ def cmd_install(args):
     requirements = [str(repos_dir / n) for n in COMPONENTS]
     requirements += [args.qt, 'pytest'] + args.pin
     result = run(uv + ['pip', 'install', '--python', py] + requirements, env=env)
+    version = subprocess.run([str(py), '-c', 'import platform; print(platform.python_version())'],
+                             capture_output=True, text=True).stdout.strip()
     info = {
-        'python': args.python,
+        'python': version or args.python,
         'qt': args.qt,
         'pins': args.pin,
         'repos_dir': str(repos_dir.resolve()),
@@ -195,7 +197,7 @@ def cmd_install(args):
     (venv / 'harness.json').write_text(json.dumps(info, indent=1))
     if result.returncode != 0:
         raise SystemExit('install failed')
-    run([py, '-c', 'import sys; print(sys.version)'], check=True)
+    log(f'installed into {venv} with Python {version}')
 
 
 # ---------------------------------------------------------------------------
