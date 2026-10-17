@@ -19,18 +19,19 @@ Ubuntu 24.04 container as root.
 |---|---|---|---|
 | Ubuntu, Windows | 3.11 | 2.4.6 | all eight steps pass |
 | Ubuntu, Windows | 3.12, 3.13, 3.14 | 2.5.4 | install and imports pass; `compile` fails with `TypeError: data type 'a256' not understood` (labscript #123), so lyse, runviewer and apps are skipped and the compile checks of runmanager-api fail |
-| Ubuntu | 3.14 | 2.4.6 (`--pin "numpy<2.5"`) | all eight steps pass |
-| Windows | 3.12, 3.14 | 2.4.6 (`--pin "numpy<2.5"`) | all eight steps and the zprocess test suite: see below |
+| Ubuntu | 3.14 | 2.4.6 (`--pin "numpy<2.5"`) | all eight steps pass, and the zprocess test suite passes (`--all`) |
+| Windows | 3.12, 3.14 | 2.4.6 (`--pin "numpy<2.5"`) | all eight steps pass, and the zprocess test suite passes (`--all`, 118 s) |
 | Ubuntu, Windows | 3.15.0 | | install fails: h5py 3.16.0 has no cp315 wheel and its source build stops at `Unable to load dependency HDF5` |
-| local container | 3.14.6 | 2.4.6 | all eight steps pass; zprocess test suite 71 passed, 2 failed (see below) |
+| local container | 3.11.15, 3.14.6 | 2.4.6 | all eight steps pass; zprocess test suite 71 passed, 2 failed as root (see below) |
 
 Python 3.11 passes on NumPy 2.5 because NumPy 2.5 requires Python 3.12 or newer, so pip
 resolves NumPy 2.4.6 for 3.11 and the `a256` alias still exists. Users on Python 3.11 are
 therefore not affected by labscript #123.
 
 Job durations: a fully passing job takes 2 minutes on Ubuntu and 4 minutes on Windows,
-of which the install step is about 40 s and the imports step 35 s to 60 s. The
-labscript-c-extensions Cython extension builds from source on both platforms.
+of which the install step is about 40 s and the imports step 35 s to 60 s; the zprocess
+test suite adds 2 minutes. The labscript-c-extensions Cython extension builds from source
+on both platforms.
 
 ### Defects and behaviours found by the runs
 

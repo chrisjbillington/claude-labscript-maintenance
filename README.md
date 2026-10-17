@@ -28,6 +28,7 @@ part of this repository.
 | `harness/` | Test harness: installs the component repositories at given refs into a venv and runs end-to-end checks (import, profile, compile, lyse, runviewer parsers, runmanager API, application start-up); `harness/README.md` |
 | `.github/workflows/test.yml` | Runs the harness on Ubuntu and Windows for Python 3.11 to 3.15: on pushes that change the harness, weekly, and on demand with chosen component refs |
 | `docs/TESTING.md` | Results of the harness runs, with dates and versions, and the defects they found |
+| `docs/LOCAL-TASKS.md` | Tasks that a cloud session could not do, for a local session to do under supervision |
 | `tools/` | Scripts used to produce the documents: GitHub page scrapers |
 
 Read `docs/RELEASE-PLAN.md` first for what needs doing. `docs/MAINTENANCE.md` says what has
