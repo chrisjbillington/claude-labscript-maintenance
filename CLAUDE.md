@@ -37,8 +37,12 @@ This repository holds the notes, plans and tooling for maintaining the labscript
 - When an issue or PR is closed or merged, update its row in `docs/ISSUE-TRIAGE.md` or
   `docs/PR-REVIEW.md` rather than deleting it.
 - Record facts about the suite that were found by running code (what works on which
-  Python and dependency versions, what fails and how) in `docs/RELEASE-PLAN.md` or a new
-  document under `docs/`, with the date and the versions used.
+  Python and dependency versions, what fails and how) in `docs/TESTING.md`, with the date
+  and the versions used.
+- A defect found by testing that no GitHub issue, `docs/REVIEW.md` entry or
+  `docs/ISSUE-TRIAGE.md` entry records goes in `docs/DEFECTS.md` with file and line,
+  importance, how it was verified and its status. Defects are not filed upstream unless a
+  fix is made; then the row names the pull request.
 
 ## Tests
 

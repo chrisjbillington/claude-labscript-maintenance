@@ -33,47 +33,35 @@ of which the install step is about 40 s and the imports step 35 s to 60 s; the z
 test suite adds 2 minutes. The labscript-c-extensions Cython extension builds from source
 on both platforms.
 
-### Defects and behaviours found by the runs
+### Defects found by the runs
 
-All verified by running the code (the harness logs show each).
+Defects that no GitHub issue or review document records are in `DEFECTS.md`: D1 (BLACS
+first-launch traceback), D2 (`make_single_run_file` with a bare filename), D3 (tkinter
+import in `labscript_utils.excepthook`) and D4 (stale zlock server with another shared
+secret). The runs also showed that `runmanager.globals_diff_shots` raises
+`UnboundLocalError` for any two shots of one sequence, not only identical shots as
+REVIEW.md runmanager B7 says: the shot files carry the same group definitions and differ
+only in the evaluated values stored as attributes, so `globals_diff_groups` finds no
+difference. The harness marks B7 and D1 as known in the `runmanager-api` and `apps` steps.
 
-1. **BLACS logs an error with a traceback on its first launch.** `blacs/__main__.py:496`
-   `restore_window` reads `tab_data['BLACS settings']["window_xpos"]`, which does not exist
-   when there are no saved settings, and the `KeyError` is logged at ERROR level with a
-   traceback ("Unable to load window and notebook defaults"). BLACS continues normally.
-   Not in ISSUE-TRIAGE.md or REVIEW.md. The harness marks this as known in the `apps`
-   step. Fix: check for the keys before restoring, or log at INFO without a traceback.
-2. **`runmanager.make_single_run_file` fails for a bare filename.**
-   `runmanager/compiler.py:178` calls `os.makedirs(os.path.dirname(filename), exist_ok=True)`,
-   which raises `FileNotFoundError` for `''` when `filename` has no directory part. Not in
-   REVIEW.md. Fix: skip `makedirs` when the directory part is empty.
-3. **`runmanager.globals_diff_shots` raises `UnboundLocalError` for any two shots of one
-   sequence**, not only identical shots as REVIEW.md runmanager B7 says: the shot files
-   carry the same group definitions (expressions and expansions) and differ only in the
-   evaluated values stored as attributes, so `globals_diff_groups` finds no difference.
-   The harness marks this as known in the `runmanager-api` step.
-4. **`labscript_utils.excepthook` imports `tkinter` at module level**
-   (`excepthook/__init__.py:99`), so on a Python without tkinter, lyse, blacs,
-   `labscript_utils.connections` and most labscript-devices modules cannot be imported and
-   nothing compiles. Ubuntu's `python3.11` from the deadsnakes repository has no tkinter
-   package; the uv-managed and python.org interpreters do. Related: ISSUE-TRIAGE.md item 96
-   (labscript-utils #104). The harness README lists tkinter as a requirement.
-5. **`import labscript_utils` creates a profile** in `~/labscript-suite` when none exists
+### Behaviours worth knowing
+
+All seen by running the code.
+
+1. **`import labscript_utils` creates a profile** in `~/labscript-suite` when none exists
    (`labscript_utils/__init__.py:22`). Any script that imports labscript_utils on a fresh
    machine writes a profile; the harness creates its profile first so that it owns it.
-6. **zprocess tests `test_no_access` and `test_cant_create_files` fail when run as root**
+2. **zprocess tests `test_no_access` and `test_cant_create_files` fail when run as root**
    because root passes the permission checks that they test. They pass as a normal user.
-   Environment, not a bug.
-7. **`runmanager.get_shot_globals` emits a `FutureWarning`** telling callers to import it
+3. **`runmanager.get_shot_globals` emits a `FutureWarning`** telling callers to import it
    from `labscript_utils.shot_utils`. Expected deprecation path; the harness does not
    treat it as a failure.
-8. **Qt on a bare Linux container** needs `libegl1`, `libopengl0`, `libxkbcommon0`,
+4. **Qt on a bare Linux container** needs `libegl1`, `libopengl0`, `libxkbcommon0`,
    `libdbus-1-3`, `libfontconfig1` and `libglib2.0-0`, which GitHub's `ubuntu-latest`
    image has except `libegl1` and `libopengl0`. The workflow installs them.
-9. **Compiler output streaming needs the labconfig security settings.** A plain `zmq`
+5. **Compiler output streaming needs the labconfig security settings.** A plain `zmq`
    PULL socket receives nothing from the batch compiler; the socket must come from
-   `labscript_utils.ls_zprocess.Context`, as the runmanager output box does. Documented
-   behaviour, noted here because the first version of the harness got it wrong.
+   `labscript_utils.ls_zprocess.Context`, as the runmanager output box does.
 
 ### What the harness does not cover yet
 
