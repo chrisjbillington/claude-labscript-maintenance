@@ -15,6 +15,7 @@ fix is made, in which case the row names the pull request. Importance uses the s
 | D2 | 2026-10-17 | runmanager `runmanager/compiler.py:178` | `make_single_run_file` fails with `FileNotFoundError` when the filename has no directory part | 2 | run | open |
 | D3 | 2026-10-17 | labscript-utils `labscript_utils/excepthook/__init__.py:99` | `tkinter` is imported at module level, so a Python without tkinter cannot import lyse, blacs, `labscript_utils.connections` or most device classes | 3 | run | open |
 | D4 | 2026-10-17 | labscript-utils `labscript_utils/ls_zprocess.py:332` with zprocess `zlock` | A running zlock server with a different shared secret makes `import labscript_utils.h5_lock` fail with `AuthenticationFailure`; nothing restarts the server or says what to do | 3 | run | open |
+| D5 | 2026-10-17 | labscript-utils `labscript_profile/default_profile/userlib/analysislib/example_apparatus/example_IMAQdx_remote.py:6` | The example analysis script tests `lyse.spinning_top`, which lyse 3.3.0rc1 moved to `lyse.utils.worker`; lyse's lazy attribute loader resolves only `path`, so the script raises `AttributeError` as soon as lyse runs it | 3 | run | open; the same line in the script of labscript-utils #117 is fixed by `patches/labscript-utils-117-example-analysis-fixes.patch` |
 
 ## Detail
 
@@ -60,3 +61,14 @@ while the server from the first profile was running. Fix: on `AuthenticationFail
 report that a zlock server with a different shared secret is running on the port and how
 to stop it, or shut it down and start a new one when it is a local child process. The
 harness avoids it by carrying the shared secret over when it recreates its profile.
+
+### D5. The camera example analysis script fails on current lyse
+
+`example_IMAQdx_remote.py:6` reads `lyse.spinning_top` to decide whether it is running
+inside lyse. lyse commit 06ce8dc (v3.3.0rc1) moved `spinning_top` to
+`lyse.utils.worker`, and the module `__getattr__` in `lyse/__init__.py:74` resolves only
+`path`, so the script raises `AttributeError: module 'lyse' has no attribute
+'spinning_top'` on its first statement after the imports. Reproduced with the script of
+labscript-utils #117, which copied the same line, run the way lyse's analysis subprocess
+runs it. Fix: use `lyse.path`, which is the shot being analysed inside lyse and `None`
+outside it, as the fixed #117 script does.
