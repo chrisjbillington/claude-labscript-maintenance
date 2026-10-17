@@ -27,7 +27,7 @@ part of this repository.
 | `docs/RELEASE-PLAN.md` | Plan for the next minor release of every component: Python 3.11 to 3.15, NumPy 2.5, workflow sync, work items, release order (2026-10-17) |
 | `briefs/` | The briefs given to the agents that produced the issue triage and PR review; the criteria and importance scale to reuse |
 | `harness/` | Test harness: installs the component repositories at given refs into a venv and runs end-to-end checks (import, profile, compile, lyse, runviewer parsers, runmanager API, application start-up); `harness/README.md` |
-| `.github/workflows/test.yml` | Runs the harness on Ubuntu and Windows for Python 3.11 to 3.15: on pushes that change the harness, weekly, and on demand with chosen component refs |
+| `.github/workflows/test.yml` | Runs the harness on Ubuntu and Windows for Python 3.11 to 3.15 with PySide6, PyQt6 and PyQt5: on pushes that change the harness, weekly, and on demand with chosen component refs |
 | `docs/TESTING.md` | Results of the harness runs, with dates and versions |
 | `docs/DEFECTS.md` | Defects found by testing that no GitHub issue or review document records, with importance and status |
 | `docs/LOCAL-TASKS.md` | Tasks that a cloud session could not do, for a local session to do under supervision |

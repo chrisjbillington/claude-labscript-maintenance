@@ -25,6 +25,9 @@ on:
       pythons:
         description: 'JSON list of Python versions'
         default: '["3.11", "3.12", "3.13", "3.14", "3.15"]'
+      qts:
+        description: 'JSON list of Qt bindings'
+        default: '["PySide6", "PyQt6", "PyQt5"]'
       all_steps:
         description: 'Also run the steps that are skipped by default (the zprocess test suite)'
         type: boolean
@@ -32,7 +35,7 @@ on:
 
 jobs:
   test:
-    name: ${{ matrix.os }} py${{ matrix.python }} ${{ matrix.pins }}
+    name: ${{ matrix.os }} py${{ matrix.python }} ${{ matrix.qt }} ${{ matrix.pins }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     # Python 3.15 cannot be installed from PyPI until h5py ships wheels for it.
@@ -42,12 +45,14 @@ jobs:
       matrix:
         os: ${{ fromJSON(inputs.oses || '["ubuntu-latest", "windows-latest"]') }}
         python: ${{ fromJSON(inputs.pythons || '["3.11", "3.12", "3.13", "3.14", "3.15"]') }}
+        qt: ${{ fromJSON(inputs.qts || '["PySide6", "PyQt6", "PyQt5"]') }}
         pins: ['${{ inputs.pins }}']
         include:
           # The master branches do not compile on NumPy 2.5 (labscript #123); this job
           # shows whether anything else has regressed.
           - os: ubuntu-latest
             python: '3.14'
+            qt: PySide6
             pins: numpy<2.5
     steps:
       - uses: actions/checkout@v6
@@ -80,7 +85,7 @@ jobs:
           for pin in $PINS; do
             args+=(--pin "$pin")
           done
-          python harness/suite.py install --repos-dir repos --venv venv \
+          python harness/suite.py install --repos-dir repos --venv venv --qt ${{ matrix.qt }} \
             --python "$(python -c 'import sys; print(sys.executable)')" "${args[@]}"
 
       - name: Run the checks
@@ -95,7 +100,7 @@ jobs:
       - uses: actions/upload-artifact@v6
         if: always()
         with:
-          name: logs-${{ matrix.os }}-py${{ matrix.python }}${{ matrix.pins && '-pinned' || '' }}
+          name: logs-${{ matrix.os }}-py${{ matrix.python }}-${{ matrix.qt }}${{ matrix.pins && '-pinned' || '' }}
           path: |
             work/logs
             work/report.md
