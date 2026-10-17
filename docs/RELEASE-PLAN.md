@@ -240,7 +240,8 @@ which give file:line and the reasoning.
    `front_panel_settings.py:348,387` (BLACS cannot save front-panel settings on NumPy
    2.5 either). Also `LightCrafterDMD.py:348,359` `ndarray.tostring()` (removed in
    NumPy 2). The `np.string_` fixes for the cameras are already on master, unreleased.
-   Status 2026-10-17: PRs open, labscript #124, labscript-devices #149, blacs #124.
+   Status 2026-10-17: labscript #124 merged (ede3584) and labscript #123 closed;
+   labscript-devices #149 and blacs #124 open.
 2. **zprocess #27**: `SetConsoleMode` crash on Windows 11 when any suite program is
    restarted from Windows Terminal or VS Code. Two lines in `zprocess/utils.py:190`.
    Needs zprocess 2.28.0, which also carries the heartbeat changes merged in 2026.
@@ -250,25 +251,26 @@ which give file:line and the reasoning.
    file, because `labscript-profile-create` lays out `example_apparatus` as a namespace
    package and ModuleWatcher unloads its parent. Ship `__init__.py` in the default
    profile and stop whitelisting namespace packages under userlib.
-   Status 2026-10-17: PR open, labscript-utils #129.
+   Status 2026-10-17: labscript-utils #129 merged (c023465); issue closed.
 4. **labscript-suite #56**: the release workflow computes `PKGVER` from a commit that
    carries both an rc and a final tag. Fix in the sandbox and deploy before tagging.
-   Status 2026-10-17: PR open, workflow-sandbox #46; the step was tested in this
+   Status 2026-10-17: workflow-sandbox #46 merged (e3fb720); issue closed. The step was tested in this
    repository's `tag-test.yml` on branch `claude/release-tag-test`, locally with
    setuptools_scm, and with real tag pushes to the chrisjbillington fork of the sandbox:
    an rc tag, then the final tag on the same commit, then a branch push built
    0.6.0rc2, 0.6.0 and 0.7.0.dev70 (`TESTING.md`).
 5. **Workflow sync** (section 2): deploy the sandbox to the nine lagging repos and
    qtutils; bump `action-gh-release` to v3 in the sandbox first.
-   Status 2026-10-17: sync PRs open on all twelve repos from the head of sandbox #46
-   (table in `PULL-REQUESTS.md`); merge #46 first.
+   Status 2026-10-17: sync PRs merged on all twelve repos, from the head of sandbox #46
+   (table in `PULL-REQUESTS.md`). Done.
 6. **Metadata**: `requires-python = ">=3.11"` and matching classifiers in every repo;
    component pins in labscript-suite and runmanager pyproject raised to the new
    versions; `version_scheme = "semver-pep440-release-branch"`; delete the
    `importlib_metadata` fallbacks (every `__version__.py`, `labscript_utils/versions.py`,
    `desktop_app/fix_entry_points.py`).
-   Status 2026-10-17: PRs open on all twelve repos (table in `PULL-REQUESTS.md`); the
-   scheme rename needs `setuptools_scm>=10`, which conda-forge has.
+   Status 2026-10-17: PRs on all twelve repos (table in `PULL-REQUESTS.md`); labscript
+   #125 and labscript-utils #130 merged, the other ten open. The scheme rename needs
+   `setuptools_scm>=10`, which conda-forge has.
 
 ### 4.2 Bugs worth fixing in this release (importance 4, all small)
 

@@ -124,7 +124,7 @@ unaffected. The review's line references map to the new layout as follows.
 
 | Item | Status |
 |---|---|
-| 1 `'a256'` dtypes | fix open: labscript PR #124, labscript-devices PR #149 and blacs PR #124 (2026-10-17) |
+| 1 `'a256'` dtypes | labscript PR #124 merged 2026-10-17 as ede3584; labscript-devices PR #149 and blacs PR #124 open |
 | 2 `bitfield` dtype | open |
 | 3 NI analog input final read | open |
 | 4 PrawnDO wait insertion | open |
@@ -154,7 +154,9 @@ addresses items 2 to 19.
 state. On 2026-10-17: three for the NumPy 2.5 dtype alias (labscript #124,
 labscript-devices #149, blacs #124), zprocess #28, labscript-utils #129, and the Python
 3.11 metadata change on twelve repos; later the same day, workflow-sandbox #46 for
-labscript-suite #56 and a workflow sync PR on each of the twelve repos.
+labscript-suite #56 and a workflow sync PR on each of the twelve repos. Merged on
+2026-10-17: workflow-sandbox #46 and all twelve sync PRs, labscript #124,
+labscript-utils #129, labscript #125 and labscript-utils #130.
 
 The scheme rename needs setuptools_scm 10, which introduced the name
 `semver-pep440-release-branch` (setuptools_scm 9.2.2 does not have it); the default
