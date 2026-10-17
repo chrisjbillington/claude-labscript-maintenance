@@ -287,7 +287,7 @@ which give file:line and the reasoning.
 - blacs #52 and #56: window geometry restored by `move()/resize()` arithmetic with no
   screen check; reproduced again in 2026-01. Use `saveGeometry/restoreGeometry` and clamp.
 - desktop-app #20: `desktop_app/windows.py` imports pywin32 in the launcher before the
-  environment is activated; make the imports lazy (desktop-app 0.5.1). PR opened 2026-10-17: desktop-app #34.
+  environment is activated; make the imports lazy (desktop-app 0.5.1). desktop-app #34 merged 2026-10-17.
 - zprocess #19 and #16: call `zmq.has('curve')` before CURVE APIs and raise a readable
   error; document that conda users need conda-forge's pyzmq.
 - blacs #100: `setup_logging.py:60,73` crash when `sys.stdout` is `None` (pythonw). PR
@@ -334,7 +334,11 @@ Status 2026-10-17: labscript-devices #110 and lyse #132 merged. Maintainer fix c
 for labscript-utils #117, labscript-devices #126, #144, #87 and #63 and
 prawn_digital_output #23 are in `patches/` with rows in `LOCAL-TASKS.md` to push each to
 its pull request branch, dispatch the test workflow with the pull request refs and merge
-(`TESTING.md`, "fixes for the remaining release pull requests"). PrawnBlaster #37 and #35
+(`TESTING.md`, "fixes for the remaining release pull requests").
+Status 2026-10-18: all six are merged. The fix commits were pushed to the pull request
+branches and labscript-utils #117, labscript-devices #126, #144, #87 and #63 and
+prawn_digital_output #23 were merged on 2026-10-17 (`LOCAL-TASKS.md` has the merge
+commits); `patches/` holds only the blacs #123 comment trim. PrawnBlaster #37 and #35
 are not prepared: both need firmware changes tested on hardware and a host-side change,
 and neither blocks the release.
 
@@ -371,15 +375,14 @@ API and BLACS submission paths specifically.
 
 ## 5. Release sequence
 
-Dependency order, each as rc1 on a `maintenance/x.y.x` branch per the release flow
-(zprocess releases from `master`), with the final tag once the next package in the chain
-has been tested against it:
+Dependency order. Each is tagged on a `maintenance/x.y.x` branch per the release flow
+(zprocess releases from `master`):
 
 | Step | Package | Version | Carries |
 |---|---|---|---|
 | 1 | zprocess | 2.28.0 | #27, #19, heartbeat changes. Tagged from `master`: `v2.28.0rc1` at e74b638 on 2026-10-17 is on PyPI but has no win-64 conda packages (defect D7, `DEFECTS.md`); `v2.28.0rc2` at f5f4685, which carries the D7 fix (#31), is on PyPI and on the Anaconda main label for all four platforms (run 39029064804). The `maintenance/2.28.x` branch that was pushed for rc1 is deleted; zprocess does not use maintenance branches |
-| 2 | qtutils (philipstarkey) | 4.1.4 | #22 RTD version, optional "Clear output" part of PR #32. PRs opened 2026-10-17: qtutils #37 (#22) and #36 (clear output, closes #2) |
-| 3 | desktop-app | 0.5.1 | #20 lazy pywin32. PR opened 2026-10-17: desktop-app #34 |
+| 2 | qtutils (philipstarkey) | 4.1.4 | #22 RTD version, optional "Clear output" part of PR #32. qtutils #37 (#22) and #36 (clear output, closes #2) merged 2026-10-17; not tagged |
+| 3 | desktop-app | 0.5.1 | #20 lazy pywin32. desktop-app #34 merged 2026-10-17; not tagged |
 | 4 | labscript-c-extensions | 1.3.1 | runviewer #13 resampler fix (PR #13 opened 2026-10-17, also fixes REVIEW.md item 19); py311 to py315 wheels come from the metadata (#10) and workflow (#11) merges |
 | 5 | labscript-utils | 3.5.0 | #28, #100, #60, PR #117, Qt6 work |
 | 6 | labscript | 3.5.0 | #123, #52, #43, #104, #16 |
@@ -398,6 +401,15 @@ the packages they pin; a `>=3.5.0` pin would be satisfied by neither a developme
 version nor a release candidate. The rc1 form is kept in the final release: pip does
 not select a release candidate once a final release exists, so the looser pin changes
 nothing for users, and one commit can carry both the rc and the final tag.
+
+No tag is pushed until the whole release set is ready (maintainer's decision,
+2026-10-18); the sequence above is the order of the tags on that day, and only zprocess
+has release candidates on PyPI. Until then, testing uses two things that need no tag:
+every push to `master` or a `maintenance/*` branch runs `release.yml`, which builds the
+sdist, wheels and conda packages as a development version and uploads them to Test PyPI
+and the Anaconda `test` label; and the harness workflow in this repository installs any
+mix of branches, commits and `pr/N` refs (`harness/README.md`). A change is checked by
+merging it and reading its `release.yml` run, or by a harness dispatch with its ref.
 
 Conda packages for steps 1 and 4 are built per Python (3.11 to 3.15); the rest are
 noarch. Nothing needs `CONDA_PYTHONS` set: the py315 packages build now and become

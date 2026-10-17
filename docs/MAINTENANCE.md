@@ -159,7 +159,10 @@ labscript-devices #149, blacs #124), zprocess #28, labscript-utils #129, and the
 3.11 metadata change on twelve repos; later the same day, workflow-sandbox #46 for
 labscript-suite #56 and a workflow sync PR on each of the twelve repos. All were merged
 on 2026-10-17 except runmanager #131 and labscript-suite #106, which raise component
-pins and are held for the release sequence (`RELEASE-PLAN.md` section 5).
+pins and are held for the release sequence (`RELEASE-PLAN.md` section 5). Later on
+2026-10-17: qtutils #36 and #37 and desktop-app #34 (release sequence steps 2 and 3),
+workflow-sandbox #47 and eleven sync PRs for defect D7 were merged; labscript-c-extensions
+#12 (D7 sync), #13 (item 19), labscript-utils #133 and labscript #128 are open.
 
 The scheme rename needs setuptools_scm 10, which introduced the name
 `semver-pep440-release-branch` (setuptools_scm 9.2.2 does not have it); the default

@@ -38,7 +38,7 @@ been fixed already. The ranked tables at the top of `docs/ISSUE-TRIAGE.md` and
 `docs/PR-REVIEW.md` give the per-item actions; the rest of those files is the reasoning
 and the file:line evidence.
 
-## State as of 2026-10-17
+## State as of 2026-10-18
 
 - runmanager PR #130 (the module split) was merged 2026-10-17 as bfe63ba with a fix
   commit. labscript-utils PR #128 was merged upstream on 2026-10-13 and fixes review item
@@ -56,7 +56,17 @@ and the file:line evidence.
   labscript-utils #133 (`h5_lock`, `setup_logging`, `excepthook`, `aom.py`, `runmanager.ini`
   in the default profile) and labscript #128 (compiler checks, limits, duplicate
   connections, trigger and gate handling). Both passed the harness on every supported
-  Python and Qt binding (`docs/TESTING.md`).
+  Python and Qt binding (`docs/TESTING.md`). Both are open.
+- The release pull requests from contributors (labscript-devices #110, #126, #144, #87,
+  #63, lyse #132, labscript-utils #117, prawn_digital_output #23) were merged 2026-10-17
+  with maintainer fix commits (`docs/LOCAL-TASKS.md`). The step 2 and 3 pull requests
+  (qtutils #36, #37, desktop-app #34) are merged. Defect D7 (the release workflow's tag
+  step under PowerShell) is fixed in the sandbox and in every repository but
+  labscript-c-extensions, where #12 is open beside the resampler fix #13.
+- No tag is pushed until the release set is ready; zprocess 2.28.0rc2 is the only release
+  candidate. Changes are tested from the `release.yml` runs on `master` (Test PyPI and the
+  conda test label) and from harness dispatches with branch or `pr/N` refs
+  (`docs/RELEASE-PLAN.md` section 5).
 - Python 3.15 works for the code but installs are blocked by missing h5py wheels on PyPI
   and missing pyzmq and PyQt builds on conda-forge.
 - No component repo has a test or lint workflow; only `release.yml`. The harness in this
