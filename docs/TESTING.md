@@ -28,16 +28,22 @@ with `tkinter` blocked in `sys.modules`, `labscript_utils.excepthook` imports wi
 `UserWarning` and the installed excepthook prints the traceback.
 
 **labscript [#128](https://github.com/labscript-suite/labscript/pull/128)** (head
-4549021): the harness workflow was dispatched with
+738bc7a; the run below tested 4549021): the harness workflow was dispatched with
 `labscript=labscript-suite/labscript@compiler-fixes` as run
 [39034242971](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39034242971):
 the 24 jobs on Ubuntu and Windows for Python 3.11 to 3.14 with PySide6, PyQt6 and
 PyQt5 and the NumPy 2.4 job passed every step; the 6 Python 3.15 jobs failed at
 "Install the components" on h5py as before. Locally (Python 3.14.6, numpy 2.5.4, PySide6, the branch installed into the
-harness venv) all eight steps passed. An earlier version of the branch made the final
-clock tick ten periods of the slowest clockline (REVIEW.md labscript B8); the
-`runviewer` step failed because the clockline trace then ended 10 µs after the stop
-time, and the change was dropped. Per-fix checks in the same venv, each in its own
+harness venv) all eight steps passed. The second commit, 738bc7a (2026-10-18), makes
+the final clock tick one period of the slowest clock limit among the pseudoclock and its
+clocklines, or twice the longest minimum clock high time if that is longer (REVIEW.md
+labscript B8). The `runviewer` check allowed a trace to end at most 1 µs after the stop
+time; it now allows one final tick, computed from the clock limits of the fixture's
+device classes. With 738bc7a installed into a local harness venv (Python 3.14.8, numpy
+2.5.4, PySide6) all eight steps passed on 2026-10-18, and the workflow was dispatched
+with the branch as run
+[39078500277](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39078500277)
+(result not yet recorded). Per-fix checks in the same venv, each in its own
 interpreter, with `DummyPseudoclock` and a test `IntermediateDevice` with a 1 MHz clock
 limit:
 
@@ -58,6 +64,7 @@ limit:
 | `quantise_to_pseudoclock` of a set | returns a set |
 | two `DigitalOut` on `port0/line11` | `LabscriptError` naming both outputs |
 | `TriggerableDevice` on a line that has a `DigitalOut` | `LabscriptError` |
+| final tick (738bc7a), `DummyPseudoclock` at 10 MHz with a 1 MHz device; a 10 kHz device; a 1 MHz device with an 80 µs minimum clock high time; a device with no clock limit | 1 µs; 100 µs; 160 µs; 100 ns, read back from `PULSE_PROGRAM` |
 | two `TriggerableDevice` children of one `Trigger` | accepted |
 | two outputs 0.4 µs apart on a 1 MHz clockline | the error ends with "Outputs with an instruction at t=0.5: do1" and names do2 at the second time |
 | `exp_ramp` from 1 to 0 with limits (0, 10), and a constant of 10 + 1e-12 | compile; the raw output is within 0 to 10 |

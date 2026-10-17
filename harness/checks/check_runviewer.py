@@ -56,11 +56,20 @@ for name in with_parser:
 for m in failed:
     print('runviewer log:', m.splitlines()[0])
 
+# The final clock tick, at stop_time, is one period of the slowest clock limit among the
+# pseudoclock and the devices on its clocklines, so a trace ends at most that long after
+# stop_time.
+from labscript_devices.DummyPseudoclock.labscript_devices import DummyPseudoclock  # noqa: E402
+from labscript_devices.DummyIntermediateDevice import DummyIntermediateDevice  # noqa: E402
+
+final_tick = 1 / min(DummyPseudoclock.clock_limit, DummyIntermediateDevice.clock_limit)
+print(f'final tick {final_tick:.3g} s')
+
 check(len(traces) >= 1, f'{len(traces)} traces: {sorted(traces)}')
 for name, (times, values) in traces.items():
     check(len(times) > 0 and len(times) == len(values), f'trace {name} has {len(times)} points')
     check(np.all(np.diff(times) >= 0), f'trace {name} times are monotonic')
-    check(times[0] >= 0 and times[-1] <= shot.stop_time + 1e-6,
+    check(times[0] >= 0 and times[-1] <= shot.stop_time + final_tick,
           f'trace {name} spans {times[0]:.6g} to {times[-1]:.6g} s of {shot.stop_time} s')
 
 markers = shot.markers

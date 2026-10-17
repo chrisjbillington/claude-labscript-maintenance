@@ -264,7 +264,7 @@ Paths are relative to each repo's root unless stated otherwise.
   `setamp(t + duration, 0)` is inside `if amplitude != 0 and self.gate is not None`, so
   `DDS.pulse` on a DDS without a gate leaves the amplitude at its pulse value until the end
   of the shot. Line 1955 also fails with `frequency=None` and `print_summary=True`.
-- **B8. Open.** A fix was tried in labscript PR #128 and reverted: it lengthens every shot by ten periods of the slowest clockline, and no failure is attributed to the short final tick. **`labscript/core.py:520-536` (read).** `local_clock_limit` is computed over all
+- **B8. Fixed** by labscript PR #128: the final tick is one period of the slowest clock limit among the pseudoclock and its clocklines, or twice the longest minimum clock high time if that is longer. ~~**`labscript/core.py:520-536` (read).**~~ `local_clock_limit` is computed over all
   clocklines and then unused. The final tick step is `10.0/self.clock_limit`, which uses
   the pseudoclock limit. With a clockline that is much slower than the pseudoclock, the
   last tick period is shorter than `1/clock_line.clock_limit`.

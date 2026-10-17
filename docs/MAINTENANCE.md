@@ -148,7 +148,7 @@ unaffected. The review's line references map to the new layout as follows.
 Item 1 is fixed by the pull requests in the table below. Items 10 and 18 are fixed by
 labscript-utils PR #133 (open), which also fixes labscript-utils B16 (blacs #100),
 DEFECTS.md D3 and labscript-utils #60. Items 6, 7 and 8 are fixed by labscript PR #128
-(open), which also fixes labscript B1, B2, B4, B6, B7, B9, B10 and most of B5 and B11,
+(open), which also fixes labscript B1, B2, B4, B6, B7, B8, B9, B10 and most of B5 and B11,
 and labscript #16, #43 and #52. No open pull request addresses the other items.
 
 ## Pull requests opened by the maintenance track
