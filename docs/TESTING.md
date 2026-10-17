@@ -46,6 +46,32 @@ git push fork 6f21e86:refs/heads/maintenance/tag-test
 ```
 
 Expected `PKGVER` in the configure job of each run: 0.6.0rc2, 0.6.0, 0.7.0.dev70.
+## 2026-10-17: blocker fix pull requests on GitHub Actions, every Qt binding
+
+Two dispatches of `.github/workflows/test.yml`, as the CLAUDE.md rule asks before a merge.
+
+**Run 39009659742, the fix pull requests, full matrix.** Refs: labscript pr/124
+(3a328ae), labscript-devices pr/149 (e346f44), blacs pr/124 (1284b5d), zprocess pr/28
+(81b1b10), labscript-utils pr/129 (490f49b); the other seven components at master. Ubuntu
+and Windows, Python 3.11 to 3.15, PySide6, PyQt6 and PyQt5, plus the `numpy<2.5` job: 31
+jobs.
+
+| Jobs | Result |
+|---|---|
+| 24 jobs: both OSes, Python 3.11 to 3.14, all three Qt bindings, NumPy 2.5.4 (2.4.6 on 3.11) | all eight steps pass. The example experiment compiles on NumPy 2.5.4 and lyse, the runviewer parsers, the runmanager API and all four applications work on each binding |
+| Ubuntu 3.14 PySide6 `numpy<2.5` | all eight steps pass |
+| 6 jobs: Python 3.15 on both OSes, each binding | install fails on h5py as before; nothing else runs |
+
+Fully passing jobs took 2.1 minutes on Ubuntu and 3.4 minutes on Windows.
+
+**Run 39009717709, the metadata pull requests, `numpy<2.5`.** Refs: zprocess pr/29,
+qtutils pr/33, desktop-app pr/31, labscript-c-extensions pr/10, labscript-utils pr/130,
+labscript pr/125, runmanager pr/131, blacs pr/125, lyse pr/140, runviewer pr/73,
+labscript-devices pr/150, labscript-suite pr/106 (all twelve components from their pull
+request heads). Ubuntu and Windows, Python 3.11 and 3.14, PySide6: 4 jobs, all eight
+steps pass on each. The components build and install with `requires-python >= 3.11`, the
+new version scheme name and no `importlib_metadata` fallback, and the component pins in
+labscript-suite pr/106 and runmanager pr/131 resolve to the local builds.
 
 ## 2026-10-17: fix branches on the local container, Python 3.14, NumPy 2.5.4
 
