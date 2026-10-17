@@ -240,13 +240,14 @@ which give file:line and the reasoning.
    `front_panel_settings.py:348,387` (BLACS cannot save front-panel settings on NumPy
    2.5 either). Also `LightCrafterDMD.py:348,359` `ndarray.tostring()` (removed in
    NumPy 2). The `np.string_` fixes for the cameras are already on master, unreleased.
-   Status 2026-10-17: labscript #124 merged (ede3584) and labscript #123 closed;
-   labscript-devices #149 and blacs #124 open.
+   Status 2026-10-17: done. labscript #124, labscript-devices #149 and blacs #124
+   merged; labscript #123 closed.
 2. **zprocess #27**: `SetConsoleMode` crash on Windows 11 when any suite program is
    restarted from Windows Terminal or VS Code. Two lines in `zprocess/utils.py:190`.
    Needs zprocess 2.28.0, which also carries the heartbeat changes merged in 2026.
-   Status 2026-10-17: PR open, zprocess #28; the branch tested on Windows 11 with BLACS
-   restarted from PowerShell in Windows Terminal and from cmd.exe (`TESTING.md`).
+   Status 2026-10-17: done. zprocess #28 merged and the issue closed; the branch was
+   tested on Windows 11 with BLACS restarted from PowerShell in Windows Terminal and
+   from cmd.exe (`TESTING.md`). zprocess 2.28.0 is step 1 of the release sequence.
 3. **labscript-utils #28**: compile crash `KeyError: 'labscriptlib'` after editing a
    file, because `labscript-profile-create` lays out `example_apparatus` as a namespace
    package and ModuleWatcher unloads its parent. Ship `__init__.py` in the default
@@ -268,18 +269,16 @@ which give file:line and the reasoning.
    versions; `version_scheme = "semver-pep440-release-branch"`; delete the
    `importlib_metadata` fallbacks (every `__version__.py`, `labscript_utils/versions.py`,
    `desktop_app/fix_entry_points.py`).
-   Status 2026-10-17: PRs on all twelve repos (table in `PULL-REQUESTS.md`); merged on
-   labscript, labscript-utils, labscript-c-extensions, zprocess, desktop-app and
-   qtutils, open on labscript-devices, blacs, lyse and runviewer. The scheme rename
-   needs `setuptools_scm>=10`, which conda-forge has.
+   Status 2026-10-17: merged on ten repos (table in `PULL-REQUESTS.md`). The scheme
+   rename needs `setuptools_scm>=10`, which conda-forge has.
    runmanager #131 and labscript-suite #106 are held until the release sequence
    (section 5) because they raise the component pins to versions that are not released
-   yet: `labscript>=3.5.0` and `labscript_utils>=3.5.0` in runmanager, the seven
+   yet: `labscript>=3.5.0rc1` and `labscript_utils>=3.5.0rc1` in runmanager, the seven
    component pins in labscript-suite. A master checkout builds as a development version
-   such as 3.5.0.devN, which is lower than 3.5.0, so after a merge a source install of
-   runmanager or labscript-suite fails to resolve its dependencies until the pinned
-   versions are on PyPI. Merge each of the two immediately before its own tag, after
-   the pinned components are released.
+   such as 3.5.0.devN, which is lower than 3.5.0rc1, so after a merge a source install
+   of runmanager or labscript-suite fails to resolve its dependencies until the pinned
+   release candidates are on PyPI. Merge each of the two immediately before its own rc
+   tag, after the pinned components have release candidates.
 
 ### 4.2 Bugs worth fixing in this release (importance 4, all small)
 
@@ -380,12 +379,12 @@ with the final tag once the next package in the chain has been tested against it
 
 The component pins in runmanager (step 7) and labscript-suite (step 12) are raised by
 runmanager #131 and labscript-suite #106, which are merged at their step and not
-before (section 4.1 item 6). The pins are of the form `>=3.5.0`, which neither a
-development version nor a release candidate satisfies: 3.5.0.devN and 3.5.0rc1 are both
-lower than 3.5.0. Open decision for the rc cycle: either the rc tags of runmanager and
-labscript-suite carry pins of the form `>=3.5.0rc1`, which the final tag then raises,
-or steps 7 and 12 are tagged only after the final releases of the packages they pin,
-without an rc of their own.
+before (section 4.1 item 6). The pins are of the form `>=3.5.0rc1`, so that the release
+candidates of runmanager and labscript-suite install with the release candidates of
+the packages they pin; a `>=3.5.0` pin would be satisfied by neither a development
+version nor a release candidate. The rc1 form is kept in the final release: pip does
+not select a release candidate once a final release exists, so the looser pin changes
+nothing for users, and one commit can carry both the rc and the final tag.
 
 Conda packages for steps 1 and 4 are built per Python (3.11 to 3.15); the rest are
 noarch. Nothing needs `CONDA_PYTHONS` set: the py315 packages build now and become

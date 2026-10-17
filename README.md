@@ -43,18 +43,13 @@ and the file:line evidence.
 - runmanager PR #130 (the module split) was merged 2026-10-17 as bfe63ba with a fix
   commit. labscript-utils PR #128 was merged upstream on 2026-10-13 and fixes review item
   20 and parts of several others (`docs/MAINTENANCE.md`).
-- Release blocker: NumPy 2.5 removed the `a256` dtype alias, so no shot compiles on the
-  current master branches (labscript #123). With `S256` the suite compiles and lyse reads
-  the shot on Python 3.14. labscript #124 is merged and closed labscript #123;
-  labscript-devices #149 and blacs #124 are open.
+- Release blocker, fixed: NumPy 2.5 removed the `a256` dtype alias, so no shot compiled
+  on the master branches (labscript #123). labscript #124, labscript-devices #149 and
+  blacs #124 replace it with `S256` and were merged 2026-10-17.
 - Thirty pull requests opened 2026-10-17 for the six release plan blockers; table in
-  `docs/PULL-REQUESTS.md`. Merged the same day: workflow-sandbox #46 and the
-  release-workflow sync PR on each of the twelve repos (blockers 4 and 5),
-  labscript-utils #129 (blocker 3), labscript #124 (part of blocker 1), and the
-  Python 3.11 metadata PRs on labscript, labscript-utils, labscript-c-extensions,
-  zprocess, desktop-app and qtutils (part of blocker 6). Open: labscript-devices #149,
-  blacs #124, zprocess #28 and the metadata PRs on labscript-devices, blacs, lyse and
-  runviewer. runmanager #131 and labscript-suite #106 raise component pins to
+  `docs/PULL-REQUESTS.md`. Twenty-eight were merged the same day, which closed
+  labscript #123, labscript-utils #28, labscript-suite #56 and zprocess #27. The two
+  that remain, runmanager #131 and labscript-suite #106, raise component pins to
   unreleased versions and are held until their step of the release sequence
   (`docs/RELEASE-PLAN.md` section 5).
 - Python 3.15 works for the code but installs are blocked by missing h5py wheels on PyPI

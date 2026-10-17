@@ -25,14 +25,14 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 
 | # | Issue | Type | Imp. | Action |
 |---|---|---|---|---|
-| 1 | labscript #123 'a256' dtype fails on NumPy >= 2.5 | bug | 5 | Fix for next release (labscript + labscript-devices), add NumPy 2.5 to CI. labscript #124 merged 2026-10-17 and the issue closed; labscript-devices #149 and blacs #124 open |
-| 2 | zprocess #27 `disable_quick_edit` crash on ConPTY | bug (crash, Windows 11) | 5 | fix for next release |
+| 1 | labscript #123 'a256' dtype fails on NumPy >= 2.5 | bug | 5 | Fixed 2026-10-17 by labscript #124, labscript-devices #149 and blacs #124; issue closed. Add NumPy 2.5 to CI |
+| 2 | zprocess #27 `disable_quick_edit` crash on ConPTY | bug (crash, Windows 11) | 5 | fixed 2026-10-17 by zprocess #28; issue closed; needs zprocess 2.28.0 |
 | 3 | blacs #46 queue thread dies when the shot file cannot be written | bug | 4 | fix for next release (with #29) |
 | 4 | blacs #29 crash on shared drive becoming unavailable | bug | 4 | fix for next release (duplicate of #46) |
 | 5 | blacs #52 lost window after compile and restart | bug | 4 | fix for next release (with #56) |
 | 6 | desktop-app #20 launcher imports pywin32 before activating the env | bug | 4 | fix for next release |
 | 7 | labscript-devices #109 PrawnBlaster runviewer drops instruction after wait | bug | 4 | fix for next release (one line) |
-| 8 | labscript-devices #131 NumPy 2 `np.string_` | bug | 4 | close as fixed; fix `LightCrafterDMD.py` `tostring()` for release |
+| 8 | labscript-devices #131 NumPy 2 `np.string_` | bug | 4 | close as fixed; the `LightCrafterDMD.py` `tostring()` fix merged 2026-10-17 in labscript-devices #149 |
 | 9 | labscript #104 remove pylab star import | feature/compat | 4 | Fix for next release with curated re-exports and docs |
 | 10 | labscript #52 duplicate output connection is silent | bug | 4 | Fix for next release (uniqueness check in `Device.add_device`) |
 | 11 | labscript #43 collision errors do not name outputs | feature | 4 | Fix for next release |
@@ -254,7 +254,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 
 ### labscript, labscript-utils
 
-- labscript #123: `'a256'` dtypes fail on NumPy >= 2.5; compilation is impossible. Four sites in labscript, six files in labscript-devices. Must fix. labscript #124 merged 2026-10-17 and the issue closed; labscript-devices #149 and blacs #124 open.
+- labscript #123: `'a256'` dtypes fail on NumPy >= 2.5; compilation is impossible. Four sites in labscript, six files in labscript-devices. Fixed 2026-10-17 by labscript #124, labscript-devices #149 and blacs #124; issue closed.
 - labscript #104: `from pylab import *` in `labscript.py` and `functions.py`; the docs build already needed `numpy<2`. Decide the compatibility policy in the Python 3.11+ release.
 - labscript #41: no automated tests; a compile smoke test across the supported Python/NumPy matrix is the cheapest guard against the two items above.
 - labscript #95: NumPy 2 turns the PrawnBlaster `half_period` overflow (idle clockline longer than 42 s) from a crash into silent truncation; add dtype and range check in labscript-devices.
@@ -265,7 +265,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 - labscript-utils #60 and #116 (PR #117): first-run experience of the release; both small.
 ### labscript-devices, PrawnBlaster, prawn_digital_output
 
-- #131: NumPy 2 camera fix is in master but unreleased; `LightCrafterDMD.py:348,359` `tostring()` still breaks under NumPy 2.
+- #131: NumPy 2 camera fix is in master but unreleased; the `LightCrafterDMD.py:348,359` `tostring()` calls were fixed by #149 on 2026-10-17. Close when 3.4.0 is released.
 - #109: one-line runviewer parser fix, confirmed.
 - #79: four-line ESRPro500 runviewer parser, and `n_flags`/`num_DO` 21 to 24 (two users report no output otherwise).
 - #49 / #104: declare per-device optional extras; demote PyNIVision/PyDAQmx/spinapi from hard dependencies; add zaber/pypylon extras.
@@ -285,7 +285,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 - blacs #19: delete `docs/UsingBLACS.pdf`, `docs/UsingBLACS.docx` and `docs/How to add a new device/` before the release.
 ### lyse, runviewer, zprocess, setuptools-conda, qtutils
 
-- zprocess #27: `SetConsoleMode` crash on Windows 11 / Windows Terminal when any labscript program is restarted. Two-line fix in `zprocess/utils.py:190`; needs a zprocess point release. PR open 2026-10-17: zprocess #28. Tested on Windows 11 2026-10-17: the branch restarts BLACS from PowerShell in Windows Terminal, where 2.27.0 exits with the issue's traceback (`TESTING.md`).
+- zprocess #27: `SetConsoleMode` crash on Windows 11 / Windows Terminal when any labscript program is restarted. Two-line fix in `zprocess/utils.py:190`; needs a zprocess point release. Fixed by zprocess #28, merged 2026-10-17; issue closed. Tested on Windows 11 2026-10-17: the branch restarts BLACS from PowerShell in Windows Terminal, where 2.27.0 exits with the issue's traceback (`TESTING.md`).
 - zprocess #19 (and #16): conda defaults' Windows zeromq lacks CURVE, so secured installs fail with `ZMQError: Not supported`. Add a `zmq.has('curve')` check with a readable message and state the required pyzmq source in the release installation docs.
 - lyse #139: serial analysis-subprocess start-up is slower under PySide6/PyQt6, which the release moves users to.
 - lyse #14 and #90: small, long-standing behaviour bugs with contained fixes.
@@ -998,7 +998,7 @@ Verification notes that apply to several issues:
 
 | Rank | Issue | Type | Importance | Recommended action |
 |---|---|---|---|---|
-| 1 | labscript #123 'a256' dtype fails on NumPy >= 2.5 | bug | 5 | Fix for next release (labscript + labscript-devices), add NumPy 2.5 to CI. labscript #124 merged 2026-10-17 and the issue closed; labscript-devices #149 and blacs #124 open |
+| 1 | labscript #123 'a256' dtype fails on NumPy >= 2.5 | bug | 5 | Fixed 2026-10-17 by labscript #124, labscript-devices #149 and blacs #124; issue closed. Add NumPy 2.5 to CI |
 | 2 | labscript #104 remove pylab star import | feature/compat | 4 | Fix for next release with curated re-exports and docs |
 | 3 | labscript #52 duplicate output connection is silent | bug | 4 | Fix for next release (uniqueness check in `Device.add_device`) |
 | 4 | labscript #43 collision errors do not name outputs | feature | 4 | Fix for next release |
@@ -1053,7 +1053,7 @@ Verification notes that apply to several issues:
 
 ### Release-relevant issues
 
-- labscript #123: `'a256'` dtypes fail on NumPy >= 2.5; compilation is impossible. Four sites in labscript, six files in labscript-devices. Must fix. labscript #124 merged 2026-10-17 and the issue closed; labscript-devices #149 and blacs #124 open.
+- labscript #123: `'a256'` dtypes fail on NumPy >= 2.5; compilation is impossible. Four sites in labscript, six files in labscript-devices. Fixed 2026-10-17 by labscript #124, labscript-devices #149 and blacs #124; issue closed.
 - labscript #104: `from pylab import *` in `labscript.py` and `functions.py`; the docs build already needed `numpy<2`. Decide the compatibility policy in the Python 3.11+ release.
 - labscript #41: no automated tests; a compile smoke test across the supported Python/NumPy matrix is the cheapest guard against the two items above.
 - labscript #95: NumPy 2 turns the PrawnBlaster `half_period` overflow (idle clockline longer than 42 s) from a crash into silent truncation; add dtype and range check in labscript-devices.
@@ -1537,7 +1537,7 @@ Open PRs referenced from PR-REVIEW.md section 1: labscript-devices #148
 | Rank | Issue | Type | Importance | Action |
 |---|---|---|---|---|
 | 1 | labscript-devices #109 PrawnBlaster runviewer drops instruction after wait | bug | 4 | fix for next release (one line) |
-| 2 | labscript-devices #131 NumPy 2 `np.string_` | bug | 4 | close as fixed; fix `LightCrafterDMD.py` `tostring()` for release |
+| 2 | labscript-devices #131 NumPy 2 `np.string_` | bug | 4 | close as fixed; the `LightCrafterDMD.py` `tostring()` fix merged 2026-10-17 in labscript-devices #149 |
 | 3 | labscript-devices #79 ESRPro500 missing runviewer parser, 21 vs 24 flags | bug | 3 | fix parser and expose 24 flags for next release; drop short-pulse timing feature |
 | 4 | labscript-devices #49 declare missing dependencies | tooling | 3 | fix for next release (per-device extras) |
 | 5 | labscript-devices #104 project structure / per-device deps | meta | 3 | leave open; extras in release |
@@ -1574,7 +1574,7 @@ Open PRs referenced from PR-REVIEW.md section 1: labscript-devices #148
 
 ### Release-relevant issues
 
-- #131: NumPy 2 camera fix is in master but unreleased; `LightCrafterDMD.py:348,359` `tostring()` still breaks under NumPy 2.
+- #131: NumPy 2 camera fix is in master but unreleased; the `LightCrafterDMD.py:348,359` `tostring()` calls were fixed by #149 on 2026-10-17. Close when 3.4.0 is released.
 - #109: one-line runviewer parser fix, confirmed.
 - #79: four-line ESRPro500 runviewer parser, and `n_flags`/`num_DO` 21 to 24 (two users report no output otherwise).
 - #49 / #104: declare per-device optional extras; demote PyNIVision/PyDAQmx/spinapi from hard dependencies; add zaber/pypylon extras.
@@ -2888,7 +2888,7 @@ Reviewed in the style of PR-REVIEW.md section 2. Head `453459d` (master merged i
 
 ### Release-relevant issues
 
-- zprocess #27: `SetConsoleMode` crash on Windows 11 / Windows Terminal when any labscript program is restarted. Two-line fix in `zprocess/utils.py:190`; needs a zprocess point release. PR open 2026-10-17: zprocess #28. Tested on Windows 11 2026-10-17: the branch restarts BLACS from PowerShell in Windows Terminal, where 2.27.0 exits with the issue's traceback (`TESTING.md`).
+- zprocess #27: `SetConsoleMode` crash on Windows 11 / Windows Terminal when any labscript program is restarted. Two-line fix in `zprocess/utils.py:190`; needs a zprocess point release. Fixed by zprocess #28, merged 2026-10-17; issue closed. Tested on Windows 11 2026-10-17: the branch restarts BLACS from PowerShell in Windows Terminal, where 2.27.0 exits with the issue's traceback (`TESTING.md`).
 - zprocess #19 (and #16): conda defaults' Windows zeromq lacks CURVE, so secured installs fail with `ZMQError: Not supported`. Add a `zmq.has('curve')` check with a readable message and state the required pyzmq source in the release installation docs.
 - lyse #139: serial analysis-subprocess start-up is slower under PySide6/PyQt6, which the release moves users to.
 - lyse #14 and #90: small, long-standing behaviour bugs with contained fixes.

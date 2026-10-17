@@ -124,7 +124,7 @@ unaffected. The review's line references map to the new layout as follows.
 
 | Item | Status |
 |---|---|
-| 1 `'a256'` dtypes | labscript PR #124 merged 2026-10-17 as ede3584; labscript-devices PR #149 and blacs PR #124 open |
+| 1 `'a256'` dtypes | fixed, labscript PR #124, labscript-devices PR #149 and blacs PR #124, merged 2026-10-17 |
 | 2 `bitfield` dtype | open |
 | 3 NI analog input final read | open |
 | 4 PrawnDO wait insertion | open |
@@ -145,8 +145,8 @@ unaffected. The review's line references map to the new layout as follows.
 | 19 runviewer resampler bounds | open |
 | 20 zlock port | fixed, labscript-utils PR #128 |
 
-Item 1 is addressed by the pull requests in the table below; no open pull request
-addresses items 2 to 19.
+Item 1 is fixed by the pull requests in the table below; no open pull request addresses
+items 2 to 19.
 
 ## Pull requests opened by the maintenance track
 
@@ -154,10 +154,9 @@ addresses items 2 to 19.
 state. On 2026-10-17: three for the NumPy 2.5 dtype alias (labscript #124,
 labscript-devices #149, blacs #124), zprocess #28, labscript-utils #129, and the Python
 3.11 metadata change on twelve repos; later the same day, workflow-sandbox #46 for
-labscript-suite #56 and a workflow sync PR on each of the twelve repos. Merged on
-2026-10-17: workflow-sandbox #46 and all twelve sync PRs, labscript #124,
-labscript-utils #129, and the metadata PRs on labscript, labscript-utils,
-labscript-c-extensions, zprocess, desktop-app and qtutils.
+labscript-suite #56 and a workflow sync PR on each of the twelve repos. All were merged
+on 2026-10-17 except runmanager #131 and labscript-suite #106, which raise component
+pins and are held for the release sequence (`RELEASE-PLAN.md` section 5).
 
 The scheme rename needs setuptools_scm 10, which introduced the name
 `semver-pep440-release-branch` (setuptools_scm 9.2.2 does not have it); the default

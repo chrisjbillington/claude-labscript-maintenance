@@ -7,15 +7,8 @@ updates or sees one merged or closed updates the row. Links go to GitHub.
 
 | Opened | Pull request | Change | Addresses |
 |---|---|---|---|
-| 2026-10-17 | [labscript-devices #149](https://github.com/labscript-suite/labscript-devices/pull/149) | `'a256'` to `'S256'` in six device files; `tostring()` to `tobytes()` in `LightCrafterDMD.py`; verified by import and the dummy-device compile only, as the description says | labscript #123; labscript-devices #131; review Part 1 item 1 |
-| 2026-10-17 | [blacs #124](https://github.com/labscript-suite/blacs/pull/124) | `'a'` aliases to `'S'` in `front_panel_settings.py` | labscript #123; review Part 1 item 1 |
-| 2026-10-17 | [zprocess #28](https://github.com/chrisjbillington/zprocess/pull/28) | guard `SetConsoleMode` in `disable_quick_edit`; head 256ac43 names the PowerShell console mode as the cause (tested on Windows 11, `TESTING.md`) | zprocess #27 |
-| 2026-10-17 | [labscript-devices #150](https://github.com/labscript-suite/labscript-devices/pull/150) | same | release plan 4.1 item 6 |
-| 2026-10-17 | [blacs #125](https://github.com/labscript-suite/blacs/pull/125) | same | release plan 4.1 item 6 |
-| 2026-10-17 | [lyse #140](https://github.com/labscript-suite/lyse/pull/140) | same | release plan 4.1 item 6 |
-| 2026-10-17 | [runmanager #131](https://github.com/labscript-suite/runmanager/pull/131) | same, plus `labscript>=3.5.0` and `labscript_utils>=3.5.0`; held until the release sequence, merge immediately before the runmanager tag | release plan 4.1 item 6; release sequence step 7 |
-| 2026-10-17 | [runviewer #73](https://github.com/labscript-suite/runviewer/pull/73) | same | release plan 4.1 item 6 |
-| 2026-10-17 | [labscript-suite #106](https://github.com/labscript-suite/labscript-suite/pull/106) | same, plus the component pins of the 3.4.0 release set; held until the release sequence, merge immediately before the labscript-suite tag | release plan 4.1 item 6; release sequence step 12 |
+| 2026-10-17 | [runmanager #131](https://github.com/labscript-suite/runmanager/pull/131) | same, plus `labscript>=3.5.0rc1` and `labscript_utils>=3.5.0rc1` (head e5283ab); held until the release sequence, merge immediately before the runmanager tag | release plan 4.1 item 6; release sequence step 7 |
+| 2026-10-17 | [labscript-suite #106](https://github.com/labscript-suite/labscript-suite/pull/106) | same, plus the component pins of the 3.4.0 release set in the form `>=x.y.0rc1` (head 4e7de5e); held until the release sequence, merge immediately before the labscript-suite tag | release plan 4.1 item 6; release sequence step 12 |
 
 ## Merged or closed
 
@@ -42,3 +35,10 @@ updates or sees one merged or closed updates the row. Links go to GitHub.
 | 2026-10-17 | merged 2026-10-17 08:33 UTC, 526726f | [zprocess #29](https://github.com/chrisjbillington/zprocess/pull/29) | `requires-python`, classifiers, scheme name, `setuptools_scm>=10` | release plan 4.1 item 6 |
 | 2026-10-17 | merged 2026-10-17 08:33 UTC, dc6be4e | [desktop-app #31](https://github.com/chrisjbillington/desktop-app/pull/31) | `requires-python`, classifiers, no `importlib_metadata` fallback in `fix_entry_points.py` and `environment.py` | release plan 4.1 item 6 |
 | 2026-10-17 | merged 2026-10-17 08:32 UTC, 4c9cd95 | [qtutils #33](https://github.com/philipstarkey/qtutils/pull/33) | `requires-python`, classifiers, scheme name, `setuptools_scm>=10` | release plan 4.1 item 6 |
+| 2026-10-17 | merged 2026-10-17 08:39 UTC, 25f75fb | [labscript-devices #149](https://github.com/labscript-suite/labscript-devices/pull/149) | `'a256'` to `'S256'` in six device files; `tostring()` to `tobytes()` in `LightCrafterDMD.py`; verified by import and the dummy-device compile only, as the description says | labscript #123; labscript-devices #131; review Part 1 item 1 |
+| 2026-10-17 | merged 2026-10-17 08:40 UTC, 73ec9d2 | [blacs #124](https://github.com/labscript-suite/blacs/pull/124) | `'a'` aliases to `'S'` in `front_panel_settings.py` | labscript #123; review Part 1 item 1 |
+| 2026-10-17 | merged 2026-10-17 08:36 UTC, e74b638 | [zprocess #28](https://github.com/chrisjbillington/zprocess/pull/28) | guard `SetConsoleMode` in `disable_quick_edit`; head 256ac43 names the PowerShell console mode as the cause (tested on Windows 11, `TESTING.md`) | zprocess #27 |
+| 2026-10-17 | merged 2026-10-17 08:40 UTC, 2183314 | [labscript-devices #150](https://github.com/labscript-suite/labscript-devices/pull/150) | same | release plan 4.1 item 6 |
+| 2026-10-17 | merged 2026-10-17 08:44 UTC, bc3fd1f | [blacs #125](https://github.com/labscript-suite/blacs/pull/125) | same | release plan 4.1 item 6 |
+| 2026-10-17 | merged 2026-10-17 08:44 UTC, 01246cf | [lyse #140](https://github.com/labscript-suite/lyse/pull/140) | same | release plan 4.1 item 6 |
+| 2026-10-17 | merged 2026-10-17 08:43 UTC, 7ea7dc9 | [runviewer #73](https://github.com/labscript-suite/runviewer/pull/73) | same | release plan 4.1 item 6 |
