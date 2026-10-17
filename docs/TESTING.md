@@ -5,6 +5,30 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-17: labscript-devices #110 Windfreak SynthHD
+
+labscript-devices PR #110 (head 52f74fa) merged into master 2183314, plus one commit with
+the four fixes from the review (local branch `pr110-work` in `repos/labscript-devices`,
+0593f45; not pushed): `raise` on the channel-range `LabscriptError`, `self.name` in
+`enable_output`, a `quantity` argument to `validate_data` so the message names the
+quantity and unit, and `NI_DAQmx.models` in the docs example. Python 3.14.6, NumPy
+2.5.4, labscript 665a73d, with the clone on `PYTHONPATH` in front of the installed
+labscript-devices. A script compiles a connection table with a `WindfreakSynthHDPro`,
+two `StaticDDS` children on `channel 0` and `channel 1`, and `enable_output(0)`; the
+`windfreak` package is not needed for compilation.
+
+| Case | PR head 52f74fa | With the fixes |
+|---|---|---|
+| two channels, 1 GHz at 0 dBm and 90 degrees, 2 GHz at -10 dBm | `STATIC_DATA` row `freq0=1e9, freq1=2e9, amp0=0.0, amp1=-10.0, phase0=90.0, phase1=0.0, gate0=True, gate1=False` | same |
+| third child on `channel 2` | `ValueError: no field of name freq2` from numpy, after the unraised `LabscriptError` | `LabscriptError: Static RF:wf_b has invalid connection string. Only 'channel 0' or 'channel 1' is allowed.` |
+| amplitude 25 dBm (limit 20) | `LabscriptError: ... can only have frequencies between -4.000000E+01Hz and 2.000000E+01Hz, 25.0 given` | `LabscriptError: Static RF wf_a can only have amplitudes in dBm between -40.0 and 20.0, 25.0 given` |
+| `enable_output(5)` | `AttributeError: 'WindfreakSynthHD' object has no attribute 'device'` | `LabscriptError: Channel 5 is not a valid option for wf2.` |
+
+The module imports with `-W error::DeprecationWarning`. The docs example's import path
+`labscript_devices.NI_DAQmx.Models.NI_USB_6343` does not exist; the directory is
+`models`. The GitHub Actions dispatch with `labscript-devices=pr/110` is recorded below
+when it completes.
+
 ## 2026-10-17: blacs #123 plugin-loading fixes
 
 blacs PR #123 (head 4ec904f, three commits) merged into blacs master bc3fd1f, with one

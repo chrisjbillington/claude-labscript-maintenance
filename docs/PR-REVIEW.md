@@ -961,6 +961,11 @@ Conventions checked against master for every PR:
 - **Recommended action**: Merge after small fixes: add `raise` at
   `labscript_devices.py:124`, fix `self.device.name`, fix the docs import path, fix the
   `validate_data` message.
+- **Status 2026-10-17**: the three code defects reproduce on the head and are fixed on a
+  local branch (`pr110-work` in `repos/labscript-devices`, 0593f45) together with the
+  docs import path; the fixed branch compiles a two-channel connection table and raises
+  `LabscriptError` on each bad input (`TESTING.md`, "labscript-devices #110 Windfreak
+  SynthHD"). The head is on the author's fork, which the cloud session cannot push to.
 
 ---
 
