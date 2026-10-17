@@ -23,8 +23,14 @@ file with `results/fr` (attributes `fitted=42.0`, `shared='from results'`), `dat
 | with 724de8c | `{'raw': 7, 'shared': 'from results', 'fitted': 42.0}` | `(fr, fitted)`, `(fr, raw)`, `(fr, shared)`, `(other, temperature)` |
 
 The dataset `data/waits` gives an empty `row['waits']` in both the PR head and the fix,
-and no column. The GitHub Actions dispatch with `lyse=data-attributes-132-fix` is
-recorded here when it completes.
+and no column.
+
+**GitHub Actions:** dispatch with `lyse=data-attributes-132-fix` and every other
+component at master,
+[run 39022914882](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39022914882).
+The 24 jobs on Ubuntu and Windows for Python 3.11 to 3.14 with PySide6, PyQt6 and PyQt5
+pass all eight steps, as does the `numpy<2.5` job; the six Python 3.15 jobs fail at the
+h5py build as before.
 
 ## 2026-10-17: labscript-devices #110 Windfreak SynthHD
 
