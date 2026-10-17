@@ -50,7 +50,8 @@ and the file:line evidence.
   blacs #124.
 - Seventeen pull requests opened 2026-10-17 for release plan blockers 1, 2, 3 and 6
   (dtype alias, zprocess #27, labscript-utils #28, Python 3.11 metadata); table in
-  `docs/PULL-REQUESTS.md`. Blockers 4 and 5 (workflow sandbox fix and sync) are not started.
+  `docs/PULL-REQUESTS.md`. Blockers 4 and 5 are also open as PRs: workflow-sandbox #46
+  and a release-workflow sync PR on each of the twelve repos; #46 merges first.
 - Python 3.15 works for the code but installs are blocked by missing h5py wheels on PyPI
   and missing pyzmq and PyQt builds on conda-forge.
 - No component repo has a test or lint workflow; only `release.yml`. The harness in this

@@ -40,7 +40,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 | 13 | zprocess #19 `curve_keypair` Not supported on conda Windows | bug (upstream) + diagnostics/docs | 4 | fix for next release (clear error, install docs) |
 | 14 | runmanager #66 preparse memory blow-up counting shots | bug | 4 | fix for next release |
 | 15 | runmanager #123 set_globals comment preservation with raw=True | bug | 4 | fix for next release (accept offered PR) |
-| 16 | labscript-suite #56 release workflow with rc + final tag on one commit | tooling | 4 | fix for next release (all repos) |
+| 16 | labscript-suite #56 release workflow with rc + final tag on one commit | tooling | 4 | fix for next release (all repos). PRs open 2026-10-17: workflow-sandbox #46 and a sync PR per repo |
 | 17 | blacs #56 window geometry restoration | bug | 3 | fix for next release (with #52) |
 | 18 | blacs #100 setup_logging crashes when sys.stdout is None | bug | 3 | fix for next release (labscript-utils) |
 | 19 | blacs #49 StopIteration before first yield gives fatal error | bug | 3 | fix for next release |
@@ -3378,6 +3378,7 @@ Sources and limits:
 - **Rewrite relevance**: requirement: shotscript's release workflow must derive the version from the pushed tag.
 - **Importance**: 4
 - **Recommended action**: fix for next release.
+- **Status (2026-10-17)**: fix open as rpanderson/workflow-sandbox PR #46, deployed as a sync PR in each of the twelve repos (`PULL-REQUESTS.md`).
 
 ### labscript-suite #54: Consider move to more mature 3rd party RPC protocol (philipstarkey, opened 2020-10-14, last activity 2020-10-14, 0 comments)
 - **Summary**: Proposal to replace the home-grown ZMQ RPC between components with gRPC or similar, keeping ZMQ for high-throughput paths.

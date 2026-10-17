@@ -24,6 +24,19 @@ updates or sees one merged or closed updates the row. Links go to GitHub.
 | 2026-10-17 | [zprocess #29](https://github.com/chrisjbillington/zprocess/pull/29) | `requires-python`, classifiers, scheme name, `setuptools_scm>=10` | release plan 4.1 item 6 |
 | 2026-10-17 | [desktop-app #31](https://github.com/chrisjbillington/desktop-app/pull/31) | `requires-python`, classifiers, no `importlib_metadata` fallback in `fix_entry_points.py` and `environment.py` | release plan 4.1 item 6 |
 | 2026-10-17 | [qtutils #33](https://github.com/philipstarkey/qtutils/pull/33) | `requires-python`, classifiers, scheme name, `setuptools_scm>=10` | release plan 4.1 item 6 |
+| 2026-10-17 | [workflow-sandbox #46](https://github.com/rpanderson/workflow-sandbox/pull/46) | release workflow: delete every local tag at HEAD except the pushed one before computing the version; `action-gh-release` v3 | labscript-suite #56; release plan 4.1 item 4 |
+| 2026-10-17 | [labscript #126](https://github.com/labscript-suite/labscript/pull/126) | sync `release.yml` with workflow-sandbox 6f21e86 (the head of #46): `windows-2022`, `macos-15-intel`, `setup-miniconda` v4, `verbose`/`skip-existing`, tag step, `gh-release` v3 | release plan 4.1 item 5 |
+| 2026-10-17 | [labscript-utils #131](https://github.com/labscript-suite/labscript-utils/pull/131) | same | release plan 4.1 item 5 |
+| 2026-10-17 | [labscript-devices #151](https://github.com/labscript-suite/labscript-devices/pull/151) | same | release plan 4.1 item 5 |
+| 2026-10-17 | [blacs #126](https://github.com/labscript-suite/blacs/pull/126) | same | release plan 4.1 item 5 |
+| 2026-10-17 | [lyse #141](https://github.com/labscript-suite/lyse/pull/141) | same | release plan 4.1 item 5 |
+| 2026-10-17 | [runmanager #132](https://github.com/labscript-suite/runmanager/pull/132) | same | release plan 4.1 item 5 |
+| 2026-10-17 | [runviewer #74](https://github.com/labscript-suite/runviewer/pull/74) | same | release plan 4.1 item 5 |
+| 2026-10-17 | [labscript-suite #107](https://github.com/labscript-suite/labscript-suite/pull/107) | same | labscript-suite #56; release plan 4.1 item 5 |
+| 2026-10-17 | [labscript-c-extensions #11](https://github.com/labscript-suite/labscript-c-extensions/pull/11) | sync `release.yml`: tag step and `gh-release` v3 only (was already at sandbox 6f9346a) | release plan 4.1 item 5 |
+| 2026-10-17 | [zprocess #30](https://github.com/chrisjbillington/zprocess/pull/30) | sync `release.yml`: `windows-2022`, `setup-miniconda` v4, tag step, `gh-release` v3 | release plan 4.1 item 5 |
+| 2026-10-17 | [desktop-app #32](https://github.com/chrisjbillington/desktop-app/pull/32) | sync `release.yml`: tag step and `gh-release` v3 only | release plan 4.1 item 5 |
+| 2026-10-17 | [qtutils #34](https://github.com/philipstarkey/qtutils/pull/34) | sync `release.yml`: all action pins (checkout v6, setup-python v6, upload-artifact v6, download-artifact v8, setup-miniconda v4, gh-release v3), runner labels, tag step | release plan 4.1 item 5 |
 
 ## Merged or closed
 

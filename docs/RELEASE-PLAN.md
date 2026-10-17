@@ -252,8 +252,12 @@ which give file:line and the reasoning.
    Status 2026-10-17: PR open, labscript-utils #129.
 4. **labscript-suite #56**: the release workflow computes `PKGVER` from a commit that
    carries both an rc and a final tag. Fix in the sandbox and deploy before tagging.
+   Status 2026-10-17: PR open, workflow-sandbox #46; the step was tested in this
+   repository's `tag-test.yml` on branch `claude/release-tag-test`.
 5. **Workflow sync** (section 2): deploy the sandbox to the nine lagging repos and
    qtutils; bump `action-gh-release` to v3 in the sandbox first.
+   Status 2026-10-17: sync PRs open on all twelve repos from the head of sandbox #46
+   (table in `PULL-REQUESTS.md`); merge #46 first.
 6. **Metadata**: `requires-python = ">=3.11"` and matching classifiers in every repo;
    component pins in labscript-suite and runmanager pyproject raised to the new
    versions; `version_scheme = "semver-pep440-release-branch"`; delete the
