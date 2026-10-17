@@ -1,0 +1,53 @@
+name: Test the release workflow's tag step
+
+# Runs the "Ignore tags other than the pushed tag" step of the labscript suite release
+# workflow (rpanderson/workflow-sandbox release.yml) on Ubuntu and Windows, on a commit
+# that carries an rc tag and a final tag, once under the runner's default shell and once
+# under bash. GITHUB_REF_NAME cannot be set in a workflow, so the pushed tag is given as
+# REF_NAME; the step text is otherwise the one in release.yml.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  tag-step:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    env:
+      REF_NAME: v9.9.9
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Tag HEAD with an rc tag and a final tag
+        shell: bash
+        run: |
+          git config user.name test && git config user.email test@example.com
+          git tag -a v9.9.9rc1 -m rc && git tag -a v9.9.9 -m final
+          echo "tags at HEAD:" && git tag --points-at HEAD
+
+      - name: The step under the runner's default shell
+        run: git tag -d $(git tag --points-at HEAD | grep -vx "${REF_NAME}" || true)
+
+      - name: Tags left by the default shell
+        shell: bash
+        run: |
+          echo "tags at HEAD after the default-shell step:" && git tag --points-at HEAD
+          echo "expected: v9.9.9 only"
+          git tag -d $(git tag --points-at HEAD) >/dev/null 2>&1 || true
+          git tag -a v9.9.9rc1 -m rc && git tag -a v9.9.9 -m final
+
+      - name: The step under bash
+        shell: bash
+        run: git tag -d $(git tag --points-at HEAD | grep -vx "${REF_NAME}" || true)
+
+      - name: Tags left by the bash step
+        shell: bash
+        run: |
+          echo "tags at HEAD after the bash step:" && git tag --points-at HEAD
+          test "$(git tag --points-at HEAD)" = "v9.9.9"
