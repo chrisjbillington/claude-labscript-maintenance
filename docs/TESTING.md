@@ -30,7 +30,9 @@ component at master,
 [run 39022914882](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39022914882).
 The 24 jobs on Ubuntu and Windows for Python 3.11 to 3.14 with PySide6, PyQt6 and PyQt5
 pass all eight steps, as does the `numpy<2.5` job; the six Python 3.15 jobs fail at the
-h5py build as before.
+h5py build as before. The fix commit is cherry-picked onto the PR head 6066df4 as
+001df5f (local branch `pr132-head` in `repos/lyse`); that branch merged with master
+01246cf has the same tree as 724de8c, so the run covers it.
 
 ## 2026-10-17: labscript-devices #110 Windfreak SynthHD
 
