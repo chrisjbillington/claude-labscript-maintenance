@@ -42,6 +42,18 @@ The run was dispatched before the commit that adds the `spinning_top` checks to 
 harness `lyse` step reached `main`, so those checks did not run here; they were run by hand
 in the local venvs, where lyse master reports KNOWN and the branch reports FIXED for both.
 
+## 2026-10-17: zprocess v2.28.0rc2 release run, D7 fix confirmed
+
+Tag `v2.28.0rc2` pushed at 11:32 UTC on f5f4685 of chrisjbillington/zprocess, the head of
+`master` after #31, which differs from the rc1 commit only by `shell: bash` on the two
+"Ignore tags other than the pushed tag" steps.
+[Run 39029064804](https://github.com/chrisjbillington/zprocess/actions/runs/39029064804)
+built 2.28.0rc2 on ubuntu-latest, windows-2022, macos-latest and macos-15-intel; the
+Windows step ran under Git Bash and deleted no tag. Published: the sdist and pure wheel
+to PyPI, the GitHub pre-release, and conda packages for linux-64, osx-64, osx-arm64 and
+win-64 for Python 3.11 to 3.15 to the Anaconda main label. The win-64 packages missing
+from rc1 are therefore present at 2.28.0rc2.
+
 ## 2026-10-17: zprocess v2.28.0rc1 release run
 
 Tag `v2.28.0rc1` pushed at 10:41 UTC on e74b638 of chrisjbillington/zprocess, the head of

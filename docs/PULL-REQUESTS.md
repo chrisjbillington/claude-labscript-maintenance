@@ -20,7 +20,6 @@ updates or sees one merged or closed updates the row. Links go to GitHub.
 | 2026-10-17 | [runviewer #75](https://github.com/labscript-suite/runviewer/pull/75) | same | DEFECTS.md D7 |
 | 2026-10-17 | [labscript-suite #108](https://github.com/labscript-suite/labscript-suite/pull/108) | same | DEFECTS.md D7 |
 | 2026-10-17 | [labscript-c-extensions #12](https://github.com/labscript-suite/labscript-c-extensions/pull/12) | same | DEFECTS.md D7 |
-| 2026-10-17 | [zprocess #31](https://github.com/chrisjbillington/zprocess/pull/31) | same; the v2.28.0rc1 tag needs the fix before Windows conda packages carry the release version | DEFECTS.md D7 |
 | 2026-10-17 | [desktop-app #33](https://github.com/chrisjbillington/desktop-app/pull/33) | same | DEFECTS.md D7 |
 | 2026-10-17 | [qtutils #35](https://github.com/philipstarkey/qtutils/pull/35) | same | DEFECTS.md D7 |
 
@@ -28,6 +27,7 @@ updates or sees one merged or closed updates the row. Links go to GitHub.
 
 | Opened | State | Pull request | Change | Addresses |
 |---|---|---|---|---|
+| 2026-10-17 | merged 2026-10-17 11:30 UTC, f5f4685 | [zprocess #31](https://github.com/chrisjbillington/zprocess/pull/31) | same; tagged `v2.28.0rc2`, which built 2.28.0rc2 on Windows | DEFECTS.md D7 |
 | 2026-10-17 | merged 2026-10-17 08:27 UTC, ede3584 | [labscript #124](https://github.com/labscript-suite/labscript/pull/124) | `'a256'` to `'S256'` in `labscript.py`, `outputs.py` and the docs' intermediate device example (head c6055a0) | labscript #123; review Part 1 item 1 |
 | 2026-10-17 | merged 2026-10-17 08:27 UTC, c023465 | [labscript-utils #129](https://github.com/labscript-suite/labscript-utils/pull/129) | ModuleWatcher unloads namespace packages under userlib; `__init__.py` in the default profile's `example_apparatus` directories | labscript-utils #28 |
 | 2026-10-17 | merged 2026-10-17 08:28 UTC, 665a73d | [labscript #125](https://github.com/labscript-suite/labscript/pull/125) | `requires-python >= 3.11`, classifiers, `semver-pep440-release-branch`, `setuptools_scm>=10`, no `importlib_metadata` fallback | release plan 4.1 item 6 |

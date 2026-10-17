@@ -26,7 +26,7 @@ paragraph per PR, section 3 contains the detailed per-group reports.
 | 5 | labscript-devices #148 TriggerableCamera + DummyCamera (ispielma, 2026) | refactor, feature | 3 | yes | Design feedback to author, hardware test, then merge; merge #144, #87, #63 first or re-apply onto it |
 | 6 | labscript-devices #144 Andor fixes (TesseTiemens, 2026) | bugfix | 3 | yes | Ask author: SyntaxError on Python < 3.12, wrong model string, semaphore deadlock |
 | 7 | lyse #132 data-group attributes in dataframe (chrisjbillington, 2026) | feature | 3 | yes | Merge after changing overwrite to merge-into-existing |
-| 8 | labscript-utils #117 minimal example analysis script (Json-To-String, 2025) | docs-example | 3 | yes | Merge after fixing the `save_result` TypeError and axis label |
+| 8 | labscript-utils #117 minimal example analysis script (Json-To-String, 2025) | docs-example | 3 | yes | Merge after fixing the `save_result` TypeError and axis label. Merged 2026-10-17 with fix commit 373bde9 (merge 3698c41) |
 | 9 | PrawnBlaster #37 overclock voltage logic (Json-To-String, 2025) | firmware | 3 | yes | Merge after fixing response ordering and the stale release workflow |
 | 10 | PrawnBlaster #35 variable instructions per pseudoclock (philipstarkey, 2025) | firmware, feature | 3 | yes | Maintainer rework: missing `ok` reply, unvalidated index, needs host-side PR |
 | 11 | blacs #105 Virtual Devices plugin (carterturn, 2024) | feature | 3 | yes | Ask author: finish enum outputs, replace 10 Hz polling thread; the two output_classes fixes can merge alone |
@@ -40,7 +40,7 @@ paragraph per PR, section 3 contains the detailed per-group reports.
 | 19 | labscript-devices #130 Stahl BS 34-1A (OljaKhor, 2025) | feature | 2 | yes | Rework as a static device or close |
 | 20 | labscript-devices #53 DummyIntermediateDevice widgets (rpanderson, 2020) | feature | 2 | conflict | Close as stale or maintainer rework |
 | 21 | blacs #88 lock monitor plugin (zakv, 2021) | feature | 2 | yes | Close as out of scope; belongs in a separate package |
-| 22 | prawn_digital_output #23 testing notebook (dihm, 2025) | tooling | 2 | yes | Merge after stripping outputs and fixing the save branch |
+| 22 | prawn_digital_output #23 testing notebook (dihm, 2025) | tooling | 2 | yes | Merge after stripping outputs and fixing the save branch. Merged 2026-10-17 with fix commit 121448f (merge ec7d967) |
 | 23 | setuptools-conda #5 extras support (philipstarkey, 2020) | feature | 2 | conflict | Close; untested and the parser it modifies was rewritten |
 | 24 | lyse #118 + #85 rename Run to Shot (dihm 2024, philipstarkey 2020) | refactor | 1 | conflict | Close; participants agreed to abandon in 2025 |
 | 25 | blacs #121 shared plugin refactor (ispielma, 2026) | refactor | 1 | yes | Close; depends on closed labscript-utils PRs, superseded by #123 |

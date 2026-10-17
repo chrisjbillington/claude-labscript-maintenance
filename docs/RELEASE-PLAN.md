@@ -373,7 +373,7 @@ has been tested against it:
 
 | Step | Package | Version | Carries |
 |---|---|---|---|
-| 1 | zprocess | 2.28.0 | #27, #19, heartbeat changes. Tagged from `master`: `v2.28.0rc1` at e74b638 on 2026-10-17 is on PyPI but has no win-64 conda packages (defect D7, `DEFECTS.md`); `v2.28.0rc2` at f5f4685, which carries the D7 fix (#31), was tagged the same day. The `maintenance/2.28.x` branch that was pushed for rc1 is deleted; zprocess does not use maintenance branches |
+| 1 | zprocess | 2.28.0 | #27, #19, heartbeat changes. Tagged from `master`: `v2.28.0rc1` at e74b638 on 2026-10-17 is on PyPI but has no win-64 conda packages (defect D7, `DEFECTS.md`); `v2.28.0rc2` at f5f4685, which carries the D7 fix (#31), is on PyPI and on the Anaconda main label for all four platforms (run 39029064804). The `maintenance/2.28.x` branch that was pushed for rc1 is deleted; zprocess does not use maintenance branches |
 | 2 | qtutils (philipstarkey) | 4.1.4 | #22 RTD version, optional "Clear output" part of PR #32 |
 | 3 | desktop-app | 0.5.1 | #20 lazy pywin32 |
 | 4 | labscript-c-extensions | 1.3.1 | runviewer #13 resampler fix, py315 and py311+ wheels |
