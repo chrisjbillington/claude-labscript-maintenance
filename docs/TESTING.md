@@ -29,23 +29,24 @@ rc after the final tag, builds the rc version on a final-tag push (labscript-sui
 With the step only the pushed tag remains at HEAD and the version is that tag's; a branch
 push of a tagged commit builds a development version from the nearest ancestor tag.
 
-Not yet done: a real tag push to a repository that runs the workflow, which checks that
-`actions/checkout` with `fetch-depth: 0` fetches the other tags at HEAD and that
-`GITHUB_REF_NAME` is the bare tag name on a tag push. The plan, from
-`repos/workflow-sandbox` with a remote `fork` for chrisjbillington/workflow-sandbox
-(uploads are disabled there because `RELEASE_REPO` does not match, so only the build,
-conda-package and draft GitHub release jobs run):
+The same was then done with real pushes to chrisjbillington/workflow-sandbox, where
+uploads are disabled because `RELEASE_REPO` does not match, so only the configure, build
+and GitHub release jobs run. Commit 6f21e86 was pushed as branch `fix-multiple-tags`,
+then tagged `v0.6.0rc2` (annotated) and pushed, then tagged `v0.6.0` (annotated) and
+pushed, then pushed as branch `maintenance/tag-test`. Every job of the three runs
+succeeded.
 
-```
-git push fork 6f21e86:refs/heads/fix-multiple-tags
-git tag -a v0.6.0rc2 6f21e86 -m "Tag handling test" && git push fork v0.6.0rc2
-# after that run finishes:
-git tag -a v0.6.0 6f21e86 -m "Tag handling test" && git push fork v0.6.0
-# after that run finishes, the development-version case:
-git push fork 6f21e86:refs/heads/maintenance/tag-test
-```
+| Push | Run | Tags deleted by the step | `PKGVER` | Built | GitHub release |
+|---|---|---|---|---|---|
+| tag `v0.6.0rc2` | [39011505494](https://github.com/chrisjbillington/workflow-sandbox/actions/runs/39011505494) | none | 0.6.0rc2 | `workflow_sandbox-0.6.0rc2` sdist, wheel and noarch conda package | draft, prerelease, sdist attached |
+| tag `v0.6.0` on the same commit | [39011701607](https://github.com/chrisjbillington/workflow-sandbox/actions/runs/39011701607) | `v0.6.0rc2` | 0.6.0 | `workflow_sandbox-0.6.0` sdist, wheel and conda package | draft, not prerelease, sdist attached |
+| branch `maintenance/tag-test` at the same commit | [39011875494](https://github.com/chrisjbillington/workflow-sandbox/actions/runs/39011875494) | `v0.6.0rc2`, `v0.6.0` | 0.7.0.dev70 | `workflow_sandbox-0.7.0.dev70` sdist, wheel and conda package | skipped (`RELEASE=false`) |
 
-Expected `PKGVER` in the configure job of each run: 0.6.0rc2, 0.6.0, 0.7.0.dev70.
+So `actions/checkout` with `fetch-depth: 0` fetches the other tags at HEAD,
+`GITHUB_REF_NAME` is the bare tag name on a tag push, and the step deletes the right
+tags in both the configure and the build job. The test tags, branches and draft releases
+were left in the fork.
+
 ## 2026-10-17: blocker fix pull requests on GitHub Actions, every Qt binding
 
 Two dispatches of `.github/workflows/test.yml`, as the CLAUDE.md rule asks before a merge.
