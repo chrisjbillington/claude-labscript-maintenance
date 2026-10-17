@@ -965,7 +965,8 @@ Conventions checked against master for every PR:
   local branch (`pr110-work` in `repos/labscript-devices`, 0593f45) together with the
   docs import path; the fixed branch compiles a two-channel connection table and raises
   `LabscriptError` on each bad input (`TESTING.md`, "labscript-devices #110 Windfreak
-  SynthHD"). The head is on the author's fork, which the cloud session cannot push to.
+  SynthHD"). The branch is pushed upstream as `windfreak-110-fixes`; pushing it to the
+  author's fork, which allows maintainer edits, is a row in `LOCAL-TASKS.md`.
 
 ---
 
