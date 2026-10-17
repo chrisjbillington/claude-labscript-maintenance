@@ -5,6 +5,17 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-17: version specifiers and development versions
+
+Checked with `packaging` 26.3 on Python 3.14.6, the library that pip uses for version
+matching: `3.5.0.dev12`, `3.4.1.dev3` and `3.5.0rc1` do not satisfy `>=3.5.0`, with
+pre-releases excluded or allowed; `3.5.0` does. A master checkout of a component builds
+as the next minor version with a `.devN` suffix, so the raised pins in runmanager #131
+and labscript-suite #106 cannot be met by source installs or release candidates of the
+pinned packages, only by their final releases. Released versions on PyPI on this date:
+labscript 3.4.2, labscript-utils 3.4.3, labscript-devices 3.3.0, blacs 3.2.3, lyse
+3.3.0, runmanager 3.3.0, runviewer 3.2.4, labscript-suite 3.3.0.
+
 ## 2026-10-17: zprocess #28 on Windows 11, BLACS restart from a console
 
 zprocess PR #28 (head 81b1b10) on Windows 11 Pro build 26200 with Windows Terminal

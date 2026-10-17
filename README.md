@@ -53,8 +53,10 @@ and the file:line evidence.
   labscript-utils #129 (blocker 3), labscript #124 (part of blocker 1), and the
   Python 3.11 metadata PRs on labscript, labscript-utils, labscript-c-extensions,
   zprocess, desktop-app and qtutils (part of blocker 6). Open: labscript-devices #149,
-  blacs #124, zprocess #28 and the metadata PRs on labscript-devices, blacs, lyse,
-  runmanager, runviewer and labscript-suite.
+  blacs #124, zprocess #28 and the metadata PRs on labscript-devices, blacs, lyse and
+  runviewer. runmanager #131 and labscript-suite #106 raise component pins to
+  unreleased versions and are held until their step of the release sequence
+  (`docs/RELEASE-PLAN.md` section 5).
 - Python 3.15 works for the code but installs are blocked by missing h5py wheels on PyPI
   and missing pyzmq and PyQt builds on conda-forge.
 - No component repo has a test or lint workflow; only `release.yml`. The harness in this

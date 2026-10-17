@@ -13,9 +13,9 @@ updates or sees one merged or closed updates the row. Links go to GitHub.
 | 2026-10-17 | [labscript-devices #150](https://github.com/labscript-suite/labscript-devices/pull/150) | same | release plan 4.1 item 6 |
 | 2026-10-17 | [blacs #125](https://github.com/labscript-suite/blacs/pull/125) | same | release plan 4.1 item 6 |
 | 2026-10-17 | [lyse #140](https://github.com/labscript-suite/lyse/pull/140) | same | release plan 4.1 item 6 |
-| 2026-10-17 | [runmanager #131](https://github.com/labscript-suite/runmanager/pull/131) | same, plus `labscript>=3.5.0` and `labscript_utils>=3.5.0` | release plan 4.1 item 6 |
+| 2026-10-17 | [runmanager #131](https://github.com/labscript-suite/runmanager/pull/131) | same, plus `labscript>=3.5.0` and `labscript_utils>=3.5.0`; held until the release sequence, merge immediately before the runmanager tag | release plan 4.1 item 6; release sequence step 7 |
 | 2026-10-17 | [runviewer #73](https://github.com/labscript-suite/runviewer/pull/73) | same | release plan 4.1 item 6 |
-| 2026-10-17 | [labscript-suite #106](https://github.com/labscript-suite/labscript-suite/pull/106) | same, plus the component pins of the 3.4.0 release set; merge last | release plan 4.1 item 6 |
+| 2026-10-17 | [labscript-suite #106](https://github.com/labscript-suite/labscript-suite/pull/106) | same, plus the component pins of the 3.4.0 release set; held until the release sequence, merge immediately before the labscript-suite tag | release plan 4.1 item 6; release sequence step 12 |
 
 ## Merged or closed
 

@@ -270,9 +270,16 @@ which give file:line and the reasoning.
    `desktop_app/fix_entry_points.py`).
    Status 2026-10-17: PRs on all twelve repos (table in `PULL-REQUESTS.md`); merged on
    labscript, labscript-utils, labscript-c-extensions, zprocess, desktop-app and
-   qtutils, open on labscript-devices, blacs, lyse, runmanager, runviewer and
-   labscript-suite. The scheme rename needs `setuptools_scm>=10`, which conda-forge
-   has.
+   qtutils, open on labscript-devices, blacs, lyse and runviewer. The scheme rename
+   needs `setuptools_scm>=10`, which conda-forge has.
+   runmanager #131 and labscript-suite #106 are held until the release sequence
+   (section 5) because they raise the component pins to versions that are not released
+   yet: `labscript>=3.5.0` and `labscript_utils>=3.5.0` in runmanager, the seven
+   component pins in labscript-suite. A master checkout builds as a development version
+   such as 3.5.0.devN, which is lower than 3.5.0, so after a merge a source install of
+   runmanager or labscript-suite fails to resolve its dependencies until the pinned
+   versions are on PyPI. Merge each of the two immediately before its own tag, after
+   the pinned components are released.
 
 ### 4.2 Bugs worth fixing in this release (importance 4, all small)
 
@@ -370,6 +377,15 @@ with the final tag once the next package in the chain has been tested against it
 | 10 | runviewer | 3.3.0 | Qt6 work, c-extensions pin |
 | 11 | labscript-devices | 3.4.0 | dtype fixes, #109, #79, #95, PRs #110, #126, #87, #63, #144 |
 | 12 | labscript-suite | 3.4.0 | pins, docs, `requires-python` |
+
+The component pins in runmanager (step 7) and labscript-suite (step 12) are raised by
+runmanager #131 and labscript-suite #106, which are merged at their step and not
+before (section 4.1 item 6). The pins are of the form `>=3.5.0`, which neither a
+development version nor a release candidate satisfies: 3.5.0.devN and 3.5.0rc1 are both
+lower than 3.5.0. Open decision for the rc cycle: either the rc tags of runmanager and
+labscript-suite carry pins of the form `>=3.5.0rc1`, which the final tag then raises,
+or steps 7 and 12 are tagged only after the final releases of the packages they pin,
+without an rc of their own.
 
 Conda packages for steps 1 and 4 are built per Python (3.11 to 3.15); the rest are
 noarch. Nothing needs `CONDA_PYTHONS` set: the py315 packages build now and become
