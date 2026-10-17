@@ -42,8 +42,10 @@ time; it now allows one final tick, computed from the clock limits of the fixtur
 device classes. With 738bc7a installed into a local harness venv (Python 3.14.8, numpy
 2.5.4, PySide6) all eight steps passed on 2026-10-18, and the workflow was dispatched
 with the branch as run
-[39078500277](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39078500277)
-(result not yet recorded). Per-fix checks in the same venv, each in its own
+[39078500277](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39078500277):
+the 24 jobs on Ubuntu and Windows for Python 3.11 to 3.14 with PySide6, PyQt6 and PyQt5
+and the NumPy 2.4 job passed every step; the 6 Python 3.15 jobs failed at "Install the
+components" on h5py as before. Per-fix checks in the same venv, each in its own
 interpreter, with `DummyPseudoclock` and a test `IntermediateDevice` with a 1 MHz clock
 limit:
 
