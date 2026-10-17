@@ -253,7 +253,9 @@ which give file:line and the reasoning.
 4. **labscript-suite #56**: the release workflow computes `PKGVER` from a commit that
    carries both an rc and a final tag. Fix in the sandbox and deploy before tagging.
    Status 2026-10-17: PR open, workflow-sandbox #46; the step was tested in this
-   repository's `tag-test.yml` on branch `claude/release-tag-test`.
+   repository's `tag-test.yml` on branch `claude/release-tag-test`, and the version
+   that setuptools_scm computes after it was checked locally for each pushed-ref case
+   (`TESTING.md`). A real tag push is still to be done (`LOCAL-TASKS.md`).
 5. **Workflow sync** (section 2): deploy the sandbox to the nine lagging repos and
    qtutils; bump `action-gh-release` to v3 in the sandbox first.
    Status 2026-10-17: sync PRs open on all twelve repos from the head of sandbox #46

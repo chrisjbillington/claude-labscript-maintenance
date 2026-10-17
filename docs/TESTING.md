@@ -5,6 +5,48 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-17: workflow-sandbox #46 tag step, local simulation
+
+The "Ignore tags other than the pushed tag" step of workflow-sandbox #46 (head 6f21e86),
+run outside GitHub Actions in a local clone with `GITHUB_REF_NAME` set by hand, followed
+by `ci-helper distinfo version .` (ci-helper 0.4.0) and `python -m setuptools_scm`
+(setuptools_scm 10.3.4, Python 3.14.8). The two tags `v0.6.0rc2` and `v0.6.0` were
+created at 6f21e86, which has `v0.6.0rc1` as an ancestor 70 commits back. The two tools
+agreed in every case.
+
+| Tags at HEAD | Pushed ref | Step run | Version |
+|---|---|---|---|
+| both, annotated, final created after rc | `v0.6.0rc2`, `v0.6.0` or `master` | no | 0.6.0 |
+| both, annotated, rc created after final | `v0.6.0` | no | 0.6.0rc2 |
+| both, lightweight | `v0.6.0rc2`, `v0.6.0` or `master` | no | 0.6.0 |
+| both, annotated or lightweight, either order | `v0.6.0rc2` | yes | 0.6.0rc2 |
+| both, annotated or lightweight, either order | `v0.6.0` | yes | 0.6.0 |
+| both, annotated or lightweight | `master` | yes | 0.7.0.dev70 |
+
+Without the step the version is the tag that `git describe` picks, which for annotated
+tags is the one with the newest tagger date, so a commit tagged final-then-rc, or re-tagged
+rc after the final tag, builds the rc version on a final-tag push (labscript-suite #56).
+With the step only the pushed tag remains at HEAD and the version is that tag's; a branch
+push of a tagged commit builds a development version from the nearest ancestor tag.
+
+Not yet done: a real tag push to a repository that runs the workflow, which checks that
+`actions/checkout` with `fetch-depth: 0` fetches the other tags at HEAD and that
+`GITHUB_REF_NAME` is the bare tag name on a tag push. The plan, from
+`repos/workflow-sandbox` with a remote `fork` for chrisjbillington/workflow-sandbox
+(uploads are disabled there because `RELEASE_REPO` does not match, so only the build,
+conda-package and draft GitHub release jobs run):
+
+```
+git push fork 6f21e86:refs/heads/fix-multiple-tags
+git tag -a v0.6.0rc2 6f21e86 -m "Tag handling test" && git push fork v0.6.0rc2
+# after that run finishes:
+git tag -a v0.6.0 6f21e86 -m "Tag handling test" && git push fork v0.6.0
+# after that run finishes, the development-version case:
+git push fork 6f21e86:refs/heads/maintenance/tag-test
+```
+
+Expected `PKGVER` in the configure job of each run: 0.6.0rc2, 0.6.0, 0.7.0.dev70.
+
 ## 2026-10-17: fix branches on the local container, Python 3.14, NumPy 2.5.4
 
 The pull request branches of the release blockers (`MAINTENANCE.md`, "Pull requests
