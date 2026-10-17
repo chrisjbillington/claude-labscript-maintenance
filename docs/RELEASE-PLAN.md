@@ -268,9 +268,11 @@ which give file:line and the reasoning.
    versions; `version_scheme = "semver-pep440-release-branch"`; delete the
    `importlib_metadata` fallbacks (every `__version__.py`, `labscript_utils/versions.py`,
    `desktop_app/fix_entry_points.py`).
-   Status 2026-10-17: PRs on all twelve repos (table in `PULL-REQUESTS.md`); labscript
-   #125 and labscript-utils #130 merged, the other ten open. The scheme rename needs
-   `setuptools_scm>=10`, which conda-forge has.
+   Status 2026-10-17: PRs on all twelve repos (table in `PULL-REQUESTS.md`); merged on
+   labscript, labscript-utils, labscript-c-extensions, zprocess, desktop-app and
+   qtutils, open on labscript-devices, blacs, lyse, runmanager, runviewer and
+   labscript-suite. The scheme rename needs `setuptools_scm>=10`, which conda-forge
+   has.
 
 ### 4.2 Bugs worth fixing in this release (importance 4, all small)
 

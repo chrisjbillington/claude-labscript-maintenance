@@ -16,10 +16,6 @@ updates or sees one merged or closed updates the row. Links go to GitHub.
 | 2026-10-17 | [runmanager #131](https://github.com/labscript-suite/runmanager/pull/131) | same, plus `labscript>=3.5.0` and `labscript_utils>=3.5.0` | release plan 4.1 item 6 |
 | 2026-10-17 | [runviewer #73](https://github.com/labscript-suite/runviewer/pull/73) | same | release plan 4.1 item 6 |
 | 2026-10-17 | [labscript-suite #106](https://github.com/labscript-suite/labscript-suite/pull/106) | same, plus the component pins of the 3.4.0 release set; merge last | release plan 4.1 item 6 |
-| 2026-10-17 | [labscript-c-extensions #10](https://github.com/labscript-suite/labscript-c-extensions/pull/10) | `requires-python`, classifiers, no `importlib_metadata` fallback (`guess-next-dev` kept) | release plan 4.1 item 6 |
-| 2026-10-17 | [zprocess #29](https://github.com/chrisjbillington/zprocess/pull/29) | `requires-python`, classifiers, scheme name, `setuptools_scm>=10` | release plan 4.1 item 6 |
-| 2026-10-17 | [desktop-app #31](https://github.com/chrisjbillington/desktop-app/pull/31) | `requires-python`, classifiers, no `importlib_metadata` fallback in `fix_entry_points.py` and `environment.py` | release plan 4.1 item 6 |
-| 2026-10-17 | [qtutils #33](https://github.com/philipstarkey/qtutils/pull/33) | `requires-python`, classifiers, scheme name, `setuptools_scm>=10` | release plan 4.1 item 6 |
 
 ## Merged or closed
 
@@ -42,3 +38,7 @@ updates or sees one merged or closed updates the row. Links go to GitHub.
 | 2026-10-17 | merged 2026-10-17 08:24 UTC, 1b38a59 | [zprocess #30](https://github.com/chrisjbillington/zprocess/pull/30) | sync `release.yml`: `windows-2022`, `setup-miniconda` v4, tag step, `gh-release` v3 | release plan 4.1 item 5 |
 | 2026-10-17 | merged 2026-10-17 08:24 UTC, 7933d77 | [desktop-app #32](https://github.com/chrisjbillington/desktop-app/pull/32) | sync `release.yml`: tag step and `gh-release` v3 only | release plan 4.1 item 5 |
 | 2026-10-17 | merged 2026-10-17 08:24 UTC, 0f06616 | [qtutils #34](https://github.com/philipstarkey/qtutils/pull/34) | sync `release.yml`: all action pins (checkout v6, setup-python v6, upload-artifact v6, download-artifact v8, setup-miniconda v4, gh-release v3), runner labels, tag step | release plan 4.1 item 5 |
+| 2026-10-17 | merged 2026-10-17 08:33 UTC, 41c0058 | [labscript-c-extensions #10](https://github.com/labscript-suite/labscript-c-extensions/pull/10) | `requires-python`, classifiers, no `importlib_metadata` fallback (`guess-next-dev` kept) | release plan 4.1 item 6 |
+| 2026-10-17 | merged 2026-10-17 08:33 UTC, 526726f | [zprocess #29](https://github.com/chrisjbillington/zprocess/pull/29) | `requires-python`, classifiers, scheme name, `setuptools_scm>=10` | release plan 4.1 item 6 |
+| 2026-10-17 | merged 2026-10-17 08:33 UTC, dc6be4e | [desktop-app #31](https://github.com/chrisjbillington/desktop-app/pull/31) | `requires-python`, classifiers, no `importlib_metadata` fallback in `fix_entry_points.py` and `environment.py` | release plan 4.1 item 6 |
+| 2026-10-17 | merged 2026-10-17 08:32 UTC, 4c9cd95 | [qtutils #33](https://github.com/philipstarkey/qtutils/pull/33) | `requires-python`, classifiers, scheme name, `setuptools_scm>=10` | release plan 4.1 item 6 |

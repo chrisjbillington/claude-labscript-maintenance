@@ -51,8 +51,10 @@ and the file:line evidence.
   `docs/PULL-REQUESTS.md`. Merged the same day: workflow-sandbox #46 and the
   release-workflow sync PR on each of the twelve repos (blockers 4 and 5),
   labscript-utils #129 (blocker 3), labscript #124 (part of blocker 1), and the
-  Python 3.11 metadata PRs on labscript and labscript-utils (part of blocker 6). Open:
-  labscript-devices #149, blacs #124, zprocess #28 and the ten remaining metadata PRs.
+  Python 3.11 metadata PRs on labscript, labscript-utils, labscript-c-extensions,
+  zprocess, desktop-app and qtutils (part of blocker 6). Open: labscript-devices #149,
+  blacs #124, zprocess #28 and the metadata PRs on labscript-devices, blacs, lyse,
+  runmanager, runviewer and labscript-suite.
 - Python 3.15 works for the code but installs are blocked by missing h5py wheels on PyPI
   and missing pyzmq and PyQt builds on conda-forge.
 - No component repo has a test or lint workflow; only `release.yml`. The harness in this
