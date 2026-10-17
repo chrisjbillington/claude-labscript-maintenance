@@ -286,9 +286,11 @@ which give file:line and the reasoning.
 - runmanager #33, #30, #26; blacs #49, #32, #7, #72; lyse #14, #90, #139; runviewer
   #13 (in labscript-c-extensions, which is rebuilt for 3.15 anyway); labscript #16;
   labscript-utils #60; labscript-suite #5, #59, #60: each under an hour, see the triage.
-- labscript #41: there are no tests in labscript or labscript-utils. The compile smoke
-  test in section 3.5 (install, import, compile the example, read it in lyse) is 40
-  lines and would have caught #123; add it to CI across 3.11 to 3.15 before tagging.
+- labscript #41: there are no tests in labscript or labscript-utils. The harness in
+  this repository (`harness/`, results in `TESTING.md`) runs install, import, compile,
+  lyse, runviewer-parser, runmanager-API and application start-up checks on Ubuntu and
+  Windows for Python 3.11 to 3.15 and reproduces #123; what remains is deploying a copy
+  of it to the component repos' CI before tagging.
 
 ### 4.3 Pull requests to merge in this release
 
