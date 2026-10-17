@@ -9,6 +9,7 @@ updates or sees one merged or closed updates the row. Links go to GitHub.
 |---|---|---|---|
 | 2026-10-17 | [runmanager #131](https://github.com/labscript-suite/runmanager/pull/131) | same, plus `labscript>=3.5.0rc1` and `labscript_utils>=3.5.0rc1` (head e5283ab); held until the release sequence, merge immediately before the runmanager tag | release plan 4.1 item 6; release sequence step 7 |
 | 2026-10-17 | [labscript-suite #106](https://github.com/labscript-suite/labscript-suite/pull/106) | same, plus the component pins of the 3.4.0 release set in the form `>=x.y.0rc1` (head 4e7de5e); held until the release sequence, merge immediately before the labscript-suite tag | release plan 4.1 item 6; release sequence step 12 |
+| 2026-10-17 | [lyse #142](https://github.com/labscript-suite/lyse/pull/142) | `__getattr__` serves `spinning_top` as well as `path` from `lyse.utils.worker`; `spinning_top` back in `__all__` | DEFECTS.md D8 |
 
 ## Merged or closed
 

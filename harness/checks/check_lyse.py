@@ -10,6 +10,15 @@ from lyse.dataframe_utilities import get_dataframe_from_shot, get_dataframe_from
 
 shot = load_state()['example_shot']
 
+# Names that analysis routines read from the lyse module.
+check(getattr(lyse, 'spinning_top', None) is False,
+      'lyse.spinning_top is False outside the analysis subprocess', known='DEFECTS.md D8')
+check(lyse.path is None, 'lyse.path is None outside the analysis subprocess')
+star = {}
+exec('from lyse import *', star)
+check('path' in star and 'Run' in star and 'data' in star, 'star import provides path, Run and data')
+check('spinning_top' in star, 'star import provides spinning_top', known='DEFECTS.md D8')
+
 run = lyse.Run(shot)
 run.set_group('harness')
 g = run.get_globals()
