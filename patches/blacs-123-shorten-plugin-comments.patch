@@ -1,0 +1,50 @@
+From f1aea3fc98aac773e70a0f0b4f0b49cc6683700a Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 17 Oct 2026 09:21:22 +0000
+Subject: [PATCH] Shorten the comments on the two plugin fixes
+
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01C99RPsoP9t5Tb3B8h8pwSM
+---
+ blacs/__main__.py         | 5 +----
+ blacs/plugins/__init__.py | 8 +++-----
+ 2 files changed, 4 insertions(+), 9 deletions(-)
+
+diff --git a/blacs/__main__.py b/blacs/__main__.py
+index 35f26a4..23fc8b2 100644
+--- a/blacs/__main__.py
++++ b/blacs/__main__.py
+@@ -441,10 +441,7 @@ class BLACS(object):
+         blacs_data['settings'] = self.settings
+ 
+         for module_name, plugin in self.plugins.items():
+-            # Work out which call signature the plugin uses before calling it.
+-            # Detecting the old no-argument API by letting a call fail would
+-            # re-run whatever side effects a plugin_setup_complete() that got
+-            # partway through had already performed.
++            # Call plugin_setup_complete once, with the arguments its signature accepts.
+             setup_complete = plugin.plugin_setup_complete
+             try:
+                 inspect.signature(setup_complete).bind(blacs_data)
+diff --git a/blacs/plugins/__init__.py b/blacs/plugins/__init__.py
+index d77cad6..e454036 100644
+--- a/blacs/plugins/__init__.py
++++ b/blacs/plugins/__init__.py
+@@ -93,11 +93,9 @@ for module_name in os.listdir(PLUGINS_DIR):
+         try:
+             enabled = exp_config.getboolean('BLACS/plugins', module_name)
+         except ValueError:
+-            # Config sections inherit [DEFAULT], so a labconfig default whose
+-            # name collides with a plugin directory is read here as that
+-            # plugin's enable flag. Write a real flag into the section, which
+-            # shadows the inherited value, rather than letting a path or other
+-            # non-boolean default abort BLACS startup.
++            # The section inherits the labconfig [DEFAULT] keys, so a plugin with the
++            # same name as one of them reads that key's value here. An option set in
++            # the section itself overrides the inherited value.
+             logger.warning(
+                 "Plugin '%s' shares its name with a labconfig [DEFAULT] key; "
+                 "using the default enabled state." % module_name
+-- 
+2.43.0
+

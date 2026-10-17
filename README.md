@@ -23,6 +23,7 @@ part of this repository.
 | `docs/MAINTENANCE.md` | Status of each review finding in the existing suite, and a map from review line numbers to code that later refactors moved |
 | `docs/ISSUE-TRIAGE.md` | All 223 open issues ranked 1 to 5, each checked against current code, with per-repo detail (2026-10-17) |
 | `docs/PULL-REQUESTS.md` | Every pull request opened by this maintenance track, with links and state |
+| `patches/` | Commits waiting to be applied by a local session or carried into a later pull request, as `git format-patch` files; each is deleted once applied |
 | `docs/PR-REVIEW.md` | All 30 open pull requests ranked, with defects found and a recommended action for each (2026-10-17) |
 | `docs/RELEASE-PLAN.md` | Plan for the next minor release of every component: Python 3.11 to 3.15, NumPy 2.5, workflow sync, work items, release order (2026-10-17) |
 | `briefs/` | The briefs given to the agents that produced the issue triage and PR review; the criteria and importance scale to reuse |
