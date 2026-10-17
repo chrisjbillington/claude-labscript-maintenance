@@ -18,7 +18,7 @@ fix is made, in which case the row names the pull request. Importance uses the s
 | D5 | 2026-10-17 | labscript-utils `labscript_profile/default_profile/userlib/analysislib/example_apparatus/example_IMAQdx_remote.py:6` | The example analysis script tests `lyse.spinning_top`, which lyse 3.3.0rc1 moved to `lyse.utils.worker`; lyse's lazy attribute loader resolves only `path`, so the script raises `AttributeError` as soon as lyse runs it | 3 | run | open; the same line in the script of labscript-utils #117 is fixed by `patches/labscript-utils-117-example-analysis-fixes.patch` |
 | D6 | 2026-10-17 | labscript-devices `labscript_devices/IMAQdxCamera/blacs_tabs.py:264` | `on_copy_clicked` calls `QtGui.QApplication.instance().clipboard()`; `QtGui` has no `QApplication` under PySide6 or PyQt6, so the Copy button of the attributes dialog raises `AttributeError` with a Qt6 binding | 3 | read | open |
 | D7 | 2026-10-17 | release workflow `release.yml:45` and `:235` (rpanderson/workflow-sandbox master, synced to ten repositories by the sync PRs listed in `PULL-REQUESTS.md`) | The "Ignore tags other than the pushed tag" step has no `shell: bash`, so on Windows runners it runs under PowerShell, where `${GITHUB_REF_NAME}` is empty, and deletes the pushed tag; a tag push builds a development version on Windows | 5 | run | fixed in zprocess by #31 (f5f4685), confirmed by the `v2.28.0rc2` run 39029064804, which built 2.28.0rc2 on windows-2022 (`TESTING.md`); [workflow-sandbox #47](https://github.com/rpanderson/workflow-sandbox/pull/47) open; the other sync PRs are in `PULL-REQUESTS.md` |
-| D8 | 2026-10-17 | lyse `lyse/__init__.py:76` | `lyse.spinning_top` raises `AttributeError` and `from lyse import *` does not provide it since 3.3.0: the lazy loader serves only `path` after the variable moved to `lyse.utils.worker` | 4 | run | fix open: [lyse #142](https://github.com/labscript-suite/lyse/pull/142) |
+| D8 | 2026-10-17 | lyse `lyse/__init__.py:76` | `lyse.spinning_top` raises `AttributeError` and `from lyse import *` does not provide it since 3.3.0: the lazy loader serves only `path` after the variable moved to `lyse.utils.worker` | 4 | run | fix open: [lyse #144](https://github.com/labscript-suite/lyse/pull/144), which replaced #142 after GitHub closed it |
 
 ## Detail
 
@@ -118,6 +118,6 @@ left only `path` in the module's `__getattr__` (`lyse/__init__.py:76`), so since
 3.3.0 `lyse.spinning_top` raises `AttributeError` and `from lyse import *` no longer
 provides it. Reproduced in a venv with lyse master: `import lyse; lyse.spinning_top`
 raises, and a star import has `path` but not `spinning_top`. Fix: read both names from
-`lyse.utils.worker` in `__getattr__` and list `spinning_top` in `__all__`, which lyse #142
-does. The harness `lyse` step checks both names and marks them as known until the fix
+`lyse.utils.worker` in `__getattr__` and list `spinning_top` in `__all__`, which lyse #144
+(formerly #142) does. The harness `lyse` step checks both names and marks them as known until the fix
 is merged.

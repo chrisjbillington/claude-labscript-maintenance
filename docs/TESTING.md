@@ -133,7 +133,7 @@ fixes it; workflow-sandbox #47 and the sync pull requests carry the change.
 ## 2026-10-17: lyse #142 (spinning_top) with the merged masters, every Qt binding
 
 Run [39027308813](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39027308813),
-dispatched with `lyse=pr/142` (a7de833) and every other component at its master after
+dispatched with `lyse=pr/142` (a7de833; the same tree is 8a6a5d5 on lyse #144, which replaced #142 on 2026-10-18) and every other component at its master after
 the blocker and metadata merges of the day: zprocess e74b638, qtutils 4c9cd95, desktop-app
 dc6be4e, labscript-c-extensions 41c0058, labscript-utils 89457f5, labscript 665a73d,
 runmanager 264434c, blacs d061535, runviewer 7ea7dc9, labscript-devices 2a2d785,
