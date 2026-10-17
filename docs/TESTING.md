@@ -5,6 +5,25 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-17: lyse #142 (spinning_top) with the merged masters, every Qt binding
+
+Run [39027308813](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39027308813),
+dispatched with `lyse=pr/142` (a7de833) and every other component at its master after
+the blocker and metadata merges of the day: zprocess e74b638, qtutils 4c9cd95, desktop-app
+dc6be4e, labscript-c-extensions 41c0058, labscript-utils 89457f5, labscript 665a73d,
+runmanager 264434c, blacs d061535, runviewer 7ea7dc9, labscript-devices 2a2d785,
+labscript-suite 4fbc7fc. Ubuntu and Windows, Python 3.11 to 3.15, PySide6, PyQt6 and
+PyQt5, plus the `numpy<2.5` job: 31 jobs.
+
+| Jobs | Result |
+|---|---|
+| 25 jobs: both OSes, Python 3.11 to 3.14, all three bindings, NumPy 2.5.4 (2.4.6 on 3.11), plus the pinned job | all eight steps pass, so the merged masters compile on NumPy 2.5.4 and the lyse branch reads shots and saves results on every binding |
+| 6 jobs: Python 3.15 | install fails on h5py as before |
+
+The run was dispatched before the commit that adds the `spinning_top` checks to the
+harness `lyse` step reached `main`, so those checks did not run here; they were run by hand
+in the local venvs, where lyse master reports KNOWN and the branch reports FIXED for both.
+
 ## 2026-10-17: zprocess v2.28.0rc1 release run
 
 Tag `v2.28.0rc1` pushed at 10:41 UTC on e74b638 of chrisjbillington/zprocess, the head of
