@@ -17,24 +17,6 @@ With `gh` authenticated, `gh issue view <N> --comments` is the simpler alternati
 
 ## Smoke tests behind the release plan
 
-`smoke/install-and-import.sh <python version> <repos dir> <work dir>` makes a uv venv,
-installs every component from the clones in dependency order with PySide6, imports every
-top-level module with `-W error::DeprecationWarning` under the offscreen Qt platform,
-byte-compiles the GUI entry modules and runs the zprocess test suite. Results for
-Python 3.14 and 3.15 on 2026-10-17 are in `docs/RELEASE-PLAN.md` section 3.
-
-`smoke/compile-example.sh <python version> <repos dir> <work dir>` uses that venv to
-compile the default profile's example experiment through `runmanager` and reads the shot
-back with `lyse.Run`. It needs a labscript profile, made with `labscript-profile-create`
-in the venv. This is the test that fails on NumPy 2.5 with `data type 'a256' not
-understood` (labscript #123).
-
-`smoke/runmanager/` holds the scripts used to check runmanager PR #130 against master
-before merging: `libtest.py <profile dir>` exercises the public library API (globals file
-CRUD, evaluation, expansion, diff, run file creation, async compile) and `guitest.py
-<profile dir>` drives a running runmanager through `runmanager.remote.Client`
-(start runmanager with `QT_QPA_PLATFORM=offscreen python -m runmanager` first). Both
-expect `experiment.py` and `connection_table.py` from that directory at
-`<profile dir>/userlib/labscriptlib/refactor_test/`, and `guitest.py` expects runmanager
-to have that experiment loaded with the globals file that `libtest.py` creates. They use
-only dummy devices.
+The scripts that produced the results in `docs/RELEASE-PLAN.md` section 3 have been
+replaced by the test harness in `harness/`, which runs the same install, import, compile
+and read-back checks and more. See `harness/README.md`.

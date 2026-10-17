@@ -13,3 +13,4 @@ ao0.ramp(t=0.1, duration=duration / 2, initial=amplitude, final=amplitude * gain
 if use_do:
     do0.go_high(t=0.2)
 stop(duration)
+print('runmanager_test experiment compiled')

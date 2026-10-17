@@ -25,7 +25,10 @@ part of this repository.
 | `docs/PR-REVIEW.md` | All 30 open pull requests ranked, with defects found and a recommended action for each (2026-10-17) |
 | `docs/RELEASE-PLAN.md` | Plan for the next minor release of every component: Python 3.11 to 3.15, NumPy 2.5, workflow sync, work items, release order (2026-10-17) |
 | `briefs/` | The briefs given to the agents that produced the issue triage and PR review; the criteria and importance scale to reuse |
-| `tools/` | Scripts used to produce the documents: GitHub page scrapers and the smoke tests behind the release plan's results |
+| `harness/` | Test harness: installs the component repositories at given refs into a venv and runs end-to-end checks (import, profile, compile, lyse, runviewer parsers, runmanager API, application start-up); `harness/README.md` |
+| `.github/workflows/test.yml` | Runs the harness on Ubuntu and Windows for Python 3.11 to 3.15: on pushes that change the harness, weekly, and on demand with chosen component refs |
+| `docs/TESTING.md` | Results of the harness runs, with dates and versions, and the defects they found |
+| `tools/` | Scripts used to produce the documents: GitHub page scrapers |
 
 Read `docs/RELEASE-PLAN.md` first for what needs doing. `docs/MAINTENANCE.md` says what has
 been fixed already. The ranked tables at the top of `docs/ISSUE-TRIAGE.md` and
@@ -43,8 +46,8 @@ and the file:line evidence.
   the shot on Python 3.14.
 - Python 3.15 works for the code but installs are blocked by missing h5py wheels on PyPI
   and missing pyzmq and PyQt builds on conda-forge.
-- No repo has a test or lint workflow; only `release.yml`. Adding a compile smoke test to
-  CI is a release work item.
+- No component repo has a test or lint workflow; only `release.yml`. The harness in this
+  repository covers the suite end to end on Linux and Windows (`docs/TESTING.md`).
 
 ## Working with the component repositories
 
@@ -79,7 +82,9 @@ The documents were written against the commits listed in `docs/REVIEW.md` and
 `docs/MAINTENANCE.md`. Fetch before relying on a line number, and record moved code in
 `docs/MAINTENANCE.md` as the runmanager table there does.
 
+`python harness/suite.py clone` does the same clones, shallow, and accepts a branch, tag,
+commit or `pr/<N>` per component.
+
 ## Planned additions
 
-Testing harnesses, GitHub Actions for testing on Windows and Linux, and issue lists
-synced from GitHub or found in testing. None exist yet.
+Issue lists synced from GitHub or found in testing.
