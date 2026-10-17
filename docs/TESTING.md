@@ -30,8 +30,12 @@ The `has_option` change in the same commit does not change behaviour: CPython's
 `RawConfigParser.has_option` returns true for inherited `[DEFAULT]` keys, as `items()`
 does. The `try/except ValueError` block is the fix.
 
-A dispatch of `.github/workflows/test.yml` with `blacs=pr/123` is run 39021000880
-(started 09:24 UTC); its result is added below when it completes.
+**GitHub Actions:** dispatch of `.github/workflows/test.yml` with `blacs=pr/123` (head
+4ec904f, without the comment commit) and every other component at its upstream master,
+[run 39021000880](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39021000880),
+started 09:24 UTC. The 24 jobs on Ubuntu and Windows for Python 3.11 to 3.14 with
+PySide6, PyQt6 and PyQt5 pass all eight steps, as does the `numpy<2.5` job; the six
+Python 3.15 jobs fail at the h5py build as before.
 
 **Draft comment for the PR**, to post once approved:
 
