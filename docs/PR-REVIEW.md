@@ -965,8 +965,10 @@ Conventions checked against master for every PR:
   local branch (`pr110-work` in `repos/labscript-devices`, 0593f45) together with the
   docs import path; the fixed branch compiles a two-channel connection table and raises
   `LabscriptError` on each bad input (`TESTING.md`, "labscript-devices #110 Windfreak
-  SynthHD"). The branch is pushed upstream as `windfreak-110-fixes`; pushing it to the
-  author's fork, which allows maintainer edits, is a row in `LOCAL-TASKS.md`.
+  SynthHD"). The branch is pushed upstream as `windfreak-110-fixes` and passes the
+  workflow on Ubuntu and Windows for Python 3.11 to 3.14 with all three Qt bindings;
+  cherry-picking the fix onto the PR head in the author's fork, which allows maintainer
+  edits, is a row in `LOCAL-TASKS.md`.
 
 ---
 
@@ -1179,6 +1181,7 @@ All comparisons are to `origin/master`. Line numbers refer to the file as it is 
 - **Rewrite relevance**: The rewrite's analysis dataframe builder should decide up front which HDF5 locations feed the dataframe and how namespaces are merged, rather than adding locations one at a time.
 - **Importance**: 3. Small useful feature, but should not merge with the overwrite behaviour.
 - **Recommended action**: Merge after one fix: merge the `data/` attributes into an existing `row[groupname]` dict instead of replacing it.
+- **Status 2026-10-17**: the overwrite reproduces on the head (a shot with `results/fr` and `data/fr` loses the results attributes) and is fixed by commit 724de8c on the local branch `pr132-work` in `repos/lyse`, pushed upstream as `data-attributes-132-fix` (`TESTING.md`, "lyse #132 data-group attributes in the dataframe"). Cherry-picking it onto the PR head is a row in `LOCAL-TASKS.md`.
 
 ### lyse #118: Finally merging #85 (dihm, opened 2024-02-14, last updated 2025-04-14) and lyse #85: Renaming Run to Shot (philipstarkey, opened 2020-11-05, closed 2020-11-08)
 

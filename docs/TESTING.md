@@ -5,6 +5,27 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-17: lyse #132 data-group attributes in the dataframe
+
+lyse PR #132 (head 6066df4) merged into lyse master 01246cf, plus commit 724de8c, which
+reads the `data/` groups before the `results/` groups and merges each group's attributes
+into `row[name]` with `setdefault(...).update(...)` instead of assigning (local branch
+`pr132-work` in `repos/lyse`; pushed upstream as `data-attributes-132-fix`). Python
+3.14.6, pandas 3.0.6, h5py 3.16, with the clone on `PYTHONPATH`. A script writes a shot
+file with `results/fr` (attributes `fitted=42.0`, `shared='from results'`), `data/fr`
+(`raw=7`, `shared='from data'`), `data/other` (`temperature=300.0`) and a dataset
+`data/waits`, then calls `get_nested_dict_from_shot` and `get_dataframe_from_shot`.
+
+| Version | `row['fr']` | dataframe columns under `fr` and `other` |
+|---|---|---|
+| master 01246cf | `{'fitted': 42.0, 'shared': 'from results'}`; `data/` not read | `(fr, fitted)`, `(fr, shared)` |
+| PR head 6066df4 | `{'raw': 7, 'shared': 'from data'}`: the results attributes are lost | `(fr, raw)`, `(fr, shared)`, `(other, temperature)` |
+| with 724de8c | `{'raw': 7, 'shared': 'from results', 'fitted': 42.0}` | `(fr, fitted)`, `(fr, raw)`, `(fr, shared)`, `(other, temperature)` |
+
+The dataset `data/waits` gives an empty `row['waits']` in both the PR head and the fix,
+and no column. The GitHub Actions dispatch with `lyse=data-attributes-132-fix` is
+recorded here when it completes.
+
 ## 2026-10-17: labscript-devices #110 Windfreak SynthHD
 
 labscript-devices PR #110 (head 52f74fa) merged into master 2183314, plus one commit with
@@ -35,9 +56,13 @@ fails the `imports` step in every job because the harness imports
 made; the branch is 68 commits behind master. The other steps pass in the `numpy<2.5`
 job. A head that is behind master has to be tested merged with master, so the merged
 branch with the fixes was pushed to labscript-suite/labscript-devices as
-`windfreak-110-fixes` (0593f45) and dispatched; its result is recorded below when it
-completes. The harness should derive its module list from the installed package rather
-than a fixed list (`harness/suite.py`, `imports` step).
+`windfreak-110-fixes` (0593f45) and dispatched:
+[run 39022423569](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39022423569),
+every other component at master. The 24 jobs on Ubuntu and Windows for Python 3.11 to
+3.14 with PySide6, PyQt6 and PyQt5 pass all eight steps, as does the `numpy<2.5` job; the
+six Python 3.15 jobs fail at the h5py build as before. The harness should derive its
+module list from the installed package rather than a fixed list (`harness/suite.py`,
+`imports` step).
 
 ## 2026-10-17: blacs #123 plugin-loading fixes
 
