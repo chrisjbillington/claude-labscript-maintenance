@@ -7,8 +7,8 @@ updates or sees one merged or closed updates the row. Links go to GitHub.
 
 | Opened | Pull request | Change | Addresses |
 |---|---|---|---|
-| 2026-10-17 | [labscript #124](https://github.com/labscript-suite/labscript/pull/124) | `'a256'` to `'S256'` in `labscript.py` and `outputs.py` | labscript #123; review Part 1 item 1 |
-| 2026-10-17 | [labscript-devices #149](https://github.com/labscript-suite/labscript-devices/pull/149) | `'a256'` to `'S256'` in six device files; `tostring()` to `tobytes()` in `LightCrafterDMD.py` | labscript #123; labscript-devices #131; review Part 1 item 1 |
+| 2026-10-17 | [labscript #124](https://github.com/labscript-suite/labscript/pull/124) | `'a256'` to `'S256'` in `labscript.py`, `outputs.py` and the docs' intermediate device example (head c6055a0) | labscript #123; review Part 1 item 1 |
+| 2026-10-17 | [labscript-devices #149](https://github.com/labscript-suite/labscript-devices/pull/149) | `'a256'` to `'S256'` in six device files; `tostring()` to `tobytes()` in `LightCrafterDMD.py`; verified by import and the dummy-device compile only, as the description says | labscript #123; labscript-devices #131; review Part 1 item 1 |
 | 2026-10-17 | [blacs #124](https://github.com/labscript-suite/blacs/pull/124) | `'a'` aliases to `'S'` in `front_panel_settings.py` | labscript #123; review Part 1 item 1 |
 | 2026-10-17 | [zprocess #28](https://github.com/chrisjbillington/zprocess/pull/28) | guard `SetConsoleMode` in `disable_quick_edit`; head 256ac43 names the PowerShell console mode as the cause (tested on Windows 11, `TESTING.md`) | zprocess #27 |
 | 2026-10-17 | [labscript-utils #129](https://github.com/labscript-suite/labscript-utils/pull/129) | ModuleWatcher unloads namespace packages under userlib; `__init__.py` in the default profile's `example_apparatus` directories | labscript-utils #28 |
