@@ -21,6 +21,8 @@ This repository holds the notes, plans and tooling for maintaining the labscript
 
 ## Repositories
 
+- Commit work in this repository directly to `main` and push it there. Do not open
+  branches or pull requests in this repository.
 - Component repositories are cloned under `repos/` (ignored by git); `README.md` has the
   clone commands. Do not vendor them into this repository.
 - Work in the component repositories on branches and open pull requests against the
