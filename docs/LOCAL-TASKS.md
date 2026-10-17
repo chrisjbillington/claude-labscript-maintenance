@@ -2,7 +2,17 @@
 
 Work that a cloud session cannot do, for a local Claude Code session to do under
 supervision. A cloud session adds a row when it hits such a task; the local session
-fills in the status and the date. Delete nothing: a done row is the record.
+fills in the status and the date. A task is listed under Open until it is done or
+closed, then its row moves to Done. Delete nothing: a done row is the record.
+
+## Open
+
+None as of 2026-10-18.
+
+| Added | Task | Why not from the cloud | Status |
+|---|---|---|---|
+
+## Done
 
 | Added | Task | Why not from the cloud | Status |
 |---|---|---|---|

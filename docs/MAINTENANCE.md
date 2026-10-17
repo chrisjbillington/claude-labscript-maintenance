@@ -20,14 +20,15 @@ it. `REVIEW.md` keeps its original numbering. A fixed item is marked in place th
 
 ## Repository state relative to the review
 
-`REVIEW.md` was written against the commits in its scope table. As of 2026-10-17, `master`
-of `labscript`, `blacs`, `lyse`, `runviewer`, `labscript-devices` and
-`labscript-c-extensions` is still at the reviewed commit. Two repos have moved:
+`REVIEW.md` was written against the commits in its scope table. The pull requests in
+`PULL-REQUESTS.md` (dtype aliases, packaging metadata, workflow sync, the fixes below) have
+since moved `master` of every repo. The changes that touch review items are:
 
 | Repo | Reviewed | Now | Change |
 |---|---|---|---|
 | `labscript-utils` | 22616a7 | PR #128, merged 2026-10-13 | bug fixes in zlock, excepthook, properties, ls_zprocess, splash and the header view widget |
 | `runmanager` | 08ccc99 | PR #130, merged 2026-10-17 as bfe63ba | module split of `runmanager/__init__.py`, widgets moved out of `__main__.py`, style cleanup |
+| `labscript-c-extensions` | (scope table) | PR #13, merged 2026-10-17 as b0f985d | item 19: `resample.pyx` NaN lead-in and loop bounds |
 
 ### labscript-utils PR #128 (ispielma)
 
@@ -142,7 +143,7 @@ unaffected. The review's line references map to the new layout as follows.
 | 16 lyse on pandas 3 | open |
 | 17 PrawnBlaster wait without monitor | open |
 | 18 `h5_lock` | fixed, labscript-utils PR #133 (open) |
-| 19 runviewer resampler bounds | fixed, labscript-c-extensions PR #13 (open) |
+| 19 runviewer resampler bounds | fixed, labscript-c-extensions PR #13, merged 2026-10-17 as b0f985d |
 | 20 zlock port | fixed, labscript-utils PR #128 |
 
 Item 1 is fixed by the pull requests in the table below. Items 10 and 18 are fixed by
@@ -161,8 +162,9 @@ labscript-suite #56 and a workflow sync PR on each of the twelve repos. All were
 on 2026-10-17 except runmanager #131 and labscript-suite #106, which raise component
 pins and are held for the release sequence (`RELEASE-PLAN.md` section 5). Later on
 2026-10-17: qtutils #36 and #37 and desktop-app #34 (release sequence steps 2 and 3),
-workflow-sandbox #47 and eleven sync PRs for defect D7 were merged; labscript-c-extensions
-#12 (D7 sync), #13 (item 19), labscript-utils #133 and labscript #128 are open.
+workflow-sandbox #47 and the twelve sync PRs for defect D7 were merged, as were
+labscript-c-extensions #13 (item 19, closes runviewer #13). labscript-utils #133 and
+labscript #128 are open.
 
 The scheme rename needs setuptools_scm 10, which introduced the name
 `semver-pep440-release-branch` (setuptools_scm 9.2.2 does not have it); the default

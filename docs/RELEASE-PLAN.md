@@ -383,7 +383,7 @@ Dependency order. Each is tagged on a `maintenance/x.y.x` branch per the release
 | 1 | zprocess | 2.28.0 | #27, #19, heartbeat changes. Tagged from `master`: `v2.28.0rc1` at e74b638 on 2026-10-17 is on PyPI but has no win-64 conda packages (defect D7, `DEFECTS.md`); `v2.28.0rc2` at f5f4685, which carries the D7 fix (#31), is on PyPI and on the Anaconda main label for all four platforms (run 39029064804). The `maintenance/2.28.x` branch that was pushed for rc1 is deleted; zprocess does not use maintenance branches |
 | 2 | qtutils (philipstarkey) | 4.1.4 | #22 RTD version, optional "Clear output" part of PR #32. qtutils #37 (#22) and #36 (clear output, closes #2) merged 2026-10-17; not tagged |
 | 3 | desktop-app | 0.5.1 | #20 lazy pywin32. desktop-app #34 merged 2026-10-17; not tagged |
-| 4 | labscript-c-extensions | 1.3.1 | runviewer #13 resampler fix (PR #13 opened 2026-10-17, also fixes REVIEW.md item 19); py311 to py315 wheels come from the metadata (#10) and workflow (#11) merges |
+| 4 | labscript-c-extensions | 1.3.1 | runviewer #13 resampler fix (PR #13, also fixes REVIEW.md item 19, merged 2026-10-17 as b0f985d); py311 to py315 wheels come from the metadata (#10) and workflow (#11) merges; the `master` run on b0f985d builds them (`TESTING.md`) |
 | 5 | labscript-utils | 3.5.0 | #28, #100, #60, PR #117, Qt6 work |
 | 6 | labscript | 3.5.0 | #123, #52, #43, #104, #16 |
 | 7 | runmanager | 3.4.0 | #130 refactor plus fixes, #66, #123, #33, #30, #26 |

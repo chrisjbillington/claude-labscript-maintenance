@@ -17,7 +17,7 @@ fix is made, in which case the row names the pull request. Importance uses the s
 | D4 | 2026-10-17 | labscript-utils `labscript_utils/ls_zprocess.py:332` with zprocess `zlock` | A running zlock server with a different shared secret makes `import labscript_utils.h5_lock` fail with `AuthenticationFailure`; nothing restarts the server or says what to do | 3 | run | open |
 | D5 | 2026-10-17 | labscript-utils `labscript_profile/default_profile/userlib/analysislib/example_apparatus/example_IMAQdx_remote.py:6` | The example analysis script tests `lyse.spinning_top`, which lyse 3.3.0rc1 moved to `lyse.utils.worker`; lyse's lazy attribute loader resolves only `path`, so the script raises `AttributeError` as soon as lyse runs it | 3 | run | open; the same line in the script of labscript-utils #117 is fixed by `patches/labscript-utils-117-example-analysis-fixes.patch` |
 | D6 | 2026-10-17 | labscript-devices `labscript_devices/IMAQdxCamera/blacs_tabs.py:264` | `on_copy_clicked` calls `QtGui.QApplication.instance().clipboard()`; `QtGui` has no `QApplication` under PySide6 or PyQt6, so the Copy button of the attributes dialog raises `AttributeError` with a Qt6 binding | 3 | read | open |
-| D7 | 2026-10-17 | release workflow `release.yml:45` and `:235` (rpanderson/workflow-sandbox master, synced to ten repositories by the sync PRs listed in `PULL-REQUESTS.md`) | The "Ignore tags other than the pushed tag" step has no `shell: bash`, so on Windows runners it runs under PowerShell, where `${GITHUB_REF_NAME}` is empty, and deletes the pushed tag; a tag push builds a development version on Windows | 5 | run | fixed in zprocess by #31 (f5f4685), confirmed by the `v2.28.0rc2` run 39029064804, which built 2.28.0rc2 on windows-2022 (`TESTING.md`); fixed in the sandbox by [workflow-sandbox #47](https://github.com/rpanderson/workflow-sandbox/pull/47), merged 2026-10-17 (51023a1), and in every other repository but labscript-c-extensions by the sync PRs merged the same day (`PULL-REQUESTS.md`); labscript-c-extensions #12 open |
+| D7 | 2026-10-17 | release workflow `release.yml:45` and `:235` (rpanderson/workflow-sandbox master, synced to ten repositories by the sync PRs listed in `PULL-REQUESTS.md`) | The "Ignore tags other than the pushed tag" step has no `shell: bash`, so on Windows runners it runs under PowerShell, where `${GITHUB_REF_NAME}` is empty, and deletes the pushed tag; a tag push builds a development version on Windows | 5 | run | fixed in zprocess by #31 (f5f4685), confirmed by the `v2.28.0rc2` run 39029064804, which built 2.28.0rc2 on windows-2022 (`TESTING.md`); fixed in the sandbox by [workflow-sandbox #47](https://github.com/rpanderson/workflow-sandbox/pull/47), merged 2026-10-17 (51023a1), and in the twelve other repositories by the sync PRs merged the same day (`PULL-REQUESTS.md`) |
 | D8 | 2026-10-17 | lyse `lyse/__init__.py:76` | `lyse.spinning_top` raises `AttributeError` and `from lyse import *` does not provide it since 3.3.0: the lazy loader serves only `path` after the variable moved to `lyse.utils.worker` | 4 | run | fix open: [lyse #144](https://github.com/labscript-suite/lyse/pull/144), which replaced #142 after GitHub closed it |
 
 ## Detail
@@ -105,8 +105,8 @@ labscript-c-extensions and chrisjbillington/zprocess. Until it is fixed, no tag 
 produces Windows conda packages with the release version.
 
 Fix: workflow-sandbox #47 adds `shell: bash` to both steps, and sync pull requests carry it
-to the twelve repositories (`PULL-REQUESTS.md`). #47 and eleven of the sync pull requests
-were merged on 2026-10-17; labscript-c-extensions #12 is open. Verified on a Windows runner
+to the twelve repositories (`PULL-REQUESTS.md`). #47 and the twelve sync pull requests were
+merged on 2026-10-17. Verified on a Windows runner
 (`TESTING.md`, "release tag step on Ubuntu and Windows"): under the default shell the step
 deletes every tag at HEAD, under bash it leaves the pushed tag.
 
