@@ -33,7 +33,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 | 6 | desktop-app #20 launcher imports pywin32 before activating the env | bug | 4 | fixed in desktop-app #34 (merged 2026-10-17) |
 | 7 | labscript-devices #109 PrawnBlaster runviewer drops instruction after wait | bug | 4 | fixed in labscript-devices #153 (merged 2026-10-18) |
 | 8 | labscript-devices #131 NumPy 2 `np.string_` | bug | 4 | close as fixed; the `LightCrafterDMD.py` `tostring()` fix merged 2026-10-17 in labscript-devices #149 |
-| 9 | labscript #104 remove pylab star import | feature/compat | 4 | Fix for next release: remove the star import with no re-exports, and list the change at the top of the release notes (maintainer decision 2026-10-18) |
+| 9 | labscript #104 remove pylab star import | feature/compat | 4 | fixed in labscript #130 (opened 2026-10-18): star import removed with no re-exports; listed at the top of the release notes (maintainer decision 2026-10-18) |
 | 10 | labscript #52 duplicate output connection is silent | bug | 4 | fixed in labscript #128 (merged 2026-10-18) |
 | 11 | labscript #43 collision errors do not name outputs | feature | 4 | fixed in labscript #128 (merged 2026-10-18) |
 | 12 | labscript #41 no test suite | tooling | 4 | Fix for next release at smoke-test level |
@@ -706,6 +706,7 @@ Verification notes that apply to several issues:
 - **Importance**: 4. Decide the compatibility policy and do it in the same release that drops Python 3.8-3.10.
 - **Recommended action**: fix for next release (explicit imports, curated re-export list with deprecation warning, docs updated).
 - **Maintainer decision 2026-10-18**: remove the star import without a re-export list. Scripts that use numpy or matplotlib names from `from labscript import *` break; the release notes list this at the top with the other breaking changes.
+- **Status 2026-10-18**: labscript #130 opened.
 
 ### labscript #105: Add type hints to the labscript API (dihm, opened 2024-01-28, last activity 2024-01-28, 0 comments)
 - **Summary**: Add type hints gradually, choose a checker, and decide the minimum Python; notes that the `Device(name, ...)` naming convention is the main obstacle.
@@ -1004,7 +1005,7 @@ Verification notes that apply to several issues:
 | Rank | Issue | Type | Importance | Recommended action |
 |---|---|---|---|---|
 | 1 | labscript #123 'a256' dtype fails on NumPy >= 2.5 | bug | 5 | Fixed 2026-10-17 by labscript #124, labscript-devices #149 and blacs #124; issue closed. Add NumPy 2.5 to CI |
-| 2 | labscript #104 remove pylab star import | feature/compat | 4 | Fix for next release: remove the star import with no re-exports, and list the change at the top of the release notes (maintainer decision 2026-10-18) |
+| 2 | labscript #104 remove pylab star import | feature/compat | 4 | fixed in labscript #130 (opened 2026-10-18): star import removed with no re-exports; listed at the top of the release notes (maintainer decision 2026-10-18) |
 | 3 | labscript #52 duplicate output connection is silent | bug | 4 | Fix for next release (uniqueness check in `Device.add_device`) |
 | 4 | labscript #43 collision errors do not name outputs | feature | 4 | Fix for next release |
 | 5 | labscript #41 no test suite | tooling | 4 | Fix for next release at smoke-test level |

@@ -266,7 +266,7 @@ Paths are relative to each repo's root unless stated otherwise.
   `StaticDigitalQuantity.go_high/go_low` call `add_instruction(0, ...)`, and
   `Shutter.open/close` clamp to 0. On a device clocked by a secondary pseudoclock with
   `trigger_delay > 0`, these raise "has an instruction at t=0s". They should use `self.t0`.
-- **B5. Partly fixed** by labscript PR #128: `parentless=True` compiles. The `do_checks` signature clash remains. ~~**`labscript/core.py:634-656, 697-720` (run).**~~ `TriggerableDevice` with
+- **B5. Fixed** by labscript PR #128 (`parentless=True` compiles) and labscript PR #130, opened 2026-10-18 (`PseudoclockDevice.do_checks` calls the shared-trigger check). ~~**`labscript/core.py:634-656, 697-720` (run).**~~ `TriggerableDevice` with
   `parentless=True` cannot compile, because `self.trigger_device` is only set when a parent
   is given. `PseudoclockDevice.do_checks(outputs)` also overrides
   `TriggerableDevice.do_checks()` with a different signature, so the shared-trigger
@@ -360,7 +360,7 @@ Paths are relative to each repo's root unless stated otherwise.
   reaching a `yield` puts the tab into fatal error. In-tree, `shutdown_workers` (591) does
   this for a tab with no workers. Line 842: `if next_yield:` means that a falsy yield
   re-sends the previous job to the worker.
-- **B3. `blacs/__main__.py:123-145, 635-657` (read).** Closing BLACS during a shot has no
+- **Fixed by blacs PR #131, opened 2026-10-18 (the shot is aborted and requeued).** ~~**B3. `blacs/__main__.py:123-145, 635-657` (read).**~~ Closing BLACS during a shot has no
   guard. `closeEvent` sets `manager_running = False`, queues `shutdown_workers` on every tab
   and terminates workers after 2 s. The running shot is abandoned with devices in buffered
   mode, and the shot is absent from the saved queue. The TODO at `experiment_queue.py:748`
@@ -457,7 +457,7 @@ Paths are relative to each repo's root unless stated otherwise.
   deliberately blank expansion is reset to `outer` on every restart, and after deactivating
   and reactivating its group. With `x = [1,2,3]` and a cleared expansion, a fresh session
   produces 3 shots instead of 1.
-- **B4. `runmanager/__init__.py:572` (run).** Zip groups with unequal lengths are silently
+- **Fixed by runmanager PR #137, opened 2026-10-18 (an error on each global of the zip group).** ~~**B4. `runmanager/__init__.py:572` (run).**~~ Zip groups with unequal lengths are silently
   truncated by `zip(*axis)`. If this is intended, the GUI should indicate it.
 - **Fixed by runmanager PR #136, merged 2026-10-18.** ~~**B5. `runmanager/__main__.py:1819-1821` (read).**~~ `close_current_tab` calls
   `close_group` inside iteration over `currently_open_groups` with no `break`, so Ctrl+W
@@ -474,7 +474,7 @@ Paths are relative to each repo's root unless stated otherwise.
   evaluates to `[]`), `int(np.ceil(np.log10(0)))` raises `OverflowError` in the compile
   thread, after the sequence index has been consumed. `make_run_file_from_globals_files`
   (815) would raise `IndexError` on `shots[0]`.
-- **Fixed by runmanager PR #136, merged 2026-10-18, except the `compile_loop` timeout.** ~~**B9. `runmanager/batch_compiler.py:61-62, 74`; `__main__.py:3380` (read; the indefinite
+- **Fixed by runmanager PR #136, merged 2026-10-18. The `compile_loop` timeout is not needed (maintainer decision 2026-10-18): Restart subprocess ends the wait.** ~~**B9. `runmanager/batch_compiler.py:61-62, 74`; `__main__.py:3380` (read; the indefinite
   wait is plausible).**~~ `os.chdir(os.path.dirname(labscript_file))` is outside the `try`,
   so a missing directory ends the batch compiler process. `except Exception` also does not
   catch `SystemExit`. In both cases `compile_loop` waits on `from_child.get()` with no
@@ -714,7 +714,7 @@ Paths are relative to each repo's root unless stated otherwise.
   used to select PyQt4 and now selects Qt6. It calls `event.pos()`, `globalPos()`, `delta()`
   and `orientation()`, none of which exist on a Qt6 `QWheelEvent`. Scrolling over a locked
   `DigitalOutput` raises `AttributeError` for every wheel event.
-- **Fixed by labscript-utils PR #135, merged 2026-10-18, except the round-trip types, which are the stored format.** ~~**B2. `labscript_utils/properties.py:79-94, 60-64, 19` (run).**~~
+- **Fixed by labscript-utils PR #135, merged 2026-10-18. The round-trip types are kept (maintainer decision 2026-10-18): attributes use native HDF5 types where possible.** ~~**B2. `labscript_utils/properties.py:79-94, 60-64, 19` (run).**~~
   - `set_attributes` falls back to JSON only for a `TypeError` containing "has no native
     HDF5 equivalent". `{'k': ['a', 1]}` and `{'k': [[1,2],[3]]}` raise other errors and do
     not reach the JSON path.

@@ -167,18 +167,35 @@ verified by reading only and needs a test on NI hardware.
 
 ## Part 2 status
 
-The Part 2 bug lists are marked in place in `REVIEW.md`. As of 2026-10-18 every item is
-fixed by a merged pull request except: labscript B3 and the `do_checks` part of B5;
-blacs B3 (closing BLACS during a shot); runmanager B4 (uneven zip groups), the
-`compile_loop` timeout of B9 and two B14 items; labscript-utils B2 round-trip types, the
-OptotuneLens default calibration of B4 and the macOS `scutil` call of B9; and the
-labscript-devices items that need hardware (B1, B2, B3, B6, B10, B11, B13, B16, B18).
-Maintainer decision 2026-10-18 on blacs B3: closing BLACS during a shot aborts the shot
-and requeues it. The labscript-devices items that need hardware are not fixed; the
-changes that are merged without a hardware test are listed in `RELEASE-PLAN.md` section
-4.7. runviewer B6 is not a bug. The pull requests, all merged 2026-10-18, are labscript #128, blacs #129 and #130,
-runmanager #134 and #136, runviewer #77, lyse #145 and #147, labscript-utils #133 and
-#135, labscript-c-extensions #14 and labscript-devices #153 and #155.
+The Part 2 bug lists are marked in place in `REVIEW.md`. Fixed by pull requests merged
+on 2026-10-18: labscript #128, blacs #129 and #130, runmanager #134 and #136, runviewer
+#77, lyse #145 and #147, labscript-utils #133 and #135, labscript-c-extensions #14 and
+labscript-devices #153 and #155. Fixed by pull requests opened later on 2026-10-18 after
+the maintainer's decisions: the rest of labscript B5 (labscript #130), blacs B3, which
+aborts and requeues the running shot (blacs #131), and runmanager B4, which makes uneven
+zip groups an error (runmanager #137).
+
+Not changed by maintainer decision on 2026-10-18: the `compile_loop` timeout of
+runmanager B9 (Restart subprocess ends the wait) and the labscript-utils B2 round-trip
+types (attributes use native HDF5 types where possible). runviewer B6 is not a bug.
+
+Open:
+
+- labscript B3. Passing `wait_delay` to `trigger()` is not enough. A secondary
+  pseudoclock's WAIT instruction is placed at its trigger time
+  (`Pseudoclock.generate_clock`, `core.py:376`), so delaying the trigger time by
+  `wait_delay` delays the start of the secondary's WAIT by the same amount. The interval
+  between the start of the WAIT and the resume trigger is then the duration of the wait,
+  as it is now, not the duration of the wait plus `wait_delay`. A fix needs the WAIT to
+  start at the wait time and the trigger to come `wait_delay` later, with the post-wait
+  instructions offset to match. To be discussed with the maintainer.
+- Two runmanager B14 items (the zlock in the main thread, `remote.engage()`), the
+  OptotuneLens default calibration of labscript-utils B4 and the macOS `scutil` call of
+  labscript-utils B9.
+- The labscript-devices items that need hardware: B1, B2, B3, B6, B10, B11, B13, B16
+  and B18. To be discussed with the maintainer, including whether they go in one pull
+  request or several. The merged changes that need a hardware test are listed in
+  `RELEASE-PLAN.md` section 4.7.
 
 ## Pull requests opened by the maintenance track
 
@@ -201,7 +218,9 @@ for the Part 2 bugs (blacs #130, labscript-devices #155, lyse #147, labscript-ut
 runviewer #77, labscript-c-extensions #14 and runmanager #136). These and lyse #144 were
 all merged on 2026-10-18 between 08:45 and 09:21 UTC. Many of their descriptions named
 several issues after one "Closes", which GitHub does not follow, so the remaining issues
-were closed by hand the same day; zprocess #16 is left open.
+were closed by hand the same day; zprocess #16 is left open. Later on 2026-10-18, after the
+maintainer's decisions: labscript #130 (labscript #104 and the rest of B5), runmanager
+#137 (B4) and blacs #131 (B3), all open.
 
 The scheme rename needs setuptools_scm 10, which introduced the name
 `semver-pep440-release-branch` (setuptools_scm 9.2.2 does not have it); the default

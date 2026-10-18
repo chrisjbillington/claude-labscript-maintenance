@@ -312,6 +312,7 @@ which give file:line and the reasoning.
 - labscript #104: `from pylab import *` in `labscript.py:46` and `functions.py:17`;
   the docs build already pins `numpy<2` because of it. Maintainer decision 2026-10-18:
   remove the star import with no re-exports, and list the change in section 4.6.
+  Fixed in labscript #130 (opened 2026-10-18).
 - runmanager #66: preparse materialises the full outer product to count shots; compute
   the count from axis lengths. Fixed in runmanager #134 (merged 2026-10-18).
 - runmanager #123: `remote.set_globals(raw=True)` appends the previous comment; the
@@ -396,8 +397,10 @@ that worked with the previous release fail or behave differently.
 
 - Python 3.11 is the minimum supported version.
 - labscript: `from labscript import *` no longer provides the numpy and matplotlib names
-  of `from pylab import *` (labscript #104, not yet done). Scripts must import numpy
-  themselves.
+  of `from pylab import *` (labscript #104, fixed in labscript #130). Scripts must import
+  numpy themselves.
+- labscript: a secondary pseudoclock that shares its trigger line with a device that has
+  different triggers is a compile error (labscript #130).
 - labscript: duplicate connections on one parent, outputs commanded too soon before a
   trigger and collisions inside ramps are now compile errors (labscript #128).
 - labscript-utils: `labscript-profile-create` rejects an apparatus name that is not a
@@ -407,9 +410,11 @@ that worked with the previous release fail or behave differently.
   wrapped value (labscript-devices #153, #155). The PulseBlasterESRPro500 exposes 24
   flags instead of 21 (#153).
 - runmanager: `remote.set_globals(raw=True)` no longer appends the previous comment
-  (runmanager #134).
+  (runmanager #134). A zip group with globals of unequal lengths is an error instead of
+  being truncated to the shortest (runmanager #137).
 - blacs: with no saved settings, analysis submission is enabled with lyse host
-  `localhost` (blacs #129).
+  `localhost` (blacs #129). Closing BLACS during a shot aborts the shot and puts it back
+  at the top of the queue (blacs #131).
 
 ### 4.7 Changes that need testing on hardware
 

@@ -63,6 +63,15 @@ and the file:line evidence.
   except the few that need a design decision or hardware (`docs/MAINTENANCE.md`, "Part 2
   status"). The issues the pull requests fix are closed, except zprocess #16, which the
   maintainer left open.
+- Three pull requests opened later on 2026-10-18 after the maintainer's decisions, each
+  passing the harness on Python 3.11 to 3.14 with all three Qt bindings: labscript #130
+  (removes the pylab star import, labscript #104; secondary pseudoclocks in the
+  shared-trigger check), runmanager #137 (uneven zip groups are an error) and blacs #131
+  (closing BLACS during a shot aborts and requeues it). All three are open. labscript B3
+  (`wait_delay`) and the labscript-devices hardware items are waiting for discussion
+  (`docs/MAINTENANCE.md`, "Part 2 status"). Breaking changes for the release notes and the
+  changes that need hardware testing are listed in `docs/RELEASE-PLAN.md` sections 4.6 and
+  4.7.
 - The release pull requests from contributors (labscript-devices #110, #126, #144, #87,
   #63, lyse #132, labscript-utils #117, prawn_digital_output #23) were merged 2026-10-17
   with maintainer fix commits (`docs/LOCAL-TASKS.md`). The step 2 and 3 pull requests

@@ -5,9 +5,21 @@ updates or sees one merged or closed updates the row. Links go to GitHub.
 
 ## Open
 
-Both open pull requests raise component pins to versions that are not yet released, so
-they are merged immediately before their component's tag (`RELEASE-PLAN.md` section 5).
-GitHub reported no merge conflicts for either on 2026-10-18.
+### Can be merged now
+
+Based on `master`, with no dependency on another pull request or release step.
+
+| Opened | Pull request | Change | Addresses |
+|---|---|---|---|
+| 2026-10-18 | [labscript #130](https://github.com/labscript-suite/labscript/pull/130) | `from pylab import *` removed from `labscript.py` and `functions.py`, which use `np.`; `numpy<2` docs pin removed; developer docs example imports numpy; `PseudoclockDevice.do_checks` calls `TriggerableDevice.do_checks` (head 8f6ead7) | labscript #104; REVIEW.md labscript B5 (the rest); release sequence step 6 |
+| 2026-10-18 | [runmanager #137](https://github.com/labscript-suite/runmanager/pull/137) | `evaluate_globals` gives each global of a zip group with unequal lengths a `ValueError` naming the lengths; strict `zip` in the expansion (head 2ae94b1) | REVIEW.md runmanager B4; release sequence step 7 |
+| 2026-10-18 | [blacs #131](https://github.com/labscript-suite/blacs/pull/131) | `QueueManager.stop()` aborts a shot that is being programmed or run and requeues it at the top; `closeEvent` waits up to 30 s for the queue manager thread before saving and shutting down workers (head d67dbe4) | REVIEW.md blacs B3; release sequence step 8 |
+
+### Waiting for a release step
+
+These raise component pins to versions that are not yet released, so they are merged
+immediately before their component's tag (`RELEASE-PLAN.md` section 5). GitHub reported
+no merge conflicts for either on 2026-10-18.
 
 | Opened | Pull request | Change | Addresses | Waiting for |
 |---|---|---|---|---|

@@ -5,6 +5,19 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-18: the fourth fix round (maintainer decisions) on GitHub Actions
+
+Three `test.yml` dispatches, one per branch, each with the other components at their
+masters as of 10:20 UTC (after the 23 merges of 2026-10-18): labscript
+`pylab-import-and-shared-triggers` (8f6ead7) as run [39119010476](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39119010476);
+runmanager `zip-length-check` (2ae94b1) as run [39119016142](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39119016142);
+blacs `close-during-shot` (d67dbe4) as run [39119021481](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39119021481).
+The 25 jobs of each run passed every step. The pull requests labscript #130, runmanager
+#137 and blacs #131 were opened on these results. The labscript branch removes the pylab
+star import; the example experiment, the runviewer parsers and the four applications
+work without it. The harness does not close BLACS through its window, so the blacs
+change was checked separately with fake device tabs (the pull request describes it).
+
 ## 2026-10-18: the third fix round (review Part 2 bugs) on GitHub Actions
 
 Seven `test.yml` dispatches, one per branch pushed on 2026-10-18 for the REVIEW.md Part 2
