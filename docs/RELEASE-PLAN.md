@@ -283,7 +283,9 @@ which give file:line and the reasoning.
 ### 4.2 Bugs worth fixing in this release (importance 4, all small)
 
 - blacs #46 and #29: shot-file cleanup in `experiment_queue.py:808-821, 926-947` runs
-  outside any `try`, so an I/O error kills the queue thread until BLACS restarts.
+  outside any `try`, so an I/O error kills the queue thread until BLACS restarts. Fixed
+  on the blacs branch `queue-robustness-and-window-geometry` (2026-10-18) with #52, #56,
+  defect D1 and the #123 comment trim; pull request to open.
 - blacs #52 and #56: window geometry restored by `move()/resize()` arithmetic with no
   screen check; reproduced again in 2026-01. Use `saveGeometry/restoreGeometry` and clamp.
 - desktop-app #20: `desktop_app/windows.py` imports pywin32 in the launcher before the
@@ -294,7 +296,9 @@ which give file:line and the reasoning.
   opened 2026-10-17: labscript-utils #133, which also carries REVIEW.md items 10 and 18,
   DEFECTS.md D3 and labscript-utils #60.
 - labscript-devices #109: PrawnBlaster runviewer parser drops the instruction after a
-  wait; one-line fix at `PrawnBlaster/runviewer_parsers.py:104`.
+  wait; one-line fix at `PrawnBlaster/runviewer_parsers.py:104`. Fixed on the
+  labscript-devices branch `prawnblaster-and-esrpro500-fixes` (2026-10-18) with #79,
+  labscript #95 and defect D9; pull request to open.
 - labscript-devices #79: ESRPro500 has no runviewer parser and exposes 21 of 24 flags;
   two users report no output without the extra flags.
 - labscript #52: duplicate `connection` on one parent is silent (`base.py:345-359`).
@@ -309,10 +313,16 @@ which give file:line and the reasoning.
 - runmanager #66: preparse materialises the full outer product to count shots; compute
   the count from axis lengths.
 - runmanager #123: `remote.set_globals(raw=True)` appends the previous comment; the
-  reporter offered a PR.
+  reporter offered a PR. Fixed on the runmanager branch `compile-loop-and-remote-fixes`
+  (2026-10-18) with #66, #33, #30, #26 and defect D2; pull request to open.
 - runmanager #33, #30, #26; blacs #49, #32, #7, #72; lyse #14, #90, #139; runviewer
   #13 (in labscript-c-extensions, which is rebuilt for 3.15 anyway); labscript #16;
   labscript-utils #60; labscript-suite #5, #59, #60: each under an hour, see the triage.
+  Status 2026-10-18: lyse #14, #90 and #139 fixed on the lyse branch
+  `analysis-loop-and-dataframe-fixes`; runviewer #13 merged (labscript-c-extensions
+  #13); labscript #16 merged in labscript #128's scope; labscript-utils #60 in
+  labscript-utils #133. blacs #49, #32, #7, #72 and labscript-suite #5, #59, #60 not
+  started.
 - labscript #41: there are no tests in labscript or labscript-utils. The harness in
   this repository (`harness/`, results in `TESTING.md`) runs install, import, compile,
   lyse, runviewer-parser, runmanager-API and application start-up checks on Ubuntu and

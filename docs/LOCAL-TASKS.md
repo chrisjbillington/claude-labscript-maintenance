@@ -7,10 +7,9 @@ closed, then its row moves to Done. Delete nothing: a done row is the record.
 
 ## Open
 
-None as of 2026-10-18.
-
 | Added | Task | Why not from the cloud | Status |
 |---|---|---|---|
+| 2026-10-18 | Push the four fix branches made on 2026-10-18 and dispatch the test workflow for each: runmanager `compile-loop-and-remote-fixes` (6 commits: #66, #123, #33, #30, #26, D2), blacs `queue-robustness-and-window-geometry` (3 commits: #46/#29, #52/#56 with D1, the #123 comment trim), lyse `analysis-loop-and-dataframe-fixes` (3 commits: #14, #90, #139), labscript-devices `prawnblaster-and-esrpro500-fixes` (4 commits: #109, labscript #95, D9, #79). For each: `git -C repos/<repo> push origin <branch>`, then `gh workflow run test.yml -f refs="<repo>=labscript-suite/<repo>@<branch>" -f pythons='["3.11","3.12","3.13","3.14"]'`; record the runs in `TESTING.md`; open the pull requests with the descriptions drafted in the session's scratchpad (`prs/<repo>.md`), each headed with the Claude note, and add them to `PULL-REQUESTS.md` | this was a local session; its push to labscript-suite/blacs was refused by the permission classifier as an unrequested commit to a connected app, so the pushes need the maintainer | open |
 
 ## Done
 

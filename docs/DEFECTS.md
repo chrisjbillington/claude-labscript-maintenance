@@ -11,8 +11,9 @@ fix is made, in which case the row names the pull request. Importance uses the s
 
 | # | Found | Component and location | Defect | Imp. | Verified | Status |
 |---|---|---|---|---|---|---|
-| D1 | 2026-10-17 | blacs `blacs/__main__.py:496` | First launch logs an ERROR with a traceback: `restore_window` reads `window_xpos` from settings that do not exist yet | 2 | run | open |
-| D2 | 2026-10-17 | runmanager `runmanager/compiler.py:178` | `make_single_run_file` fails with `FileNotFoundError` when the filename has no directory part | 2 | run | open |
+| D1 | 2026-10-17 | blacs `blacs/__main__.py:496` | First launch logs an ERROR with a traceback: `restore_window` reads `window_xpos` from settings that do not exist yet | 2 | run | fixed on the blacs branch `queue-robustness-and-window-geometry` (2026-10-18, with #52 and #56; pull request not yet opened) |
+| D2 | 2026-10-17 | runmanager `runmanager/compiler.py:178` | `make_single_run_file` fails with `FileNotFoundError` when the filename has no directory part | 2 | run | fixed on the runmanager branch `compile-loop-and-remote-fixes` (2026-10-18; pull request not yet opened) |
+| D9 | 2026-10-18 | labscript-devices `labscript_devices/PrawnBlaster/labscript_devices.py:408` | With `use_wait_monitor=False`, or a PrawnBlaster that is a secondary pseudoclock, `wait()` makes `generate_code` raise `TypeError: string indices must be integers`: the branch that appends the two indefinite-wait rows does not `continue`, so the `"WAIT"` string reaches the normal-instruction code | 3 | run | fixed on the labscript-devices branch `prawnblaster-and-esrpro500-fixes` (2026-10-18; pull request not yet opened) |
 | D3 | 2026-10-17 | labscript-utils `labscript_utils/excepthook/__init__.py:99` | `tkinter` is imported at module level, so a Python without tkinter cannot import lyse, blacs, `labscript_utils.connections` or most device classes | 3 | run | fix open: [labscript-utils #133](https://github.com/labscript-suite/labscript-utils/pull/133) |
 | D4 | 2026-10-17 | labscript-utils `labscript_utils/ls_zprocess.py:332` with zprocess `zlock` | A running zlock server with a different shared secret makes `import labscript_utils.h5_lock` fail with `AuthenticationFailure`; nothing restarts the server or says what to do | 3 | run | open |
 | D5 | 2026-10-17 | labscript-utils `labscript_profile/default_profile/userlib/analysislib/example_apparatus/example_IMAQdx_remote.py:6` | The example analysis script tests `lyse.spinning_top`, which lyse 3.3.0rc1 moved to `lyse.utils.worker`; lyse's lazy attribute loader resolves only `path`, so the script raises `AttributeError` as soon as lyse runs it | 3 | run | open; the same line in the script of labscript-utils #117 is fixed by `patches/labscript-utils-117-example-analysis-fixes.patch` |
@@ -109,6 +110,15 @@ to the twelve repositories (`PULL-REQUESTS.md`). #47 and the twelve sync pull re
 merged on 2026-10-17. Verified on a Windows runner
 (`TESTING.md`, "release tag step on Ubuntu and Windows"): under the default shell the step
 deletes every tag at HEAD, under bash it leaves the pushed tag.
+
+### D9. PrawnBlaster `generate_code` fails on a wait without the internal wait monitor
+
+Found while testing the #109 parser fix. In `PrawnBlaster.generate_code`, the `else`
+branch for a wait when `use_wait_monitor` is False appends two indefinite-wait rows
+and then falls through to `reps = instruction["reps"]` with `instruction == "WAIT"`.
+Reproduced by compiling a shot with `use_wait_monitor=False`, an external `WaitMonitor`
+and one `wait()`. Fix: `continue` after the two rows; with it the shot compiles and the
+runviewer parser shows clock ticks on both sides of the wait.
 
 ### D8. `lyse.spinning_top` is gone from the module namespace
 
