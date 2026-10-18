@@ -945,7 +945,7 @@ Paths are relative to `labscript_devices/`.
 - **Fixed by labscript-devices PR #155, merged 2026-10-18.** ~~**B17. `PhaseMatrixQuickSyn.py:344` (read).**~~ `self.connection.write(b'OUTP:STAT 1')` has
   no `'\r'` terminator, so the gate command in `transition_to_buffered` is not executed.
   `update_reference_out`, `update_blanking` and `update_lock_recovery` are `pass`.
-- **B18. AndorSolis (read).** `andor_sdk/andor_utils.py:204`:
+- **B18. Partly fixed** by labscript-devices PR #144 (TesseTiemens, with maintainer fix commit 2d65acd), merged 2026-10-17: the EMCCD gain range check is a range comparison. `EnableKeepCleans` and the stubs remain. **AndorSolis (read).** `andor_sdk/andor_utils.py:204`:
   `emccd_gain in self.emccd_gain_range` tests membership in the (low, high) tuple, so only
   the two end values are accepted. `andor_solis.py:160-165`: `EnableKeepCleans(mode)` has
   the body of `GetCurrentCamera`. `andor_solis.py:142-156, 566-571` are stubs that raise
