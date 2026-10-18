@@ -310,8 +310,8 @@ which give file:line and the reasoning.
   about 42 s now truncates silently under NumPy 2; add a range check in labscript-devices.
   Range check in labscript-devices #153 (merged 2026-10-18).
 - labscript #104: `from pylab import *` in `labscript.py:46` and `functions.py:17`;
-  the docs build already pins `numpy<2` because of it. Replace with explicit numpy
-  re-exports; this is the one item here with a user-visible API decision.
+  the docs build already pins `numpy<2` because of it. Maintainer decision 2026-10-18:
+  remove the star import with no re-exports, and list the change in section 4.6.
 - runmanager #66: preparse materialises the full outer product to count shots; compute
   the count from axis lengths. Fixed in runmanager #134 (merged 2026-10-18).
 - runmanager #123: `remote.set_globals(raw=True)` appends the previous comment; the
@@ -368,7 +368,8 @@ API and BLACS submission paths specifically.
 - Docs: minimum Python 3.11, PySide6 as the recommended binding with PyQt5 and PyQt6
   supported, the `git` note (labscript-suite #59) and apparatus-name rules (#5), both in
   labscript-suite #109 (merged 2026-10-18),
-  CITATION.cff in component repos (#60); delete `blacs/docs/UsingBLACS.*` and
+  CITATION.cff in component repos (#60, left open and not for this release by
+  maintainer decision 2026-10-18); delete `blacs/docs/UsingBLACS.*` and
   `docs/How to add a new device` (blacs #19).
 - Release notes per package with contributors (labscript-suite #21 checklist); the
   Qt6/PySide6 work of 2025-12 to 2026-03 and the runmanager refactor are the headline
@@ -386,6 +387,55 @@ API and BLACS submission paths specifically.
   Terminal. Done 2026-10-17 on the zprocess #28 branch (`TESTING.md`); repeat on the
   released zprocess.
 - A real shot on hardware in at least one lab from the rc packages before the final tag.
+
+### 4.6 Breaking changes for the release notes
+
+The release notes of each package list these first, above the other changes. Add to
+this list any change that makes a script, connection table, globals file or labconfig
+that worked with the previous release fail or behave differently.
+
+- Python 3.11 is the minimum supported version.
+- labscript: `from labscript import *` no longer provides the numpy and matplotlib names
+  of `from pylab import *` (labscript #104, not yet done). Scripts must import numpy
+  themselves.
+- labscript: duplicate connections on one parent, outputs commanded too soon before a
+  trigger and collisions inside ramps are now compile errors (labscript #128).
+- labscript-utils: `labscript-profile-create` rejects an apparatus name that is not a
+  Python identifier (labscript-utils #134).
+- labscript-devices: a PrawnBlaster clockline that is idle for longer than the maximum
+  half period, or a wait timeout above the maximum, is now a compile error instead of a
+  wrapped value (labscript-devices #153, #155). The PulseBlasterESRPro500 exposes 24
+  flags instead of 21 (#153).
+- runmanager: `remote.set_globals(raw=True)` no longer appends the previous comment
+  (runmanager #134).
+- blacs: with no saved settings, analysis submission is enabled with lyse host
+  `localhost` (blacs #129).
+
+### 4.7 Changes that need testing on hardware
+
+These changes are merged and were tested only by reading the code, by compiling shots
+with them, or with simulated devices. The release-candidate notes ask users with this
+hardware to test them and report the result; a checklist for testers can be made from
+this list.
+
+- NI_DAQmx: the final analog input read in `stop_task()` (labscript-devices #154).
+- PrawnBlaster: `clock_limit` with a clock frequency other than the default; the wait
+  without the internal wait monitor and as a secondary pseudoclock; the range checks and
+  `uint32` pulse program (labscript-devices #153, #154, #155).
+- PrawnDO: wait insertion with several waits; `clock_limit`; the interval range check
+  and the `set_initial_trigger_time` check (labscript-devices #154, #155).
+- PulseBlasterESRPro500: output on flags 21 to 23 with short-pulse firmware
+  (labscript-devices #153). PulseBlaster ESR-PRO direct outputs with edges closer than
+  120 ns (`clock_limit`, #155).
+- PhaseMatrixQuickSyn: the `OUTP:STAT 1` command now has its terminator, so the gate
+  command in `transition_to_buffered` is executed (#155).
+- PylonCamera grab errors; IMAQdxCamera attribute dialog Copy button (#155).
+- RFBlaster retry on `requests` exceptions; PineBlaster runviewer trigger delay (#155).
+- The contributor pull requests merged without a hardware test: AD9959 DDS sweeper
+  worker (labscript-devices #126), Andor (#144), IMAQdx background subtraction (#87) and
+  view range restore (#63), Windfreak (#110).
+- BLACS queue error handling and window geometry (blacs #128, #129), which were run with
+  simulated device tabs only, and a real shot in at least one lab (section 4.5).
 
 ## 5. Release sequence
 

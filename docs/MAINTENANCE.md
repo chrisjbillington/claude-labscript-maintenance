@@ -173,7 +173,10 @@ blacs B3 (closing BLACS during a shot); runmanager B4 (uneven zip groups), the
 `compile_loop` timeout of B9 and two B14 items; labscript-utils B2 round-trip types, the
 OptotuneLens default calibration of B4 and the macOS `scutil` call of B9; and the
 labscript-devices items that need hardware (B1, B2, B3, B6, B10, B11, B13, B16, B18).
-runviewer B6 is not a bug. The pull requests, all merged 2026-10-18, are labscript #128, blacs #129 and #130,
+Maintainer decision 2026-10-18 on blacs B3: closing BLACS during a shot aborts the shot
+and requeues it. The labscript-devices items that need hardware are not fixed; the
+changes that are merged without a hardware test are listed in `RELEASE-PLAN.md` section
+4.7. runviewer B6 is not a bug. The pull requests, all merged 2026-10-18, are labscript #128, blacs #129 and #130,
 runmanager #134 and #136, runviewer #77, lyse #145 and #147, labscript-utils #133 and
 #135, labscript-c-extensions #14 and labscript-devices #153 and #155.
 

@@ -33,7 +33,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 | 6 | desktop-app #20 launcher imports pywin32 before activating the env | bug | 4 | fixed in desktop-app #34 (merged 2026-10-17) |
 | 7 | labscript-devices #109 PrawnBlaster runviewer drops instruction after wait | bug | 4 | fixed in labscript-devices #153 (merged 2026-10-18) |
 | 8 | labscript-devices #131 NumPy 2 `np.string_` | bug | 4 | close as fixed; the `LightCrafterDMD.py` `tostring()` fix merged 2026-10-17 in labscript-devices #149 |
-| 9 | labscript #104 remove pylab star import | feature/compat | 4 | Fix for next release with curated re-exports and docs |
+| 9 | labscript #104 remove pylab star import | feature/compat | 4 | Fix for next release: remove the star import with no re-exports, and list the change at the top of the release notes (maintainer decision 2026-10-18) |
 | 10 | labscript #52 duplicate output connection is silent | bug | 4 | fixed in labscript #128 (merged 2026-10-18) |
 | 11 | labscript #43 collision errors do not name outputs | feature | 4 | fixed in labscript #128 (merged 2026-10-18) |
 | 12 | labscript #41 no test suite | tooling | 4 | Fix for next release at smoke-test level |
@@ -69,7 +69,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 | 42 | runmanager #30 no header between shot compilations | bug | 3 | fixed in runmanager #134 (merged 2026-10-18) |
 | 43 | runmanager #26 .h5 not appended (Linux) | bug | 3 | fixed in runmanager #134 (merged 2026-10-18) |
 | 44 | labscript-suite #5 apparatus name must be identifier | docs/tooling | 3 | fixed in labscript-utils #134 (validation in `labscript-profile-create`) and labscript-suite #109 (docs), both merged 2026-10-18 |
-| 45 | labscript-suite #60 CITATION.cff in component repos | docs | 3 | fix for next release |
+| 45 | labscript-suite #60 CITATION.cff in component repos | docs | 3 | leave open, not for this release (maintainer decision 2026-10-18) |
 | 46 | runmanager #97 remote is_compiling | feature | 3 | fix for next release if cheap |
 | 47 | runmanager #41 save window geometry | feature | 3 | fix later |
 | 48 | runmanager #50 expansion types rewritten on restart | bug | 3 | fix later (mitigate with #66) |
@@ -299,7 +299,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 - runmanager #123: `remote.set_globals(raw=True)` must not append comments; reporter offered a PR. Fixed in runmanager #134 (merged 2026-10-18).
 - runmanager #33, #30, #26: trivial compile-loop/GUI fixes (drain queue on abort; header line per shot; append `.h5`). Fixed in runmanager #134 (merged 2026-10-18).
 - labscript-suite #5: validate the apparatus name in `labscript-profile-create` and document it. Fixed in labscript-utils #134 and labscript-suite #109 (merged 2026-10-18).
-- labscript-suite #60: add `CITATION.cff` to the component repos.
+- labscript-suite #60: add `CITATION.cff` to the component repos. Left open, not for this release (maintainer decision 2026-10-18).
 - labscript-suite #59: add the agreed note that `git` must be available in the labscript env (`conda install git`), or drop that page. Fixed in labscript-suite #109 (merged 2026-10-18).
 - labscript-suite #105 (indirect): bump `requires-python` (currently `>=3.8`) and the component version pins in the meta-package and runmanager `pyproject.toml` for the 3.11-3.15 release; optionally add a uv developer-install docs page.
 
@@ -705,6 +705,7 @@ Verification notes that apply to several issues:
 - **Rewrite relevance**: moot (the rewrite has no star imports; globals namespace is explicit)
 - **Importance**: 4. Decide the compatibility policy and do it in the same release that drops Python 3.8-3.10.
 - **Recommended action**: fix for next release (explicit imports, curated re-export list with deprecation warning, docs updated).
+- **Maintainer decision 2026-10-18**: remove the star import without a re-export list. Scripts that use numpy or matplotlib names from `from labscript import *` break; the release notes list this at the top with the other breaking changes.
 
 ### labscript #105: Add type hints to the labscript API (dihm, opened 2024-01-28, last activity 2024-01-28, 0 comments)
 - **Summary**: Add type hints gradually, choose a checker, and decide the minimum Python; notes that the `Device(name, ...)` naming convention is the main obstacle.
@@ -1003,7 +1004,7 @@ Verification notes that apply to several issues:
 | Rank | Issue | Type | Importance | Recommended action |
 |---|---|---|---|---|
 | 1 | labscript #123 'a256' dtype fails on NumPy >= 2.5 | bug | 5 | Fixed 2026-10-17 by labscript #124, labscript-devices #149 and blacs #124; issue closed. Add NumPy 2.5 to CI |
-| 2 | labscript #104 remove pylab star import | feature/compat | 4 | Fix for next release with curated re-exports and docs |
+| 2 | labscript #104 remove pylab star import | feature/compat | 4 | Fix for next release: remove the star import with no re-exports, and list the change at the top of the release notes (maintainer decision 2026-10-18) |
 | 3 | labscript #52 duplicate output connection is silent | bug | 4 | Fix for next release (uniqueness check in `Device.add_device`) |
 | 4 | labscript #43 collision errors do not name outputs | feature | 4 | Fix for next release |
 | 5 | labscript #41 no test suite | tooling | 4 | Fix for next release at smoke-test level |
@@ -3586,7 +3587,7 @@ Sources and limits:
 | 5 | runmanager #30 no header between shot compilations | bug | 3 | fixed in runmanager #134 (merged 2026-10-18) |
 | 6 | runmanager #26 .h5 not appended (Linux) | bug | 3 | fixed in runmanager #134 (merged 2026-10-18) |
 | 7 | labscript-suite #5 apparatus name must be identifier | docs/tooling | 3 | fixed in labscript-utils #134 (validation in `labscript-profile-create`) and labscript-suite #109 (docs), both merged 2026-10-18 |
-| 8 | labscript-suite #60 CITATION.cff in component repos | docs | 3 | fix for next release |
+| 8 | labscript-suite #60 CITATION.cff in component repos | docs | 3 | leave open, not for this release (maintainer decision 2026-10-18) |
 | 9 | runmanager #97 remote is_compiling | feature | 3 | fix for next release if cheap |
 | 10 | runmanager #41 save window geometry | feature | 3 | fix later |
 | 11 | runmanager #50 expansion types rewritten on restart | bug | 3 | fix later (mitigate with #66) |
@@ -3638,6 +3639,6 @@ Sources and limits:
 - runmanager #123: `remote.set_globals(raw=True)` must not append comments; reporter offered a PR. Fixed in runmanager #134 (merged 2026-10-18).
 - runmanager #33, #30, #26: trivial compile-loop/GUI fixes (drain queue on abort; header line per shot; append `.h5`). Fixed in runmanager #134 (merged 2026-10-18).
 - labscript-suite #5: validate the apparatus name in `labscript-profile-create` and document it. Fixed in labscript-utils #134 and labscript-suite #109 (merged 2026-10-18).
-- labscript-suite #60: add `CITATION.cff` to the component repos.
+- labscript-suite #60: add `CITATION.cff` to the component repos. Left open, not for this release (maintainer decision 2026-10-18).
 - labscript-suite #59: add the agreed note that `git` must be available in the labscript env (`conda install git`), or drop that page. Fixed in labscript-suite #109 (merged 2026-10-18).
 - labscript-suite #105 (indirect): bump `requires-python` (currently `>=3.8`) and the component version pins in the meta-package and runmanager `pyproject.toml` for the 3.11-3.15 release; optionally add a uv developer-install docs page.
