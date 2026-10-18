@@ -363,9 +363,9 @@ API and BLACS submission paths specifically.
 
 ### 4.4 Housekeeping
 
-- Close the six dead PRs (lyse #118 and #85, blacs #121, #89, desktop-app #6,
-  pineblasterv2 #1, setuptools-conda #5) and the roughly 95 issues marked close in
-  ISSUE-TRIAGE.md, each with the one-line reason from the triage.
+- Close the dead PRs (lyse #118 and #85, blacs #89, desktop-app #6, pineblasterv2 #1,
+  setuptools-conda #5) and the roughly 95 issues marked close in ISSUE-TRIAGE.md, each
+  with the one-line reason from the triage. The author closed blacs #121 on 2026-10-16.
 - Docs: minimum Python 3.11, PySide6 as the recommended binding with PyQt5 and PyQt6
   supported, the `git` note (labscript-suite #59) and apparatus-name rules (#5), both in
   labscript-suite #109 (merged 2026-10-18),
@@ -515,7 +515,18 @@ maintenance branch is a squash merge of the whole of `master`. After this releas
   schedule for labscript-devices 3.5.0 with #106 rebased on top.
 - runmanager #104 and blacs #90 (compilation queue): superseded by the refactor;
   reopen as a requirements issue.
-- lyse Run-to-Shot rename, blacs #121, blacs #88 (lock monitor), #105 (virtual devices,
-  pending author fixes), the Stahl and Keysight devices: see PR-REVIEW.md.
+- lyse Run-to-Shot rename, blacs #88 (lock monitor), #105 (virtual devices, pending
+  author fixes), the Stahl and Keysight devices: see PR-REVIEW.md.
+- macOS application behaviour, from closed pull requests by ispielma: the Fusion Qt
+  style instead of the native macOS style, dock icons, and the Qt application name
+  from a string that the application passes to `Splash` instead of from `argv[0]`
+  (labscript-utils #124, `labscript_utils/splash.py`); `short_display_name` in each
+  application's `desktop-app.json` and the application name passed to the splash
+  screen (blacs #122, runmanager #129, runviewer #72, lyse #138). The author closed
+  all of them on 2026-10-13 and 2026-10-15 without comment. The desktop-app side
+  (desktop-app #29, `.app` bundles, `short_display_name` read at
+  `desktop_app/shell.py:65`) is merged. Fusion is more consistent across platforms
+  and is worth adopting on all platforms if the problems that it causes can be fixed.
+  Not for this release, but to be reconsidered.
 - Free-threaded Python builds (setuptools-conda #26) and Intel macOS after the
   `macos-15-intel` runner retires in 2027.
