@@ -204,8 +204,7 @@ Paths are relative to each repo's root unless stated otherwise.
 - **`repr`/`eval` persistence in BLACS** (`front_panel_settings.py:91, 374, 401-404`;
   `__main__.py:313, 353, 365, 607, 615`). See Part 2, blacs bug B1.
 - **Dead code**: `labscript_utils/versions.py`, runviewer `__resample3`/`__resample4` and
-  `TempShot`, lyse `replace_with_padding` (correction 2026-10-18: not dead,
-  `filebox.py` `update_row` calls it) and the msgpack branch, the `__main__` demo blocks
+  `TempShot`, lyse `replace_with_padding` and the msgpack branch, the `__main__` demo blocks
   and GTK branches in blacs.
 - **`blacs/measure_ball/`**: 6.7 MB of Windows binaries in every wheel.
 - **`labscript-devices`**: devices that cannot run on the current stack, about 400
