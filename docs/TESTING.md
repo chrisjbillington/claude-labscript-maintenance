@@ -5,6 +5,19 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-18: labscript-c-extensions master builds after #12 and #13
+
+Both `release.yml` runs on labscript-c-extensions `master` passed on all four runners
+(ubuntu-latest, windows-2022, macos-latest, macos-15-intel): run
+[39080269759](https://github.com/labscript-suite/labscript-c-extensions/actions/runs/39080269759)
+on a1e99dc (the #12 merge, the D7 workflow fix) built 1.3.1.dev4 and run
+[39080289833](https://github.com/labscript-suite/labscript-c-extensions/actions/runs/39080289833)
+on b0f985d (the #13 merge, the resampler fix) built 1.3.1.dev6. Each uploaded an sdist and
+30 wheels to Test PyPI (cp311 to cp315 for manylinux x86_64, musllinux x86_64, macOS
+x86_64 and arm64, win32 and win_amd64) and conda packages for every platform to the
+Anaconda test label. This is the step 4 wheel set of the release plan, built without a
+tag; the final tag will rebuild the same set.
+
 ## 2026-10-17: labscript-utils #133 and labscript compiler fixes
 
 **labscript-utils [#133](https://github.com/labscript-suite/labscript-utils/pull/133)**
