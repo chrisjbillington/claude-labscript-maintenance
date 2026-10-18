@@ -112,7 +112,7 @@ unaffected. The review's line references map to the new layout as follows.
 | B14 `send_to_runviewer` | `__main__.py:3642-3647` | `__main__.py:3015-3020` |
 | B14 zlock in main thread | `__main__.py:2593`, `__init__.py:641` | `__main__.py:1968`, `compiler.py:51` |
 | B14 `e.__class__(msg)` | `__main__.py:3841` | `__main__.py:3213` |
-| B14 `engage()` | `remote.py:53-54` | unchanged |
+| B14 `engage()` | `remote.py:53-54` | `remote.py:58-60` |
 | C1 | `__main__.py:1847, 1890, 2293, 2314, 2334, 3148, 3249` | `__main__.py:1230, 1272, 1668, 1689, 1709, 2521, 2622` |
 | C2 `nested` | `__main__.py:129-136` | `__main__.py:122-126` |
 | C2 `log_if_global` | `__main__.py:86-102` | `__main__.py:91-107` |
@@ -193,10 +193,14 @@ Open:
   OptotuneLens default calibration of labscript-utils B4 and the macOS `scutil` call of
   labscript-utils B9.
 - The labscript-devices items that need hardware: B1, B2, B3, B6, B10, B11, B13, B16
-  and B18 (its EMCCD gain range check is fixed by labscript-devices #144, merged
-  2026-10-17; `EnableKeepCleans` and the stubs remain). Maintainer decision 2026-10-18 on
-  B18: fix `EnableKeepCleans` from the Andor SDK documentation; leave the stub functions
-  for a user of the camera to implement. To be discussed with the maintainer, including whether they go in one pull
+  and B18. B18's EMCCD gain range check is fixed by labscript-devices #144, merged
+  2026-10-17, and its `EnableKeepCleans` claim is wrong: the function is a correct SDK
+  wrapper. Only the stub functions remain, which are left for a user of the camera to
+  implement (maintainer decision 2026-10-18).
+- blacs B2, second part: `if next_yield:` in `Tab.mainloop` re-sends the previous job
+  when a state function yields a falsy value.
+- labscript-devices B17, second part: `update_reference_out`, `update_blanking` and
+  `update_lock_recovery` in `PhaseMatrixQuickSyn.py` are `pass`. To be discussed with the maintainer, including whether they go in one pull
   request or several. The merged changes that need a hardware test are listed in
   `RELEASE-PLAN.md` section 4.7.
 

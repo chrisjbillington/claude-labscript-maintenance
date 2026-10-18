@@ -79,8 +79,8 @@ Paths are relative to each repo's root unless stated otherwise.
    relative to the original array. With two or more waits, the k-th wait is inserted k
    instructions late and with the wrong held output word.
 5. **Fixed** by labscript-devices PR #154, merged 2026-10-18.
-   ~~**`labscript-devices` `PrawnBlaster/labscript_devices.py:244` and~~
-   `PrawnDO/labscript_devices.py:202` (run).** `self.clock_limit *= factor` scales the clock
+   ~~**`labscript-devices` `PrawnBlaster/labscript_devices.py:244` and
+   `PrawnDO/labscript_devices.py:202` (run).**~~ `self.clock_limit *= factor` scales the clock
    limit in the wrong direction for a non-default `clock_frequency`. With
    `clock_frequency=50e6`, both devices report a 20 MHz limit instead of 5 MHz.
 6. **Fixed** by labscript PR #128, merged 2026-10-18.
@@ -204,14 +204,17 @@ Paths are relative to each repo's root unless stated otherwise.
 - **`repr`/`eval` persistence in BLACS** (`front_panel_settings.py:91, 374, 401-404`;
   `__main__.py:313, 353, 365, 607, 615`). See Part 2, blacs bug B1.
 - **Dead code**: `labscript_utils/versions.py`, runviewer `__resample3`/`__resample4` and
-  `TempShot`, lyse `replace_with_padding` and the msgpack branch, the `__main__` demo blocks
+  `TempShot`, lyse `replace_with_padding` (correction 2026-10-18: not dead,
+  `filebox.py` `update_row` calls it) and the msgpack branch, the `__main__` demo blocks
   and GTK branches in blacs.
 - **`blacs/measure_ball/`**: 6.7 MB of Windows binaries in every wheel.
 - **`labscript-devices`**: devices that cannot run on the current stack, about 400
   duplicated lines between `PulseBlaster.py` and `PulseBlaster_No_DDS.py`, and vendor
   packages as hard dependencies.
 - **Packaging**: `labscript-utils/pyproject.toml` lists only two packages (run: a wheel
-  built without git metadata omits all subpackages); `requires-python >= 3.8` and
+  built without git metadata omits all subpackages); `requires-python >= 3.8` (raised to
+  `>= 3.11` on 2026-10-17 everywhere except runmanager and the labscript-suite
+  metapackage, whose pull requests #131 and #106 are held for the release sequence) and
   `numpy >= 1.15` everywhere; `release.yml` tests `-z` on variables documented as "true or
   false".
 - **PyQt4 and Python 2 leftovers** in every GUI repo.
@@ -225,7 +228,8 @@ Paths are relative to each repo's root unless stated otherwise.
    parser on the newest numpy would have caught items 1, 2, 4, 5 and 17.
 3. Do clock arithmetic in integer multiples of `clock_resolution` in `labscript/core.py`.
    This fixes item 6 and the float `<` comparisons that reject pulses of exactly the
-   minimum period (Part 2, labscript B1).
+   minimum period (Part 2, labscript B1). Item 6 and B1 were fixed instead by rounding
+   before the comparisons (labscript PR #128).
 4. Replace every truthiness or int comparison of a check state with `== Qt.Checked`.
 5. Make the long-running threads robust to exceptions in their own error handling: the
    BLACS queue manager, the runmanager preparse loop (`task_done` in a `finally` block) and
@@ -235,7 +239,8 @@ Paths are relative to each repo's root unless stated otherwise.
 7. Delete the dead code, replace the pylab star imports with explicit imports or define
    `__all__`, and move vendor packages to optional extras.
 8. Raise `requires-python` and the numpy/h5py floors consistently, and bound pandas below 3
-   in `lyse` until item 16 is fixed.
+   in `lyse` until item 16 is fixed. Item 16 is fixed (lyse PR #146), so no pandas bound
+   is needed.
 
 ---
 
@@ -313,13 +318,13 @@ Paths are relative to each repo's root unless stated otherwise.
   and never uses the handle (line 715).
 - **C2. `labscript/labscript.py:44`.** `import qtutils` exists only to make the pylab import
   select the right Qt binding.
-- **C3. Packaging.** `scipy` is declared but never imported. `h5py`, `qtutils` and `PIL`
+- **Partly fixed** by labscript PR #125, merged 2026-10-17: the scheme rename. `scipy` and the undeclared imports remain. **C3. Packaging.** `scipy` is declared but never imported. `h5py`, `qtutils` and `PIL`
   are imported directly but not declared. `setuptools_scm` warns that the
   `release-branch-semver` version scheme has been renamed.
-- **C4. `labscript/__version__.py`.** `importlib_metadata` fallback for Python < 3.8.
+- **Partly fixed** by labscript PR #125, merged 2026-10-17: the `importlib_metadata` fallback is removed. **C4. `labscript/__version__.py`.** `importlib_metadata` fallback for Python < 3.8.
   `setuptools_scm` runs on every import from a git checkout. `local_scheme` differs from
   pyproject (`node-and-date` and `no-local-version`).
-- **C5. CI.** `release.yml` builds and publishes only. `macos-13` is in `OS_LIST_ALL`.
+- **Partly fixed** by labscript PR #126, merged 2026-10-17: `macos-13` is removed. `release.yml` still only builds and publishes. **C5. CI.** `release.yml` builds and publishes only. `macos-13` is in `OS_LIST_ALL`.
 - **C6. Python 2 leftovers.** `class Device(object)`; `type(t) in [str, bytes]`
   (`labscript.py:543`); `isinstance(color, (str, bytes))` (595); `.encode()` giving bytes
   for script name and path attributes when a file is set but str otherwise (397-398);
@@ -331,7 +336,7 @@ Paths are relative to each repo's root unless stated otherwise.
   `labscript.py:220` (unused `time_markers_dataset`); the `duration` argument of `sine()` in
   `functions.py`; `compiler.py:24-25` instantiates `LabConfig()` twice; repeated
   `if not hasattr(self, "_properties")` guards in `base.py:215, 303, 333`.
-- **C8. Duplicated logic.** The six ramp methods in `outputs.py:558-953` repeat the same
+- **Correction 2026-10-18**: the `digital_gate` handling of `DDSQuantity` and `StaticDDS` is identical since labscript PR #128 (B6); the duplication remains. **C8. Duplicated logic.** The six ramp methods in `outputs.py:558-953` repeat the same
   `add_instruction` dict. `StaticAnalogQuantity` and `StaticDigitalQuantity` duplicate four
   methods. `DDSQuantity` and `StaticDDS` duplicate the unit-conversion and `digital_gate`
   handling and have diverged (B6). `sine4_ramp` and `sine4_reverse_ramp` both have the
@@ -355,7 +360,7 @@ Paths are relative to each repo's root unless stated otherwise.
   `np.float64(1.5)`), `inf`, `nan`, an array or an enum. In-tree tabs return builtins, so
   this affects third-party tabs. `plugin_data` (313) and `analysis_data` (353, 615) are
   unguarded `eval`s.
-- **Fixed by blacs PR #129 (issue #49), merged 2026-10-18.** ~~**B2. `blacs/tab_base_classes.py:792` (run).**~~ The first `inmain(generator.__next__)` is
+- **Partly fixed by blacs PR #129 (issue #49), merged 2026-10-18: the first `__next__` is inside the `try`. `if next_yield:` (now `tab_base_classes.py:846`) is unchanged.** ~~**B2. `blacs/tab_base_classes.py:792` (run).**~~ The first `inmain(generator.__next__)` is
   outside the `try`/`except StopIteration`, so a state function that finishes without
   reaching a `yield` puts the tab into fatal error. In-tree, `shutdown_workers` (591) does
   this for a tab with no workers. Line 842: `if next_yield:` means that a falsy yield
@@ -399,7 +404,7 @@ Paths are relative to each repo's root unless stated otherwise.
 
 ### Cruft
 
-- **C1. `eval` on user-selected files.** "Open front panel" evaluates strings from any h5
+- **Partly fixed** by blacs PR #130, merged 2026-10-18: the `except NameError` blocks are removed. The `eval` and the unused dicts remain. **C1. `eval` on user-selected files.** "Open front panel" evaluates strings from any h5
   file. The `except NameError` "quick fix for qt objects" (`__main__.py:364-367, 606-609`)
   exists because of this. `restore()` builds `question`/`error` dicts that no caller uses
   (TODOs at `__main__.py:275, 594`), so those channels are silently not restored.
@@ -413,7 +418,7 @@ Paths are relative to each repo's root unless stated otherwise.
   (`'PySide' in sys.modules` branches, and `order` computed then discarded);
   `plugins/progress_bar/__init__.py:94-96` (Plastique fallback); stale header path in
   `output_classes.py:3`.
-- **C4. `__main__.py`.** Lines 749-774: a `tracelog` block listing modules that no longer
+- **Partly fixed** by blacs PR #128, merged 2026-10-18: the window-position comment block is gone with the `restore_window` rewrite. The rest remains. **C4. `__main__.py`.** Lines 749-774: a `tracelog` block listing modules that no longer
   exist. Line 734: `print(h5_filepath)`. Commented code at 230, 236, 239, 646-648. The
   comment block at 483-494 says that the window-position code does not work. Lines 724-725:
   `except Exception: raise`.
@@ -432,11 +437,11 @@ Paths are relative to each repo's root unless stated otherwise.
   `plugins/memory/__init__.py:41` (`get_callbacks` body is the bare expression `{}`) and 62
   (writes `memprof.txt` into the installed package directory); the `'close'` signal in
   `analysis_submission.py:213`; 22 unused imports.
-- **C8. Hard-coded values.** `experiment_queue.py:532-533` (`timeout_limit = 300` with a
+- **Partly fixed** by blacs PR #129, merged 2026-10-18: the dialogs open at labconfig directories, with `C:\\` only as a fallback. The rest remains. **C8. Hard-coded values.** `experiment_queue.py:532-533` (`timeout_limit = 300` with a
   TODO); `"C:\\"` as the file-dialog start directory in
   `plugins/connection_table/__init__.py:392, 429, 452`; `experiment_queue.py:546-554`
   detects an empty queue by catching `IndexError` under `except Exception`.
-- **C9. Minor.** `compile_and_restart.py:34`: `output_path.strip('.h5')` strips a character
+- **Partly fixed** by blacs PR #123 (ispielma), merged 2026-10-17: `strip('.h5')` is replaced by `os.path.splitext`. The rest remains. **C9. Minor.** `compile_and_restart.py:34`: `output_path.strip('.h5')` strips a character
   set, not a suffix. `front_panel_settings.py:256`: mutable default `silent={}`.
   `__main__.py:739-745`: `ExperimentServer.process` runs `process_request` on the GUI
   thread.
@@ -523,7 +528,7 @@ Paths are relative to each repo's root unless stated otherwise.
 
 - **C1. PyQt4 leftovers**: `if type(x) is tuple` after every `QFileDialog` call
   (`__main__.py:1847, 1890, 2293, 2314, 2334, 3148, 3249`).
-- **C2. Dead code in `__main__.py`**: `nested` (129-136); `log_if_global` (86-102), which is
+- **Partly fixed** by runmanager PR #130, merged 2026-10-17: `ast` and `pprint` are removed. Correction: `qtutils.icons` is used, its import registers the icon resources (see MAINTENANCE.md). **C2. Dead code in `__main__.py`**: `nested` (129-136); `log_if_global` (86-102), which is
   called only with an empty list; axes context-menu stubs that raise `NotImplementedError`
   (1671-1674, 1761-1763, 2018-2030); `kwargs.pop('iconPosition')` after `kwargs` was already
   passed to `QTabBar` (160-163); `is None` checks on `get_default_output_folder`, which
@@ -539,7 +544,7 @@ Paths are relative to each repo's root unless stated otherwise.
 - **C5. `remote.py`**: a `Client` is constructed at import time (117); commented-out
   `get_globals_full`/`set_globals_full` (122, 124); the `is_output_folder_default` docstring
   is inverted (109).
-- **C6. `globals_diff.py` and `globals_diff.bat`**: the docstring gives an invalid command,
+- **Partly fixed** by runmanager PR #136, merged 2026-10-18: identical shots no longer fail (B7). The docstring and the `.bat` remain. **C6. `globals_diff.py` and `globals_diff.bat`**: the docstring gives an invalid command,
   the `.bat` only works from the package directory, and the function fails on identical
   shots (B7).
 - **C7. `__main__.py:76`**: hard-coded "Ubuntu Mono" for every non-Windows platform.
@@ -607,7 +612,7 @@ Paths are relative to each repo's root unless stated otherwise.
   PySide workaround.
 - **D6. `__main__.py:1576-1581`**: the "backwards compat" `shutter_times` block reopens the
   h5 file once per device in the recursive `_load_device`.
-- **D7. `__main__.py:1663`** uses `labscript_utils.shared_drive` without importing it.
+- **Partly fixed** by runviewer PR #77, merged 2026-10-18: the commented-out block at 398-400 is removed. The rest remains. **D7. `__main__.py:1663`** uses `labscript_utils.shared_drive` without importing it.
   Lines 681-683: a flag that is set and never read. Line 690: `exec_()`. Line 633: PyQt4
   tuple check. Commented-out lines at 320, 369, 391, 398-400, 420, 753-763, 809-811,
   870-872, 902-905.
@@ -682,7 +687,7 @@ Paths are relative to each repo's root unless stated otherwise.
 - **C4. `__init__.py:1175-1197`**: `Sequence.get_traces`, `get_result_arrays` and
   `get_image` stubs that raise `NotImplementedError`, while other inherited accessors act
   on the sequence file.
-- **C5. PyQt4 and Python 2 leftovers**: tuple checks after `QFileDialog` calls
+- **Partly fixed** by lyse PR #140, merged 2026-10-17: the `importlib_metadata` fallback is removed. The rest remains. **C5. PyQt4 and Python 2 leftovers**: tuple checks after `QFileDialog` calls
   (`__main__.py:290, 362, 449, 475`; `filebox.py:780`; `routines.py:148`); `u''` literals in
   `utils/gui.py:36-68`; `hasattr(multiprocessing, 'get_start_method')`
   (`analysis_subprocess.py:55`); `importlib_metadata` fallback; unused
@@ -714,7 +719,7 @@ Paths are relative to each repo's root unless stated otherwise.
   used to select PyQt4 and now selects Qt6. It calls `event.pos()`, `globalPos()`, `delta()`
   and `orientation()`, none of which exist on a Qt6 `QWheelEvent`. Scrolling over a locked
   `DigitalOutput` raises `AttributeError` for every wheel event.
-- **Fixed by labscript-utils PR #135, merged 2026-10-18. The round-trip types are kept (maintainer decision 2026-10-18): attributes use native HDF5 types where possible.** ~~**B2. `labscript_utils/properties.py:79-94, 60-64, 19` (run).**~~
+- **Fixed by labscript-utils PR #128 (`_default`, merged 2026-10-13) and PR #135 (`set_attributes`, merged 2026-10-18). The round-trip types are kept (maintainer decision 2026-10-18): attributes use native HDF5 types where possible.** ~~**B2. `labscript_utils/properties.py:79-94, 60-64, 19` (run).**~~
   - `set_attributes` falls back to JSON only for a `TypeError` containing "has no native
     HDF5 equivalent". `{'k': ['a', 1]}` and `{'k': [[1,2],[3]]}` raise other errors and do
     not reach the JSON path.
@@ -740,7 +745,7 @@ Paths are relative to each repo's root unless stated otherwise.
 - **Fixed by labscript-utils PR #135, merged 2026-10-18.** ~~**B5. `labscript_utils/qtwidgets/imageoutput.py:180` (run).**~~ `QEvent` is undefined. The
   name is evaluated for every event delivered while the `ImageOutput` is disabled, so each
   one raises `NameError`. `ImageOutput` is used by `LightCrafterDMD`.
-- **Fixed by labscript-utils PR #135, merged 2026-10-18.** ~~**B6. `labscript_utils/qtwidgets/headerview_with_widgets.py:214-218` (run).**~~
+- **Fixed by labscript-utils PR #128 (`on_columnsRemoved`, merged 2026-10-13) and PR #135 (the empty `max()`, merged 2026-10-18).** ~~**B6. `labscript_utils/qtwidgets/headerview_with_widgets.py:214-218` (run).**~~
   `on_columnsRemoved` iterates `self.widgets.items()` and calls `setWidget(idx, None)`,
   which deletes from that dict. Line 155 raises on `max()` of an empty sequence when all
   sections are hidden. lyse does not currently remove widget columns.
@@ -758,7 +763,7 @@ Paths are relative to each repo's root unless stated otherwise.
   environment. It uses `BasicInterpolation` without the env-var expansion of `LabConfig`,
   so `userlib = $HOME/...` is not added to `sys.path`. On macOS, `hostname()` runs `scutil`
   as a subprocess on every interpreter start.
-- **Fixed by labscript-utils PR #135, merged 2026-10-18.** ~~**B10. `labscript_utils/ls_zprocess.py:260, 105-110` (read).**~~
+- **Fixed by labscript-utils PR #128 (the `SecureSocket` test and the security check, merged 2026-10-13) and PR #135 (the module name in the message, merged 2026-10-18).** ~~**B10. `labscript_utils/ls_zprocess.py:260, 105-110` (read).**~~
   `issubclass(socket_class, SecureContext)` should test `SecureSocket`. The "security not
   configured" check is inside the `except` for a missing `allow_insecure`, so an explicit
   `allow_insecure = False` with no shared secret skips the explanatory error. Line 179
@@ -813,7 +818,7 @@ Paths are relative to each repo's root unless stated otherwise.
 - **C4. `setup.py`.** `develop_command` targets setuptools <= 63 while pyproject requires
   >= 64. `editable_wheel_command` overrides the private `_create_wheel_file`. It imports
   `wheel.wheelfile` without `wheel` in `build-system.requires`.
-- **C5. Python 2 and PyQt4 leftovers.**
+- **Partly fixed** by labscript-utils PR #128, merged 2026-10-13: `set_logger` captures `showwarning` once at import. The rest remains. **C5. Python 2 and PyQt4 leftovers.**
   - `excepthook/__init__.py:33-55`: `Thread.run` monkeypatch for a Python 2 bug. Line 85:
     `logger.warn`. Lines 89-92: calling `set_logger` twice makes `warnings._showwarning`
     recurse.
@@ -827,11 +832,11 @@ Paths are relative to each repo's root unless stated otherwise.
     105-121.
 - **C6. `qtwidgets/toolpalette.py:104-146, 212-214`**: TODO stubs that return without
   doing anything. Lines 302-312 and 343-376 are commented-out Python 2 prints.
-- **C7. Packaging pins across the suite.** The docs extras pin Sphinx 8.2.3 (not checked
+- **Partly out of date**: `requires-python` is `>= 3.11` in every component except runmanager and labscript-suite (held pull requests #131 and #106). **C7. Packaging pins across the suite.** The docs extras pin Sphinx 8.2.3 (not checked
   against Sphinx metadata for its minimum Python), and `vendored-conda-builds` targets
   3.10-3.14. `h5py>=2.9`. The `qtutils` floor differs per repo (`>=4.0`, `>=4.1.3`,
   `>=2.2.3`). The docs extras and the `pyqt` extra of `labscript-suite` name PyQt5 only.
-- **C8. CI.** The three copies of `release.yml` have drifted: `labscript-utils` and
+- **Fixed** by the workflow sync pull requests merged 2026-10-17 (`PULL-REQUESTS.md`): every copy is identical. **C8. CI.** The three copies of `release.yml` have drifted: `labscript-utils` and
   `labscript-suite` still list `macos-13` and `setup-miniconda@v3`.
 - **C9. `labscript-utils/readthedocs.yaml:27`**: PDF builds are disabled because "h5_lock
   breaks build when sphinx is run twice".
@@ -885,7 +890,7 @@ Paths are relative to `labscript_devices/`.
 - **Fixed by labscript-devices PR #155, merged 2026-10-18.** ~~**B4. `PrawnDO/runviewer_parsers.py:85` (run).**~~ `int(chan, 16)` is applied to
   connections of the form `do3`, which raises `ValueError`. No PrawnDO output is shown in
   runviewer.
-- **Fixed by labscript-devices PR #155, merged 2026-10-18.** ~~**B5. `PrawnBlaster/runviewer_parsers.py:97-108`.**~~
+- **Fixed by labscript-devices PR #153 (`reps == 0` after a wait) and PR #155 (the stop row), merged 2026-10-18.** ~~**B5. `PrawnBlaster/runviewer_parsers.py:97-108`.**~~
   - For a hardware-triggered PrawnBlaster, the final stop row is treated as a wait and
     indexes `clock_ticks[trigger_index]` past the end, so nothing clocked by a secondary
     PrawnBlaster is shown (run).
@@ -928,7 +933,7 @@ Paths are relative to `labscript_devices/`.
   - Line 167: `dds` is unbound when the first connection is out of range.
   - Line 382: `self.phase_mode.decode('utf8')` on a str.
   - Lines 404-410: `except socket.timeout` never triggers for pyserial.
-- **Fixed by labscript-devices PR #155, merged 2026-10-18.** ~~**B14. `PrawnBlaster/labscript_devices.py:403-405, 429`, `PrawnDO/labscript_devices.py:288`
+- **Fixed by labscript-devices PR #153 (PrawnBlaster) and PR #155 (PrawnDO), merged 2026-10-18.** ~~**B14. `PrawnBlaster/labscript_devices.py:403-405, 429`, `PrawnDO/labscript_devices.py:288`
   (plausible).**~~ There are no range checks before storing into uint32. A wait timeout or
   PrawnDO interval over 42.9 s (at 100 MHz) wraps when cast.
 - **Fixed by labscript-devices PR #155, merged 2026-10-18.** ~~**B15. `PrawnDO/labscript_devices.py:239, 244` (run).**~~
@@ -942,10 +947,10 @@ Paths are relative to `labscript_devices/`.
     `set_acquire_state(False)` sends the bare string `'STOP'`.
   - `blacs_workers.py:16-19`, `TekScope.py:156-157`: the assert message is a separate
     statement.
-- **Fixed by labscript-devices PR #155, merged 2026-10-18.** ~~**B17. `PhaseMatrixQuickSyn.py:344` (read).**~~ `self.connection.write(b'OUTP:STAT 1')` has
+- **Partly fixed by labscript-devices PR #155, merged 2026-10-18: the terminator. The three `pass` methods remain.** ~~**B17. `PhaseMatrixQuickSyn.py:344` (read).**~~ `self.connection.write(b'OUTP:STAT 1')` has
   no `'\r'` terminator, so the gate command in `transition_to_buffered` is not executed.
   `update_reference_out`, `update_blanking` and `update_lock_recovery` are `pass`.
-- **B18. Partly fixed** by labscript-devices PR #144 (TesseTiemens, with maintainer fix commit 2d65acd), merged 2026-10-17: the EMCCD gain range check is a range comparison. `EnableKeepCleans` and the stubs remain. **AndorSolis (read).** `andor_sdk/andor_utils.py:204`:
+- **B18. Partly fixed** by labscript-devices PR #144 (TesseTiemens, with maintainer fix commit 2d65acd), merged 2026-10-17: the EMCCD gain range check is a range comparison. The stubs remain. Correction 2026-10-18: `EnableKeepCleans` is a correct `uint_winapi` wrapper, like the functions around it; the claim below is wrong. **AndorSolis (read).** `andor_sdk/andor_utils.py:204`:
   `emccd_gain in self.emccd_gain_range` tests membership in the (low, high) tuple, so only
   the two end values are accepted. `andor_solis.py:160-165`: `EnableKeepCleans(mode)` has
   the body of `GetCurrentCamera`. `andor_solis.py:142-156, 566-571` are stubs that raise
@@ -966,7 +971,7 @@ Paths are relative to `labscript_devices/`.
 
 ### Cruft
 
-- **C1. Devices that cannot run on the current stack.**
+- **Partly fixed** by labscript-devices PR #149, merged 2026-10-17: `LightCrafterDMD` uses `tobytes()`. **C1. Devices that cannot run on the current stack.**
   - `imaqdx_server.py`: `Dataset.value` (284, 297), `is 'image_path'` (447). Nothing
     references it.
   - `LightCrafterDMD.py`: `ndarray.tostring()` (348, 359) on the normal

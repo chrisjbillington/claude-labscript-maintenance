@@ -5,6 +5,14 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-18: the harness without KNOWN markers, on the masters
+
+Push run [39121553218](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39121553218)
+after the three `KNOWN` markers were removed, with every component at its master as of
+11:00 UTC: the 25 jobs for Python 3.11 to 3.14 passed every step, and the 6 Python 3.15
+jobs failed at "Install the components" because h5py 3.16.0 has no cp315 wheel and does
+not build from source on the runners, as in the earlier runs.
+
 ## 2026-10-18: the fourth fix round (maintainer decisions) on GitHub Actions
 
 Three `test.yml` dispatches, one per branch, each with the other components at their
