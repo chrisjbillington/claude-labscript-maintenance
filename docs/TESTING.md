@@ -5,6 +5,22 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-18: the four fix branches on GitHub Actions
+
+Four `test.yml` dispatches, one per branch pushed on 2026-10-18, each with the other
+components at their masters as of 02:00 UTC: runmanager `compile-loop-and-remote-fixes`
+(854c5da) as run [39088096916](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39088096916), blacs
+`queue-robustness-and-window-geometry` (bbe883d) as run
+[39088099212](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39088099212), lyse `analysis-loop-and-dataframe-fixes` (455f19b) as
+run [39088101471](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39088101471) and labscript-devices
+`prawnblaster-and-esrpro500-fixes` (a4a5f6b) as run
+[39088103452](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39088103452). The 25 jobs of each run (Ubuntu and Windows, Python 3.11
+to 3.14, PySide6, PyQt6 and PyQt5, plus the Ubuntu Python 3.14 PySide6 job with
+`numpy<2.5`) passed every step. In the blacs run, the Ubuntu Python 3.14 PySide6 job
+reports no traceback in the BLACS output (defect D1) and the `KNOWN` marker for
+runmanager B7. The pull requests runmanager #134, blacs #128, lyse #145 and
+labscript-devices #153 were opened on these results.
+
 ## 2026-10-18: the four fix branches on the local machine, Python 3.14, PySide6
 
 The harness ran on this machine (Python 3.14.8, PySide6, NumPy 2.5.4, Linux) with the
@@ -20,8 +36,7 @@ remaining `KNOWN` markers are runmanager B7 (`globals_diff_shots`) and D8
 report lists stale commits because `install` does not refresh `repos/manifest.json`;
 the commits above are the branch heads that were installed.
 
-The GitHub Actions dispatches for the four branches are pending the branch pushes
-(`LOCAL-TASKS.md`).
+The GitHub Actions runs on the same branch heads are in the entry above.
 
 ## 2026-10-18: labscript-c-extensions master builds after #12 and #13
 

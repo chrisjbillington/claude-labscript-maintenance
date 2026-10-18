@@ -136,12 +136,12 @@ unaffected. The review's line references map to the new layout as follows.
 | 9 Qt6 check states | open |
 | 10 `aom.py` `max` | fixed, labscript-utils PR #133 (open) |
 | 11 BLACS queue `get(2)` | open |
-| 12 BLACS error handlers | open |
+| 12 BLACS error handlers | fixed, blacs PR #128 (open); the unbound `message` log line remains |
 | 13 `_rep` filename | open; the 2022 WIP PRs blacs #90 and runmanager #104 contain a fix |
 | 14 preparse `task_done` | open |
 | 15 lyse `blockSignals` | open |
 | 16 lyse on pandas 3 | open |
-| 17 PrawnBlaster wait without monitor | open |
+| 17 PrawnBlaster wait without monitor | fixed, labscript-devices PR #153 (open) |
 | 18 `h5_lock` | fixed, labscript-utils PR #133 (open) |
 | 19 runviewer resampler bounds | fixed, labscript-c-extensions PR #13, merged 2026-10-17 as b0f985d |
 | 20 zlock port | fixed, labscript-utils PR #128 |
@@ -150,7 +150,9 @@ Item 1 is fixed by the pull requests in the table below. Items 10 and 18 are fix
 labscript-utils PR #133 (open), which also fixes labscript-utils B16 (blacs #100),
 DEFECTS.md D3 and labscript-utils #60. Items 6, 7 and 8 are fixed by labscript PR #128
 (open), which also fixes labscript B1, B2, B4, B6, B7, B8, B9, B10 and most of B5 and B11,
-and labscript #16, #43 and #52. No open pull request addresses the other items.
+and labscript #16, #43 and #52. Item 12 is fixed by blacs PR #128 (open) and item 17 by
+labscript-devices PR #153 (open), both opened 2026-10-18 with issue fixes. No open pull
+request addresses the other items.
 
 ## Pull requests opened by the maintenance track
 
@@ -164,7 +166,9 @@ pins and are held for the release sequence (`RELEASE-PLAN.md` section 5). Later 
 2026-10-17: qtutils #36 and #37 and desktop-app #34 (release sequence steps 2 and 3),
 workflow-sandbox #47 and the twelve sync PRs for defect D7 were merged, as were
 labscript-c-extensions #13 (item 19, closes runviewer #13). labscript-utils #133 and
-labscript #128 are open.
+labscript #128 are open. On 2026-10-18: runmanager #134, blacs #128, lyse #145 and
+labscript-devices #153, the issue fixes for release sequence steps 7 to 11; all four are
+open.
 
 The scheme rename needs setuptools_scm 10, which introduced the name
 `semver-pep440-release-branch` (setuptools_scm 9.2.2 does not have it); the default

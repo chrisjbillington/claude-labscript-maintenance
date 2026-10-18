@@ -117,7 +117,9 @@ Paths are relative to each repo's root unless stated otherwise.
     shot, the queue manager blocks at "Saving data..." until the user restarts that tab. The
     mid-shot error poll at lines 761-773 is inside the `try` after `get_nowait()`, so it
     only runs when an abort or restart message was just dequeued.
-12. **`blacs` `blacs/experiment_queue.py:808-823, 930-945, 999` (read).** The error handlers
+12. **Fixed** by blacs PR #128, opened 2026-10-18, for the shot-file handlers; the unbound
+    `message` (now line 997) remains, inside a handler that pauses the queue.
+    ~~**`blacs` `blacs/experiment_queue.py:808-823, 930-945, 999` (read).**~~ The error handlers
     reopen the shot file and call `shutil.move` unguarded. If the shot file was deleted or
     is unreadable, or if `clean_h5_file` returned False, the handler raises and `manage()`
     exits. The status stays at "Transitioning to buffered...", and `process_request` keeps
@@ -149,7 +151,8 @@ Paths are relative to each repo's root unless stated otherwise.
     - `lyse/__main__.py:461-464`: `pandas.to_numeric(..., errors='ignore')` raises
       `ValueError` on pandas 3, so "Save dataframe" fails for any dataframe with an
       object-dtype column.
-17. **`labscript-devices` `PrawnBlaster/labscript_devices.py:411-427` (run).** The `else`
+17. **Fixed** by labscript-devices PR #153, opened 2026-10-18.
+    ~~**`labscript-devices` `PrawnBlaster/labscript_devices.py:411-427` (run).**~~ The `else`
     branch for a WAIT without the internal wait monitor has no `continue`, so execution
     reaches `instruction["reps"]` with `instruction == "WAIT"`. Any PrawnBlaster used as a
     secondary pseudoclock, or with `use_wait_monitor=False`, fails to compile a shot
@@ -473,7 +476,8 @@ Paths are relative to each repo's root unless stated otherwise.
   `expansion_config` that are not current axes give `axes.get(key) = None`, and
   `expand_globals` raises `TypeError`. In the GUI this can happen when Engage is clicked
   between a globals change and the end of the following preparse.
-- **B12. `runmanager/__main__.py:3392` (read).** `compile_loop` disables the Abort button
+- **Fixed** by runmanager PR #134, opened 2026-10-18. ~~**B12. `runmanager/__main__.py:3392`
+  (read).**~~ `compile_loop` disables the Abort button
   after each queue entry, and `on_engage_clicked` enabled it only at queue time. A second
   queued sequence cannot be aborted.
 - **B13. `runmanager/__init__.py:857-858, 892-898, 903` (read).**
@@ -630,7 +634,8 @@ Paths are relative to each repo's root unless stated otherwise.
   `lyse.path = sys.argv[1]`.
 - **B8. `lyse/__init__.py:671-676` and `dataframe_utilities.py:62-68` (read; dict-cell
   behaviour run).** The live dataframe update differs from a reload from file.
-  - A dict result is one object cell live, and sub-columns after reload.
+  - ~~A dict result is one object cell live, and sub-columns after reload.~~ Fixed by lyse PR
+    #145, opened 2026-10-18.
   - `group='results/a/b'` creates a live column that never appears on reload.
   - `group='/results/x'` gets no live update.
   - A tuple stays a tuple live and becomes a list on reload.
