@@ -56,9 +56,8 @@ failed. Set `GITHUB_STEP_SUMMARY` and the report is appended to it.
 | `zprocess-tests` | The zprocess test suite with pytest. Skipped unless `--all` or `--step zprocess-tests` is given; it takes two minutes |
 
 A check for a known open bug is marked `KNOWN` in the log and does not fail the step.
-When the bug is fixed the check prints `FIXED` so that the marker can be removed. The
-known items are `globals_diff_shots` on two shots of one sequence (REVIEW.md runmanager
-B7) and the `KeyError: 'window_xpos'` traceback that BLACS logs on its first launch.
+When the bug is fixed the check prints `FIXED` so that the marker can be removed. No
+check is marked as known at present.
 
 ## The profile
 

@@ -12,12 +12,12 @@ shot = load_state()['example_shot']
 
 # Names that analysis routines read from the lyse module.
 check(getattr(lyse, 'spinning_top', None) is False,
-      'lyse.spinning_top is False outside the analysis subprocess', known='DEFECTS.md D8')
+      'lyse.spinning_top is False outside the analysis subprocess')
 check(lyse.path is None, 'lyse.path is None outside the analysis subprocess')
 star = {}
 exec('from lyse import *', star)
 check('path' in star and 'Run' in star and 'data' in star, 'star import provides path, Run and data')
-check('spinning_top' in star, 'star import provides spinning_top', known='DEFECTS.md D8')
+check('spinning_top' in star, 'star import provides spinning_top')
 
 run = lyse.Run(shot)
 run.set_group('harness')

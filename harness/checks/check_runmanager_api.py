@@ -175,11 +175,8 @@ if results == [True] * 6:
               'multishot file compiled with its globals')
     with h5py.File(files[5], 'r') as f:
         check(float(f['globals'].attrs['amplitude']) == 0.3, 'last shot has the last outer value')
-    try:
-        runmanager.globals_diff_shots(files[0], files[5])
-        check(True, 'globals_diff_shots on two shots of one sequence', known='runmanager B7')
-    except UnboundLocalError as e:
-        check(False, f'globals_diff_shots on two shots of one sequence: {e}', known='runmanager B7')
+    attempt('globals_diff_shots on two shots of one sequence', runmanager.globals_diff_shots,
+            files[0], files[5])
 
 time.sleep(1)
 output = b''.join(m[-1] for m in stream).decode(errors='replace')

@@ -110,12 +110,7 @@ for app, port_name in APPS:
         log.close()
     output = (WORK / 'logs' / f'app-{app}.log').read_text(encoding='utf8', errors='replace')
     tracebacks = output.count('Traceback (most recent call last)')
-    if app == 'blacs' and tracebacks == 1 and "KeyError: 'window_xpos'" in output:
-        # BLACS logs an error with a traceback from restore_window on its first launch,
-        # when there are no saved window settings.
-        check(False, 'no traceback in the blacs output', known='blacs first launch restore_window KeyError')
-    else:
-        check(tracebacks == 0, f'no traceback in the {app} output ({tracebacks} found)')
+    check(tracebacks == 0, f'no traceback in the {app} output ({tracebacks} found)')
     tail = output.strip().splitlines()[-15:]
     if tail:
         print(f'last lines of {app} output:')
