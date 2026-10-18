@@ -9,7 +9,7 @@ closed, then its row moves to Done. Delete nothing: a done row is the record.
 
 | Added | Task | Why not from the cloud | Status |
 |---|---|---|---|
-| | none | | |
+| 2026-10-18 | Finish the second fix round. Pushed and dispatched (test.yml runs in parentheses), pull requests not yet opened; drafts with the Claude note in the session scratchpad `round2/prs/<repo>.md` (replace `RUNSENTENCE` with the run sentence): labscript-utils `apparatus-name-check` on `release-3.5.0-fixes` (39091163160, stacked on #133), labscript-suite `docs-apparatus-name-and-git` (39091165515), lyse `filebox-signals-and-pandas3` on `analysis-loop-and-dataframe-fixes` (39091201955, stacked on #145), labscript `bitfield-dtype` (39091236660), zprocess `curve-support-check` (39091238876). Not yet pushed, agents were still committing locally when the session's usage limit was reached: labscript-devices `nidaqmx-prawndo-prawnblaster-fixes` (review items 3, 4, 5), runmanager `check-states-and-preparse-recovery` (items 9, 14), runviewer `qt6-check-states` (item 9), blacs `queue-fixes-and-defaults` on `queue-robustness-and-window-geometry` (items 11, 13, repeat-path logging, #49, #32, #7, #72). For each: review `git log`/`git diff` against the base, push, dispatch, record in `TESTING.md`, open the pull request, update `PULL-REQUESTS.md`, `DEFECTS.md`, `REVIEW.md`, `MAINTENANCE.md`, `ISSUE-TRIAGE.md`. Decisions still to put to the maintainer: labscript #104 (pylab star import export list) and labscript-suite #60 (CITATION.cff per component repo) | the session's usage limit was reached mid-round | open |
 
 ## Done
 
