@@ -9,6 +9,7 @@ closed, then its row moves to Done. Delete nothing: a done row is the record.
 
 | Added | Task | Why not from the cloud | Status |
 |---|---|---|---|
+| 2026-10-18 | Delete the merged pull request branches `part2-bugs` in labscript-utils (#135, 9c10631), `compile-loop-and-remote-fixes` in runmanager (#134, 854c5da), `part2-bugs` in runviewer (#77, 13c39f6) and `resample-first-bin` in labscript-c-extensions (#13, d80a2a8); each branch head is the merged pull request head. chrisjbillington/zprocess `sync-workflow-tag-step-shell` is at 4d14175, which differs from the merged head of #31 (2e326ad); check it before deleting | the session's permission policy refused the branch deletion | open |
 | 2026-10-18 | Remove the harness `KNOWN` markers once their fixes merge: `window_xpos` (D1) in the apps check after blacs #128, `globals_diff_shots` (runmanager B7) in the runmanager-api check after runmanager #136, `lyse.spinning_top` (D8) in the lyse check after lyse #144. Grep `harness/checks/` for `KNOWN` | the markers are needed until the fixes are on master | open; all three fixes are on master since 2026-10-18, so the markers can be removed |
 
 ## Done
