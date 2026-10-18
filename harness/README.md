@@ -32,6 +32,9 @@ every component from its clone in one resolver run, with the Qt binding and any 
 `--python` is a version for uv to find or download, or a path to an interpreter.
 Components are built with `SETUPTOOLS_SCM_PRETEND_VERSION=99.0.0` because shallow clones
 have no tags and the components pin each other by version.
+The commit of each clone at install time is recorded in the venv's `harness.json`, and
+the report's component table is taken from it, so a clone that is changed after `clone`
+(a local branch, for example) is described as installed.
 
 `test` runs the steps below in order and writes `report.md`, `state.json` and one log
 per step to `harness/work-py<version>/` (`--work` to change). A step that another step

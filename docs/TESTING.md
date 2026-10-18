@@ -44,8 +44,9 @@ runviewer, runmanager-api, apps). The BLACS output of the `apps` step has no tra
 the first-launch `KeyError: 'window_xpos'` (defect D1) is gone with the blacs branch. The
 remaining `KNOWN` markers are runmanager B7 (`globals_diff_shots`) and D8
 (`lyse.spinning_top`, fixed by the unmerged lyse #144). The component table in the
-report lists stale commits because `install` does not refresh `repos/manifest.json`;
-the commits above are the branch heads that were installed.
+report listed stale commits because `install` did not record what it installed (fixed
+in the harness on 2026-10-18: the commits are now recorded at install time); the commits
+above are the branch heads that were installed.
 
 The GitHub Actions runs on the same branch heads are in the entry above.
 

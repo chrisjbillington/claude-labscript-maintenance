@@ -170,6 +170,28 @@ def cmd_clone(args):
 # install
 
 
+def installed_components(repos_dir):
+    """The commit of each clone at install time, with the repo and ref from the clone
+    manifest when the manifest's commit is the one installed, so that the report describes
+    the code that is in the venv even if a clone was changed after it was cloned."""
+    manifest_path = repos_dir / 'manifest.json'
+    manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
+    components = {}
+    for name in COMPONENTS:
+        dest = repos_dir / name
+        head = subprocess.run(['git', '-C', str(dest), 'rev-parse', 'HEAD'],
+                              capture_output=True, text=True).stdout.strip()
+        entry = manifest.get(name, {})
+        if entry.get('commit') == head:
+            components[name] = entry
+        else:
+            branch = subprocess.run(['git', '-C', str(dest), 'rev-parse', '--abbrev-ref', 'HEAD'],
+                                    capture_output=True, text=True).stdout.strip()
+            ref = None if branch in ('', 'HEAD') else branch
+            components[name] = {'repo': None, 'ref': ref, 'commit': head}
+    return components
+
+
 def cmd_install(args):
     repos_dir = Path(args.repos_dir)
     venv = Path(args.venv or default_venv(args.python)).resolve()
@@ -185,6 +207,7 @@ def cmd_install(args):
     requirements = [str(repos_dir / n) for n in COMPONENTS]
     requirements += [args.qt, 'pytest'] + args.pin
     result = run(uv + ['pip', 'install', '--python', py] + requirements, env=env)
+    components = installed_components(repos_dir)
     version = subprocess.run([str(py), '-c', 'import platform; print(platform.python_version())'],
                              capture_output=True, text=True).stdout.strip()
     info = {
@@ -193,6 +216,7 @@ def cmd_install(args):
         'pins': args.pin,
         'repos_dir': str(repos_dir.resolve()),
         'install_ok': result.returncode == 0,
+        'components': components,
     }
     (venv / 'harness.json').write_text(json.dumps(info, indent=1))
     if result.returncode != 0:
@@ -285,8 +309,10 @@ def cmd_test(args):
         raise SystemExit(f'no virtual environment at {venv}; run install first')
     info = json.loads((venv / 'harness.json').read_text())
     repos_dir = Path(info['repos_dir'])
-    manifest_path = repos_dir / 'manifest.json'
-    manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
+    manifest = info.get('components')
+    if manifest is None:
+        manifest_path = repos_dir / 'manifest.json'
+        manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
     work = Path(args.work or (venv.parent / f'work-{venv.name}')).resolve()
     if work.exists():
         shutil.rmtree(work)
