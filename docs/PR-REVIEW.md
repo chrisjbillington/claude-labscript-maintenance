@@ -9,6 +9,11 @@ open PRs: labscript, runviewer, labscript-suite, labscript-c-extensions,
 vendored-conda-builds, spinapi, ci-helper, workflow-sandbox, qtutils, pynivision, mise,
 bias, opalkellyxem3001, pineblaster, and the two website repos.
 
+Status 2026-10-18: merged on 2026-10-17, most with a maintainer fix commit: blacs
+#123, labscript-devices #110, #126, #144, #87 and #63, lyse #132, labscript-utils #117
+and prawn_digital_output #23. Closed: blacs #121 by its author, and qtutils #32, whose
+context-menu part went into qtutils #36. The rest are open.
+
 Each PR's head is fetched in its local clone as `origin/pr/<N>`. "Merges" means
 `git merge-tree` against the upstream default branch reports no conflict.
 
@@ -20,20 +25,20 @@ paragraph per PR, section 3 contains the detailed per-group reports.
 | # | PR | Type | Imp. | Merges | Recommended action |
 |---|---|---|---|---|---|
 | 1 | blacs #123 plugin-loading bugfixes (ispielma, 2026) | bugfix | 4 | merged 2026-10-17 (d061535) | Merged as is after testing; the comment trim rides the next blacs pull request |
-| 2 | labscript-devices #110 Windfreak SynthHD (dihm, 2024) | feature | 4 | yes | Merge after three one-line fixes |
-| 3 | labscript-devices #126 AD9959 DDS Sweeper (carterturn, 2025) | feature | 4 | yes | Merge after deleting the dead runviewer parser and fixing `clock_limit` |
+| 2 | labscript-devices #110 Windfreak SynthHD (dihm, 2024) | feature | 4 | yes | Merge after three one-line fixes. Merged 2026-10-17 with fix commit 30979be (merge 2a2d785) |
+| 3 | labscript-devices #126 AD9959 DDS Sweeper (carterturn, 2025) | feature | 4 | yes | Merge after deleting the dead runviewer parser and fixing `clock_limit`. Merged 2026-10-17 with fix commit 357495a (merge 6f78a56); the worker changes are not tested on hardware |
 | 4 | zprocess #14 PAIR sockets (mjdoris, 2021) | bugfix, behaviour change | 3 | conflict | Maintainer rework: 14 real lines plus a version check for mixed zprocess versions |
 | 5 | labscript-devices #148 TriggerableCamera + DummyCamera (ispielma, 2026) | refactor, feature | 3 | yes | Design feedback to author, hardware test, then merge; merge #144, #87, #63 first or re-apply onto it |
-| 6 | labscript-devices #144 Andor fixes (TesseTiemens, 2026) | bugfix | 3 | yes | Ask author: SyntaxError on Python < 3.12, wrong model string, semaphore deadlock |
-| 7 | lyse #132 data-group attributes in dataframe (chrisjbillington, 2026) | feature | 3 | yes | Merge after changing overwrite to merge-into-existing |
+| 6 | labscript-devices #144 Andor fixes (TesseTiemens, 2026) | bugfix | 3 | yes | Ask author: SyntaxError on Python < 3.12, wrong model string, semaphore deadlock. Merged 2026-10-17 with fix commit 2d65acd (merge 2d0b872), without the fast setup path and the semaphore |
+| 7 | lyse #132 data-group attributes in dataframe (chrisjbillington, 2026) | feature | 3 | yes | Merge after changing overwrite to merge-into-existing. Merged 2026-10-17 with fix commit 001df5f (merge ca8d78e) |
 | 8 | labscript-utils #117 minimal example analysis script (Json-To-String, 2025) | docs-example | 3 | yes | Merge after fixing the `save_result` TypeError and axis label. Merged 2026-10-17 with fix commit 373bde9 (merge 3698c41) |
 | 9 | PrawnBlaster #37 overclock voltage logic (Json-To-String, 2025) | firmware | 3 | yes | Merge after fixing response ordering and the stale release workflow |
 | 10 | PrawnBlaster #35 variable instructions per pseudoclock (philipstarkey, 2025) | firmware, feature | 3 | yes | Maintainer rework: missing `ok` reply, unvalidated index, needs host-side PR |
 | 11 | blacs #105 Virtual Devices plugin (carterturn, 2024) | feature | 3 | yes | Ask author: finish enum outputs, replace 10 Hz polling thread; the two output_classes fixes can merge alone |
 | 12 | labscript-devices #129 Keysight oscilloscope (K-Takouti, 2025) | feature | 3 | yes | Ask author for a second round (compile-time VISA scan, `*RST`, unverified acquisition) |
 | 13 | zprocess #21 fix remote example (restelli, 2024) | docs-example | 3 | yes | Redo as a small maintainer commit instead of merging |
-| 14 | labscript-devices #87 autoscale + background subtraction (chrisjbillington, 2021) | feature | 2 | yes | Merge after guarding `set_bg_image`; re-apply onto #148 |
-| 15 | labscript-devices #63 restore display ranges (zakv, 2020) | feature | 2 | yes | Merge after switching to `ui.histogram.getLevels()`; re-apply onto #148 |
+| 14 | labscript-devices #87 autoscale + background subtraction (chrisjbillington, 2021) | feature | 2 | yes | Merge after guarding `set_bg_image`; re-apply onto #148. Merged 2026-10-17 with fix commit 70515a0 (merge 141dd2d); #148 now needs a rebase |
+| 15 | labscript-devices #63 restore display ranges (zakv, 2020) | feature | 2 | yes | Merge after switching to `ui.histogram.getLevels()`; re-apply onto #148. Merged 2026-10-17 with fix commit 5613c40 (merge 1366ffe); #148 now needs a rebase |
 | 16 | runmanager #104 + blacs #90 compilation queue (chrisjbillington, 2022) | feature, WIP | 2 (4 as design record) | conflict | Close as superseded by #130; convert the requirements to an issue |
 | 17 | runmanager #128 config path in title (ispielma, 2026) | feature | 2 | conflict (since #130 merged) | Ask author: depends on a closed labscript-utils PR; drop the QShortcut hunk |
 | 18 | labscript-devices #106 GeniCam cameras (TerryGeng, 2023) | feature | 2 | yes | Ask to rebase as a thin TriggerableCamera subclass, else close as stale |
