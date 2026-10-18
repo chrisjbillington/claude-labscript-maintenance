@@ -52,29 +52,17 @@ and the file:line evidence.
   that remain, runmanager #131 and labscript-suite #106, raise component pins to
   unreleased versions and are held until their step of the release sequence
   (`docs/RELEASE-PLAN.md` section 5).
-- Two pull requests of small fixes opened 2026-10-17 for release sequence steps 5 and 6:
-  labscript-utils #133 (`h5_lock`, `setup_logging`, `excepthook`, `aom.py`, `runmanager.ini`
-  in the default profile) and labscript #128 (compiler checks, limits, duplicate
-  connections, trigger and gate handling). Both passed the harness on every supported
-  Python and Qt binding (`docs/TESTING.md`). Both are open.
-- Four pull requests of issue fixes opened 2026-10-18 for release sequence steps 7 to 11:
-  runmanager #134 (#66, #123, #33, #30, #26, defect D2), blacs #128 (#46, #29, #52, #56,
-  defect D1), lyse #145 (#14, #90, #139) and labscript-devices #153 (#109, #79, labscript
-  #95, defect D9). Each passed the harness on Python 3.11 to 3.14 with all three Qt
-  bindings (`docs/TESTING.md`). All four are open.
-- Nine pull requests of review fixes opened later on 2026-10-18: labscript #129,
-  labscript-devices #154, runmanager #135, runviewer #76, blacs #129 (stacked on #128), lyse
-  #146 (stacked on #145), labscript-utils #134 (stacked on #133), labscript-suite #109 and
-  zprocess #32. Every Part 1 review item now has a merged or open pull request; item 3
-  (the NI_DAQmx final read) is verified by reading only and needs a test on NI hardware.
-  Each passed the harness on Python 3.11 to 3.14 with all three Qt bindings
-  (`docs/TESTING.md`). All nine are open.
-- Seven pull requests for the review's Part 2 bugs opened 2026-10-18 (third round), each
-  stacked on that repository's second-round branch: blacs #130, labscript-devices #155,
-  lyse #147, labscript-utils #135, runviewer #77, labscript-c-extensions #14 and
-  runmanager #136. Every Part 2 item now has a pull request except the few that need a
-  design decision or hardware (`docs/MAINTENANCE.md`, "Part 2 status"). Each passed the
-  harness on Python 3.11 to 3.14 with all three Qt bindings. All seven are open.
+- Twenty-three pull requests of fixes, opened 2026-10-17 and 2026-10-18 and merged
+  2026-10-18 (`docs/PULL-REQUESTS.md`): labscript #128 and #129, labscript-utils #133,
+  #134 and #135, labscript-devices #153, #154 and #155, blacs #128, #129 and #130,
+  runmanager #134, #135 and #136, runviewer #76 and #77, lyse #144 to #147,
+  labscript-c-extensions #14, labscript-suite #109 and zprocess #32. Each passed the
+  harness on Python 3.11 to 3.14 with all three Qt bindings (`docs/TESTING.md`). Every
+  Part 1 review item is now fixed on `master`; item 3 (the NI_DAQmx final read) is
+  verified by reading only and needs a test on NI hardware. Every Part 2 bug is fixed
+  except the few that need a design decision or hardware (`docs/MAINTENANCE.md`, "Part 2
+  status"). The issues the pull requests fix are closed, except zprocess #16, which the
+  maintainer left open.
 - The release pull requests from contributors (labscript-devices #110, #126, #144, #87,
   #63, lyse #132, labscript-utils #117, prawn_digital_output #23) were merged 2026-10-17
   with maintainer fix commits (`docs/LOCAL-TASKS.md`). The step 2 and 3 pull requests

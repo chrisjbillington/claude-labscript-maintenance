@@ -56,7 +56,7 @@ Paths are relative to each repo's root unless stated otherwise.
      `AnalogIn`), `NI_DAQmx/blacs_workers.py:956` (wait monitor), `PrawnBlaster/blacs_workers.py:497`
      (wait results), `Camera.py:107`, `AlazarTechBoard.py:157-158`,
      `CiceroOpalKellyXEM3001.py:652`.
-2. **Fixed** by labscript PR #129, opened 2026-10-18.
+2. **Fixed** by labscript PR #129, merged 2026-10-18.
    ~~**`labscript/labscript/utils.py:210`: `bitfield()` passes `dtype=np.dtype` instead of
    `dtype=dtype` (run).**~~ Any NI digital port on which line 0 is unused, or a PrawnDO
    without `do0`, fails to compile with `TypeError: Cannot convert np.dtype into a dtype`.
@@ -65,7 +65,7 @@ Paths are relative to each repo's root unless stated otherwise.
 
 ## 1.2 Wrong output with no error
 
-3. **Fixed** by labscript-devices PR #154, opened 2026-10-18; verified by reading only and
+3. **Fixed** by labscript-devices PR #154, merged 2026-10-18; verified by reading only and
    needs a test on NI hardware.
    ~~**`labscript-devices` `NI_DAQmx/blacs_workers.py:544` (read).**~~ `stop_task()` calls
    `self.read(self.task, None, -1)`, but the guard at line 454 compares the argument to
@@ -73,34 +73,34 @@ Paths are relative to each repo's root unless stated otherwise.
    last `EveryNSamples` callback are dropped on every shot. A shot shorter than one callback
    interval raises "No data was acquired". This is probably the cause of the workaround at
    lines 672-677.
-4. **Fixed** by labscript-devices PR #154, opened 2026-10-18.
+4. **Fixed** by labscript-devices PR #154, merged 2026-10-18.
    ~~**`labscript-devices` `PrawnDO/labscript_devices.py:299-300` (run).**~~ `wait_idxs` are
    indices that already count earlier waits, but `np.insert` interprets a list of indices
    relative to the original array. With two or more waits, the k-th wait is inserted k
    instructions late and with the wrong held output word.
-5. **Fixed** by labscript-devices PR #154, opened 2026-10-18.
+5. **Fixed** by labscript-devices PR #154, merged 2026-10-18.
    ~~**`labscript-devices` `PrawnBlaster/labscript_devices.py:244` and~~
    `PrawnDO/labscript_devices.py:202` (run).** `self.clock_limit *= factor` scales the clock
    limit in the wrong direction for a non-default `clock_frequency`. With
    `clock_frequency=50e6`, both devices report a 20 MHz limit instead of 5 MHz.
-6. **Fixed** by labscript PR #128, opened 2026-10-17.
+6. **Fixed** by labscript PR #128, merged 2026-10-18.
    ~~**`labscript` `labscript/core.py:419-426` (run).**~~ The ramp tick count comes from
    `divmod((t_next - t)*maxrate, 1)`. When the product is 10.999999 instead of 11, the count
    is one short, and the recovery test only passes if `maxrate` is below the clock limit.
    With ramps at a sample rate equal to the clock limit, 87 of 200 ramps with
    integer-microsecond durations got one tick too few, and the final tick is then two
    periods long.
-7. **Fixed** by labscript PR #128, opened 2026-10-17.
+7. **Fixed** by labscript PR #128, merged 2026-10-18.
    ~~**`labscript` `labscript/outputs.py:432-447` (run).**~~ `get_change_times` assigns
    `current_dict_time` once and never updates it, so it only detects collisions with the
    first ramp on each output. `ao.ramp(0,1,...); ao.ramp(2,1,0,1,1e3); ao.constant(2.5, 7)`
    compiles, and the second ramp is truncated at t=2.5.
-8. **Fixed** by labscript PR #128, opened 2026-10-17. The check compares the time before the trigger with the clock period; `compiler.wait_delay` is not included.
+8. **Fixed** by labscript PR #128, merged 2026-10-18. The check compares the time before the trigger with the clock period; `compiler.wait_delay` is not included.
    ~~**`labscript` `labscript/outputs.py:365-374` (run).**~~ The "instruction too soon before a
    trigger" check is `max(self.clock_limit, compiler.wait_delay) < trigger_time - t`. It
    compares a rate in Hz with a time, and the inequality is reversed, so it can never raise
    in practice. The error message has the same unit error.
-9. **Fixed** by runmanager PR #135 and runviewer PR #76, opened 2026-10-18.
+9. **Fixed** by runmanager PR #135 and runviewer PR #76, merged 2026-10-18.
    ~~**Qt6 check states (run for enum semantics, read for code paths).**~~ On PyQt6 and PySide6,
    `Qt.CheckState.Unchecked` is truthy.
    - `runmanager/runmanager/__main__.py:1957` stores `checkState()` as the shuffle flag, and
@@ -109,7 +109,7 @@ Paths are relative to each repo's root unless stated otherwise.
      `2 in [Qt.Checked, Qt.Unchecked]` is false, so the master shuffle checkbox does nothing.
    - `runviewer/runviewer/__main__.py:725-730, 780, 830`: unticking a shot takes the
      "checked" branch, and shutter lines can never be hidden.
-10. **Fixed** by labscript-utils PR #133, opened 2026-10-17.
+10. **Fixed** by labscript-utils PR #133, merged 2026-10-18.
     ~~**`labscript-utils` `labscript_utils/unitconversions/aom.py:15,59,73` (run).**~~
     `from numpy import *` exports `max` under numpy 2, so `max(c - A, 0)` becomes
     `np.max(x, axis=0)` and returns `c - A`. With the default parameters, Pmin is -0.068
@@ -117,7 +117,7 @@ Paths are relative to each repo's root unless stated otherwise.
 
 ## 1.3 Hangs, stuck states and crashes
 
-11. **Fixed** by blacs PR #129, opened 2026-10-18; the mid-shot error poll is unchanged.
+11. **Fixed** by blacs PR #129, merged 2026-10-18; the mid-shot error poll is unchanged.
     ~~**`blacs` `blacs/experiment_queue.py:882` (run).**~~ `self.current_queue.get(2)` passes 2
     as `block`, not `timeout`, so the `except queue.Empty` branch that polls tabs for error
     state is unreachable. If a tab's state machine has exited with a fatal error during the
@@ -125,19 +125,19 @@ Paths are relative to each repo's root unless stated otherwise.
     mid-shot error poll at lines 761-773 is inside the `try` after `get_nowait()`, so it
     only runs when an abort or restart message was just dequeued.
 12. **Fixed** by blacs PR #128 (the shot-file handlers) and blacs PR #129 (the unbound
-    `message`), both opened 2026-10-18.
+    `message`), both merged 2026-10-18.
     ~~**`blacs` `blacs/experiment_queue.py:808-823, 930-945, 999` (read).**~~ The error handlers
     reopen the shot file and call `shutil.move` unguarded. If the shot file was deleted or
     is unreadable, or if `clean_h5_file` returned False, the handler raises and `manage()`
     exits. The status stays at "Transitioning to buffered...", and `process_request` keeps
     answering "Experiment added successfully". Line 999 logs `message`, which is unbound if
     `process_request` raised during a repeat.
-13. **Fixed** by blacs PR #129, opened 2026-10-18.
+13. **Fixed** by blacs PR #129, merged 2026-10-18.
     ~~**`blacs` `blacs/experiment_queue.py:437` (run).**~~
     `''.join(basename.split('_rep')[:-1])` deletes every earlier `_rep` in the full path.
     `/data/mot_repump_scan/2026/mot_repump_scan_0.h5` becomes
     `/data/motump_scan/2026/motump_scan_0_rep00002.h5` on the second repeat.
-14. **Fixed** by runmanager PR #135, opened 2026-10-18.
+14. **Fixed** by runmanager PR #135, merged 2026-10-18.
     ~~**`runmanager` `runmanager/__main__.py:2776-2786` (read).**~~ `preparse_globals_loop`
     calls `task_done()` only after a successful `preparse_globals()`. After an exception,
     `preparse_globals_required.join()` never returns, every remote API call times out until
@@ -148,13 +148,13 @@ Paths are relative to each repo's root unless stated otherwise.
     - Line 2692: `expansion_type, name = expansion_name.split()` raises `ValueError` for a
       zip group name containing whitespace. The same failure occurs in `load_configuration`
       (line 3347).
-15. **Fixed** by lyse PR #146, opened 2026-10-18.
+15. **Fixed** by lyse PR #146, merged 2026-10-18.
     ~~**`lyse` `lyse/filebox.py:463-473` (run for the Qt effect).**~~ `update_row` calls
     `self._model.blockSignals(True)` and then returns early when `filepath` is not a row.
     Any multishot routine that calls `Sequence(...).save_result(...)` triggers this, as does
     removing a shot while its analysis is running. The model stays blocked until the next
     successful `update_row`: removed rows remain visible and status changes do not repaint.
-16. **Fixed** by lyse PR #146, opened 2026-10-18.
+16. **Fixed** by lyse PR #146, merged 2026-10-18.
     ~~**`lyse` on pandas 3 (run).**~~
     - `lyse/filebox.py:482-494`: `update_row` catches only `ValueError`, but pandas 3 raises
       `TypeError` for an incompatible-dtype `.at` assignment (float into an int64 column,
@@ -162,13 +162,13 @@ Paths are relative to each repo's root unless stated otherwise.
     - `lyse/__main__.py:461-464`: `pandas.to_numeric(..., errors='ignore')` raises
       `ValueError` on pandas 3, so "Save dataframe" fails for any dataframe with an
       object-dtype column.
-17. **Fixed** by labscript-devices PR #153, opened 2026-10-18.
+17. **Fixed** by labscript-devices PR #153, merged 2026-10-18.
     ~~**`labscript-devices` `PrawnBlaster/labscript_devices.py:411-427` (run).**~~ The `else`
     branch for a WAIT without the internal wait monitor has no `continue`, so execution
     reaches `instruction["reps"]` with `instruction == "WAIT"`. Any PrawnBlaster used as a
     secondary pseudoclock, or with `use_wait_monitor=False`, fails to compile a shot
     containing `wait()`.
-18. **Fixed** by labscript-utils PR #133, opened 2026-10-17.
+18. **Fixed** by labscript-utils PR #133, merged 2026-10-18.
     ~~**`labscript-utils` `labscript_utils/h5_lock.py:41-66` (run for the mode error).**~~
     - `File.__init__` has `mode=None` and passes it positionally to h5py 3, which rejects
       None. Once `h5_lock` is imported, `h5py.File(path)` with no mode raises `ValueError`.
@@ -346,7 +346,7 @@ Paths are relative to each repo's root unless stated otherwise.
 
 ### Bugs
 
-- **Fixed by blacs PR #130, opened 2026-10-18.** ~~**B1. `blacs/front_panel_settings.py:91` with `blacs/__main__.py:296, 302` (read; repr
+- **Fixed by blacs PR #130, merged 2026-10-18.** ~~**B1. `blacs/front_panel_settings.py:91` with `blacs/__main__.py:296, 302` (read; repr
   behaviour run).**~~ Tab save data is stored as `repr()` and restored with `eval()`. If
   `eval` fails, `tab_data[tab_name]` is left as `{}`. `__main__.py:296` then raises
   `KeyError: 'data'`, and the `except` handler at 302 raises `KeyError: 'saved_data'` out of
@@ -355,7 +355,7 @@ Paths are relative to each repo's root unless stated otherwise.
   `np.float64(1.5)`), `inf`, `nan`, an array or an enum. In-tree tabs return builtins, so
   this affects third-party tabs. `plugin_data` (313) and `analysis_data` (353, 615) are
   unguarded `eval`s.
-- **Fixed by blacs PR #129 (issue #49), opened 2026-10-18.** ~~**B2. `blacs/tab_base_classes.py:792` (run).**~~ The first `inmain(generator.__next__)` is
+- **Fixed by blacs PR #129 (issue #49), merged 2026-10-18.** ~~**B2. `blacs/tab_base_classes.py:792` (run).**~~ The first `inmain(generator.__next__)` is
   outside the `try`/`except StopIteration`, so a state function that finishes without
   reaching a `yield` puts the tab into fatal error. In-tree, `shutdown_workers` (591) does
   this for a tab with no workers. Line 842: `if next_yield:` means that a falsy yield
@@ -365,27 +365,27 @@ Paths are relative to each repo's root unless stated otherwise.
   and terminates workers after 2 s. The running shot is abandoned with devices in buffered
   mode, and the shot is absent from the saved queue. The TODO at `experiment_queue.py:748`
   refers to this.
-- **Fixed by blacs PR #130, opened 2026-10-18.** ~~**B4. `blacs/tab_base_classes.py:737-738` (run on PyQt6).**~~ `hide_error` sets
+- **Fixed by blacs PR #130, merged 2026-10-18.** ~~**B4. `blacs/tab_base_classes.py:737-738` (run on PyQt6).**~~ `hide_error` sets
   `_tab_text_colour = 'black'` (a str), which is passed to `setTabTextColor`. PyQt6 raises
   `TypeError` on every click of the error-close button. PySide6 accepts it and forces black
   tab text, which overrides the dark-theme palette colour. Line 241 has the same value.
-- **Fixed by blacs PR #130, opened 2026-10-18.** ~~**B5. `blacs/tab_base_classes.py:951-988` and `blacs/__main__.py:556-564` (read).**~~
+- **Fixed by blacs PR #130, merged 2026-10-18.** ~~**B5. `blacs/tab_base_classes.py:951-988` and `blacs/__main__.py:556-564` (read).**~~
   `PluginTab` never defines `_tab_icon` or `_tab_text_colour`, which
   `update_all_tab_icon_and_text` reads. On Qt6, any plugin that provides a tab makes each
   palette `changeEvent` raise `AttributeError` before the remaining device tabs are
   recoloured. No in-tree plugin defines tabs.
-- **Fixed by blacs PR #130, opened 2026-10-18.** ~~**B6. `blacs/device_base_class.py:446-450, 471-475` (read).**~~ `if results:` treats a
+- **Fixed by blacs PR #130, merged 2026-10-18.** ~~**B6. `blacs/device_base_class.py:446-450, 471-475` (read).**~~ `if results:` treats a
   primary worker return of `{}` as failure, so the `program_manual` of secondary workers is
   never called. If a secondary returns None, `results.update(None)` raises `TypeError`.
   Line 483 checks `isinstance(self._last_programmed_values, dict)`, where
   `_last_remote_values` was probably intended.
-- **Fixed by blacs PR #130, opened 2026-10-18.** ~~**B7. `blacs/plugins/progress_bar/__init__.py:336` with 187-190 (read).**~~ After a wait
+- **Fixed by blacs PR #130, merged 2026-10-18.** ~~**B7. `blacs/plugins/progress_bar/__init__.py:336` with 187-190 (read).**~~ After a wait
   that precedes the first time marker, `update_bar_style(marker=True, previous=True)`
   computes `marker_index = -1` and fails `assert marker_index >= 0`.
-- **Fixed by blacs PR #130, opened 2026-10-18.** ~~**B8. `blacs/__main__.py:644` with `blacs/front_panel_settings.py:387-390` (read).**~~
+- **Fixed by blacs PR #130, merged 2026-10-18.** ~~**B8. `blacs/__main__.py:644` with `blacs/front_panel_settings.py:387-390` (read).**~~
   "Save data from broken tabs?" → Yes keeps only front panel values. The `save_data` of
   failed devices is dropped.
-- **Fixed by blacs PR #130, opened 2026-10-18.** ~~**B9. Small errors (read).**~~
+- **Fixed by blacs PR #130, merged 2026-10-18.** ~~**B9. Small errors (read).**~~
   - `blacs/__main__.py:341`: `logger.exception` format string has `%s` and no argument.
   - `blacs/plugins/connection_table/__init__.py:113`: `Popen([editor_path, editor_args])`
     passes all editor arguments as one argv element.
@@ -445,58 +445,58 @@ Paths are relative to each repo's root unless stated otherwise.
 
 ### Bugs
 
-- **Fixed by runmanager PR #136, opened 2026-10-18.** ~~**B1. `runmanager/__init__.py:468-472, 572`; `__main__.py:3438-3448, 2745` (run for the
+- **Fixed by runmanager PR #136, merged 2026-10-18.** ~~**B1. `runmanager/__init__.py:468-472, 572`; `__main__.py:3438-3448, 2745` (run for the
   library part).**~~ `evaluate_globals` checks iterability only for `outer`. The GUI relies on
   `guess_expansion_modes` to remove non-iterables from zip groups, but that function
   returns early if any global holds a non-`ExpansionError` exception. `expand_globals` then
   runs `zip(*[[1,2,3], 5])` and raises `TypeError` in the preparse thread.
-- **Fixed by runmanager PR #136, opened 2026-10-18.** ~~**B2. `runmanager/__main__.py:1372-1374` (plausible).**~~ `update_parse_indication` indexes
+- **Fixed by runmanager PR #136, merged 2026-10-18.** ~~**B2. `runmanager/__main__.py:1372-1374` (plausible).**~~ `update_parse_indication` indexes
   `evaled_globals` by the names currently in the model. A global created or renamed while a
   parse is in progress raises `KeyError` in the preparse thread.
-- **Fixed by runmanager PR #136, opened 2026-10-18.** ~~**B3. `runmanager/__main__.py:3456-3475, 3562-3568` (run).**~~ A list-valued global with a
+- **Fixed by runmanager PR #136, merged 2026-10-18.** ~~**B3. `runmanager/__main__.py:3456-3475, 3562-3568` (run).**~~ A list-valued global with a
   deliberately blank expansion is reset to `outer` on every restart, and after deactivating
   and reactivating its group. With `x = [1,2,3]` and a cleared expansion, a fresh session
   produces 3 shots instead of 1.
 - **B4. `runmanager/__init__.py:572` (run).** Zip groups with unequal lengths are silently
   truncated by `zip(*axis)`. If this is intended, the GUI should indicate it.
-- **Fixed by runmanager PR #136, opened 2026-10-18.** ~~**B5. `runmanager/__main__.py:1819-1821` (read).**~~ `close_current_tab` calls
+- **Fixed by runmanager PR #136, merged 2026-10-18.** ~~**B5. `runmanager/__main__.py:1819-1821` (read).**~~ `close_current_tab` calls
   `close_group` inside iteration over `currently_open_groups` with no `break`, so Ctrl+W
   closes the tab and then raises "dictionary changed size during iteration".
-- **Fixed by runmanager PR #136, opened 2026-10-18.** ~~**B6. `runmanager/__main__.py:3696` (run on numpy 2.5).**~~ `remote.set_globals` stores
+- **Fixed by runmanager PR #136, merged 2026-10-18.** ~~**B6. `runmanager/__main__.py:3696` (run on numpy 2.5).**~~ `remote.set_globals` stores
   `repr(new_value)`, which numpy summarises for arrays with more than 1000 elements. The
   stored expression is `array([0., ..., 1.], shape=(2000,))`, which fails to evaluate. With
   older numpy the repr would evaluate to a short object array containing `Ellipsis` (not
   tested).
-- **Fixed by runmanager PR #136, opened 2026-10-18.** ~~**B7. `runmanager/__init__.py:1107-1111, 1122` (run).**~~ `globals_diff_shots` raises
+- **Fixed by runmanager PR #136, merged 2026-10-18.** ~~**B7. `runmanager/__init__.py:1107-1111, 1122` (run).**~~ `globals_diff_shots` raises
   `UnboundLocalError` when the two shots are identical, because `df` is only assigned when
   there are differences.
-- **Fixed by runmanager PR #136, opened 2026-10-18.** ~~**B8. `runmanager/__init__.py:749` (run).**~~ With zero shots (e.g. an `outer` global that
+- **Fixed by runmanager PR #136, merged 2026-10-18.** ~~**B8. `runmanager/__init__.py:749` (run).**~~ With zero shots (e.g. an `outer` global that
   evaluates to `[]`), `int(np.ceil(np.log10(0)))` raises `OverflowError` in the compile
   thread, after the sequence index has been consumed. `make_run_file_from_globals_files`
   (815) would raise `IndexError` on `shots[0]`.
-- **Fixed by runmanager PR #136, opened 2026-10-18, except the `compile_loop` timeout.** ~~**B9. `runmanager/batch_compiler.py:61-62, 74`; `__main__.py:3380` (read; the indefinite
+- **Fixed by runmanager PR #136, merged 2026-10-18, except the `compile_loop` timeout.** ~~**B9. `runmanager/batch_compiler.py:61-62, 74`; `__main__.py:3380` (read; the indefinite
   wait is plausible).**~~ `os.chdir(os.path.dirname(labscript_file))` is outside the `try`,
   so a missing directory ends the batch compiler process. `except Exception` also does not
   catch `SystemExit`. In both cases `compile_loop` waits on `from_child.get()` with no
   timeout.
-- **Fixed by runmanager PR #136, opened 2026-10-18.** ~~**B10. `runmanager/__init__.py:1002-1003` (run).**~~ `find_comments` advances `line_start`
+- **Fixed by runmanager PR #136, merged 2026-10-18.** ~~**B10. `runmanager/__init__.py:1002-1003` (run).**~~ `find_comments` advances `line_start`
   only on `'\n'` tokens, which a triple-quoted string does not produce. Offsets after a
   multi-line string are wrong, and `remove_comments_and_tokenify` then deletes part of the
   string and keeps the comment.
-- **Fixed by runmanager PR #134, opened 2026-10-18 (`_make_axes` iterates the axes).** ~~**B11. `runmanager/__init__.py:607-608` (run for the library).**~~ Keys in
+- **Fixed by runmanager PR #134, merged 2026-10-18 (`_make_axes` iterates the axes).** ~~**B11. `runmanager/__init__.py:607-608` (run for the library).**~~ Keys in
   `expansion_config` that are not current axes give `axes.get(key) = None`, and
   `expand_globals` raises `TypeError`. In the GUI this can happen when Engage is clicked
   between a globals change and the end of the following preparse.
-- **Fixed** by runmanager PR #134, opened 2026-10-18. ~~**B12. `runmanager/__main__.py:3392`
+- **Fixed** by runmanager PR #134, merged 2026-10-18. ~~**B12. `runmanager/__main__.py:3392`
   (read).**~~ `compile_loop` disables the Abort button
   after each queue entry, and `on_engage_clicked` enabled it only at queue time. A second
   queued sequence cannot be aborted.
-- **Fixed by runmanager PR #136, opened 2026-10-18.** ~~**B13. `runmanager/__init__.py:857-858, 892-898, 903` (read).**~~
+- **Fixed by runmanager PR #136, merged 2026-10-18.** ~~**B13. `runmanager/__init__.py:857-858, 892-898, 903` (read).**~~
   `compile_labscript_async` raises on an unexpected signal without quitting the child.
   `compile_multishot_async` ignores any signal other than `done` and loops forever, and its
   `except` path calls `zmq_push_multipart(stream_port, ...)` although `stream_port=None` is
   a documented default.
-- **Fixed by runmanager PR #136, opened 2026-10-18, except the zlock in the main thread and `remote.engage()`.** ~~**B14. Smaller defects.**~~
+- **Fixed by runmanager PR #136, merged 2026-10-18, except the zlock in the main thread and `remote.engage()`.** ~~**B14. Smaller defects.**~~
   - `__init__.py:326-329`: `delete_global` leaves the `units` and `expansion` attributes in
     the file (run).
   - `__init__.py:201-217`: `copy_group` does not close `dest_f` on exception, and repeated
@@ -552,41 +552,41 @@ Paths are relative to each repo's root unless stated otherwise.
 
 ### Bugs
 
-- **Fixed by runviewer PR #77, opened 2026-10-18.** ~~**B1. `runviewer/__main__.py:1283` (read).**~~ In non-linear time, the x data passed to
+- **Fixed by runviewer PR #77, merged 2026-10-18.** ~~**B1. `runviewer/__main__.py:1283` (read).**~~ In non-linear time, the x data passed to
   `resample` is scaled but `shot.stop_time` is not. After a marker is dragged to the right,
   the trace is NaN between the unscaled stop time and the real end. `update_plots` (913)
   scales the stop time correctly.
-- **Fixed by runviewer PR #77, opened 2026-10-18.** ~~**B2. `runviewer/__main__.py:1024` (read).**~~ `scaled_t = t` applies no scaling to shutter
+- **Fixed by runviewer PR #77, merged 2026-10-18.** ~~**B2. `runviewer/__main__.py:1024` (read).**~~ `scaled_t = t` applies no scaling to shutter
   line positions, and `_update_non_linear_time` (545-548) later treats the positions as
   scaled.
-- **Fixed by runviewer PR #77, opened 2026-10-18.** ~~**B3. `runviewer/__main__.py:522, 535, 579-582` (read).**~~ The loop
+- **Fixed by runviewer PR #77, merged 2026-10-18.** ~~**B3. `runviewer/__main__.py:522, 535, 579-582` (read).**~~ The loop
   `for shot in self.shutter_lines[channel]` rebinds the marker shot, so the axis ticks use
   the stop time of the last shot that has shutter lines.
-- **Fixed by runviewer PR #77, opened 2026-10-18.** ~~**B4. `runviewer/__main__.py:962-968` (read).**~~ Each `update_plots` call adds a full set
+- **Fixed by runviewer PR #77, merged 2026-10-18.** ~~**B4. `runviewer/__main__.py:962-968` (read).**~~ Each `update_plots` call adds a full set
   of marker `InfiniteLine`s to every visible existing plot. The lines are only removed in
   `_update_markers` (368-376). Line 964 also builds `QColor(-1,-1,-1)` for the default
   colour.
-- **Fixed by runviewer PR #77, opened 2026-10-18.** ~~**B5. `runviewer/__main__.py:1287-1289, 1567-1574` (read).**~~ `__pool_resample` has
+- **Fixed by runviewer PR #77, merged 2026-10-18.** ~~**B5. `runviewer/__main__.py:1287-1289, 1567-1574` (read).**~~ `__pool_resample` has
   `except Exception: pass`, so any resample error gives an empty plot. `_load_device` logs
   parser failures at INFO and continues.
 - **Not a bug: runviewer resolves parsers through `labscript_utils.device_registry`, which tolerates a missing labscript-devices (checked 2026-10-18).** ~~**B6. `runviewer/pyproject.toml` (read).**~~ `labscript-devices` is not a dependency,
   although the parsers come from `labscript_devices`. Installed alone, runviewer shows no
   traces.
-- **Fixed by runviewer PR #77, opened 2026-10-18.** ~~**B7. `runviewer/__main__.py:450-453` (read).**~~ The tooltip value index is
+- **Fixed by runviewer PR #77, merged 2026-10-18.** ~~**B7. `runviewer/__main__.py:450-453` (read).**~~ The tooltip value index is
   `argmin() - 1`, which is -1 when the cursor is nearest the first point. Only the first
   data item is read, and a plot with no data items raises `IndexError` on every mouse move.
-- **Fixed by runviewer PR #77, opened 2026-10-18.** ~~**B8. `runviewer/__main__.py:715, 743, 755, 813-815` (read).**~~ The markers combobox is
+- **Fixed by runviewer PR #77, merged 2026-10-18.** ~~**B8. `runviewer/__main__.py:715, 743, 755, 813-815` (read).**~~ The markers combobox is
   keyed by basename, so two shots with the same filename in different folders enable,
   disable or remove the wrong entry.
-- **Fixed by runviewer PR #77, opened 2026-10-18.** ~~**B9. `runviewer/__main__.py:396-397, 424` (read).**~~ `delta_t` is not recomputed for the
+- **Fixed by runviewer PR #77, merged 2026-10-18.** ~~**B9. `runviewer/__main__.py:396-397, 424` (read).**~~ `delta_t` is not recomputed for the
   final marker, so its label repeats the preceding duration. With `stop_time == 0`,
   `delta_t` is unbound and `_space_markers_evenly` (474) divides by zero.
-- **Fixed by runviewer PR #77, opened 2026-10-18.** ~~**B10. `runviewer/__main__.py:614-629` (read).**~~ Loading a channel config moves rows in
+- **Fixed by runviewer PR #77, merged 2026-10-18.** ~~**B10. `runviewer/__main__.py:614-629` (read).**~~ Loading a channel config moves rows in
   the model but does not call `update_plot_positions`.
-- **Fixed by runviewer PR #77, opened 2026-10-18.** ~~**B11. `runviewer/__main__.py:706-719, 937-949` (read).**~~ Plot items for unchecked
+- **Fixed by runviewer PR #77, merged 2026-10-18.** ~~**B11. `runviewer/__main__.py:706-719, 937-949` (read).**~~ Plot items for unchecked
   channels are kept after a shot is removed, which keeps the `Shot` and its traces
   referenced.
-- **Fixed by runviewer PR #77, opened 2026-10-18.** ~~**B12. `runviewer/__main__.py:1584-1590` (plausible).**~~ `Shot.scaled_times` is not
+- **Fixed by runviewer PR #77, merged 2026-10-18.** ~~**B12. `runviewer/__main__.py:1584-1590` (plausible).**~~ `Shot.scaled_times` is not
   thread-safe: pool threads for different channels can each reset `_scaled_x`. The
   resulting `KeyError` is swallowed by B5.
 
@@ -618,55 +618,55 @@ Paths are relative to each repo's root unless stated otherwise.
 
 ### Bugs
 
-- **Fixed by lyse PR #147, opened 2026-10-18.** ~~**B1. `lyse/analysis_subprocess.py:61` (read).**~~ The module-level
+- **Fixed by lyse PR #147, merged 2026-10-18.** ~~**B1. `lyse/analysis_subprocess.py:61` (read).**~~ The module-level
   `LABCONFIG.get('lyse', 'autoload_config_file')` is unguarded, although `__main__.py:184-187`
   treats the option as optional. With a labconfig that lacks the option, every analysis
   worker raises at import, and `start_worker` blocks the GUI thread for the 30 s startup
   timeout. Plot geometry ini files are also always written next to the autoload config.
-- **Fixed by lyse PR #147, opened 2026-10-18.** ~~**B2. `lyse/filebox.py:879-884, 908-911` (read).**~~ Only `IOError` is handled per file.
+- **Fixed by lyse PR #147, merged 2026-10-18.** ~~**B2. `lyse/filebox.py:879-884, 908-911` (read).**~~ Only `IOError` is handled per file.
   `get_dataframe_from_shot` raises `KeyError` for any HDF5 file without a `globals` group,
   such as a file created by `lyse.Sequence`. The whole incoming batch is then discarded,
   and `n_shots_added` is not reset, so the progress bar stays visible.
-- **Fixed by lyse PR #147, opened 2026-10-18.** ~~**B3. `lyse/__main__.py:498, 486` (run).**~~ `reset_index()` without `drop=True` when
+- **Fixed by lyse PR #147, merged 2026-10-18.** ~~**B3. `lyse/__main__.py:498, 486` (run).**~~ `reset_index()` without `drop=True` when
   loading a saved dataframe inserts a column `('index', '')`, which appears in the filebox
   and in `lyse.data()`.
-- **Fixed by lyse PR #147, opened 2026-10-18.** ~~**B4. `lyse/communication.py:82` (run).**~~ The result of `df.infer_objects()` is
+- **Fixed by lyse PR #147, merged 2026-10-18.** ~~**B4. `lyse/communication.py:82` (run).**~~ The result of `df.infer_objects()` is
   discarded, so object columns are sent as object. `__main__.py:461` has the same error.
   `DataFrameModel.infer_objects` (`filebox.py:450`) is correct but has no callers.
-- **Fixed by lyse PR #147, opened 2026-10-18.** ~~**B5. `lyse/__main__.py:271, 467` (read).**~~ `self.app` does not exist on `Lyse`. "Revert
+- **Fixed by lyse PR #147, merged 2026-10-18.** ~~**B5. `lyse/__main__.py:271, 467` (read).**~~ `self.app` does not exist on `Lyse`. "Revert
   configuration" with nothing to revert, and "Save dataframe" with an empty dataframe, raise
   `AttributeError`.
-- **Fixed by lyse PR #147, opened 2026-10-18.** ~~**B6. `lyse/__init__.py:1036-1044, 1076-1080` (read).**~~ `get_globals_expansion` and
+- **Fixed by lyse PR #147, merged 2026-10-18.** ~~**B6. `lyse/__init__.py:1036-1044, 1076-1080` (read).**~~ `get_globals_expansion` and
   `get_units` test `'expansion' in name` and `'units' in name` on the visited path, which
   is true for a globals group named e.g. `units_tests`. The test should be on
   `name.split('/')[-1]`.
-- **Fixed by lyse PR #147, opened 2026-10-18.** ~~**B7. `lyse/__init__.py:58-62` (read).**~~ The `sys.argv` check runs in every process that
+- **Fixed by lyse PR #147, merged 2026-10-18.** ~~**B7. `lyse/__init__.py:58-62` (read).**~~ The `sys.argv` check runs in every process that
   imports lyse. In a Jupyter kernel or pytest it emits the `FutureWarning` and sets
   `lyse.path = sys.argv[1]`.
-- **Fixed by lyse PR #145 (the dict cell) and lyse PR #147 (the rest), opened 2026-10-18.** ~~**B8. `lyse/__init__.py:671-676` and `dataframe_utilities.py:62-68` (read; dict-cell
+- **Fixed by lyse PR #145 (the dict cell) and lyse PR #147 (the rest), merged 2026-10-18.** ~~**B8. `lyse/__init__.py:671-676` and `dataframe_utilities.py:62-68` (read; dict-cell
   behaviour run).**~~ The live dataframe update differs from a reload from file.
   - ~~A dict result is one object cell live, and sub-columns after reload.~~ Fixed by lyse PR
-    #145, opened 2026-10-18.
+    #145, merged 2026-10-18.
   - `group='results/a/b'` creates a live column that never appears on reload.
   - `group='/results/x'` gets no live update.
   - A tuple stays a tuple live and becomes a list on reload.
-- **Fixed by lyse PR #147, opened 2026-10-18.** ~~**B9. `lyse/dataframe_utilities.py:66-106` (read).**~~ Row keys collide without warning. A
+- **Fixed by lyse PR #147, merged 2026-10-18.** ~~**B9. `lyse/dataframe_utilities.py:66-106` (read).**~~ Row keys collide without warning. A
   results group with the same name as a global replaces that global's column. A script
   named `sequence.py`, `labscript.py` or `filepath.py` has its results overwritten.
-- **Fixed by lyse PR #147, opened 2026-10-18.** ~~**B10. `lyse/__init__.py:958-974` (read).**~~ `Run.get_globals` returns raw `dict(attrs)`,
+- **Fixed by lyse PR #147, merged 2026-10-18.** ~~**B10. `lyse/__init__.py:958-974` (read).**~~ `Run.get_globals` returns raw `dict(attrs)`,
   unlike `shot_utils.get_shot_globals`. A None global is returned as a null
   `h5py.Reference`, and bools as `np.bool_`.
-- **Fixed by lyse PR #147, opened 2026-10-18.** ~~**B11. `lyse/analysis_subprocess.py:385` (plausible).**~~ Only `Exception` is caught around
+- **Fixed by lyse PR #147, merged 2026-10-18.** ~~**B11. `lyse/analysis_subprocess.py:385` (plausible).**~~ Only `Exception` is caught around
   the user script. A script that calls `sys.exit()` leaves the worker's mainloop thread
   blocked while holding `kill_lock`, and the GUI's analysis thread waits until the user
   restarts the worker.
-- **Fixed by lyse PR #147, opened 2026-10-18.** ~~**B12. `lyse/filebox.py:637-646` (run for the format failure; trigger plausible).**~~
+- **Fixed by lyse PR #147, merged 2026-10-18.** ~~**B12. `lyse/filebox.py:637-646` (run for the format failure; trigger plausible).**~~
   `'{:04d}'.format(val)` fails when the `run number` column is float64, which happens if
   any loaded shot lacks the attribute. `renumber_rows` then raises part-way through
   `add_files`.
-- **Fixed by lyse PR #147, opened 2026-10-18.** ~~**B13. `lyse/filebox.py:386-395`, `routines.py:193-202` (read).**~~ After the "No hdf5
+- **Fixed by lyse PR #147, merged 2026-10-18.** ~~**B13. `lyse/filebox.py:386-395`, `routines.py:193-202` (read).**~~ After the "No hdf5
   viewer / editor specified" dialog, the code does not return and runs `Popen([''] + args)`.
-- **Fixed by lyse PR #147, opened 2026-10-18.** ~~**B14. `lyse/communication.py:60-64` with `__main__.py:137, 161` (plausible).**~~ The
+- **Fixed by lyse PR #147, merged 2026-10-18.** ~~**B14. `lyse/communication.py:60-64` with `__main__.py:137, 161` (plausible).**~~ The
   server starts before `self.filebox` exists. A shot submitted by BLACS during lyse startup
   gets an `AttributeError` reply and is lost.
 
@@ -709,12 +709,12 @@ Paths are relative to each repo's root unless stated otherwise.
 
 ### Bugs
 
-- **Fixed by labscript-utils PR #135, opened 2026-10-18.** ~~**B1. `labscript_utils/qtwidgets/digitaloutput.py:53-57`, `enumoutput.py:135-139` (run on
+- **Fixed by labscript-utils PR #135, merged 2026-10-18.** ~~**B1. `labscript_utils/qtwidgets/digitaloutput.py:53-57`, `enumoutput.py:135-139` (run on
   PyQt6 and PySide6).**~~ The wheel-forwarding branch is guarded by `QT_ENV != PYQT5`, which
   used to select PyQt4 and now selects Qt6. It calls `event.pos()`, `globalPos()`, `delta()`
   and `orientation()`, none of which exist on a Qt6 `QWheelEvent`. Scrolling over a locked
   `DigitalOutput` raises `AttributeError` for every wheel event.
-- **Fixed by labscript-utils PR #135, opened 2026-10-18, except the round-trip types, which are the stored format.** ~~**B2. `labscript_utils/properties.py:79-94, 60-64, 19` (run).**~~
+- **Fixed by labscript-utils PR #135, merged 2026-10-18, except the round-trip types, which are the stored format.** ~~**B2. `labscript_utils/properties.py:79-94, 60-64, 19` (run).**~~
   - `set_attributes` falls back to JSON only for a `TypeError` containing "has no native
     HDF5 equivalent". `{'k': ['a', 1]}` and `{'k': [[1,2],[3]]}` raise other errors and do
     not reach the JSON path.
@@ -722,13 +722,13 @@ Paths are relative to each repo's root unless stated otherwise.
     bare `TypeError`.
   - Round-trip types depend on content: `['a','b']` returns as an object ndarray,
     `['a', None]` as a list, and `[]` as an empty float64 array.
-- **Fixed by labscript-utils PR #135, opened 2026-10-18.** ~~**B3. `labscript_utils/double_import_denier.py:133-136, 90-107` (run).**~~
+- **Fixed by labscript-utils PR #135, merged 2026-10-18.** ~~**B3. `labscript_utils/double_import_denier.py:133-136, 90-107` (run).**~~
   `sys.tracebacklimit = 2` is restored only by a temporary `sys.excepthook`. If the
   double-import `RuntimeError` is caught, the limit is 2 for the rest of the process.
   Lines 64-65: all frozen stdlib modules map to the key `<cwd>/frozen`, so two frozen
   modules first imported after `enable()` raise a false double import. Line 57 passes
   `path` as the `package` argument of `find_spec`.
-- **Fixed by labscript-utils PR #135, opened 2026-10-18, except the OptotuneLens default calibration.** ~~**B4. Other unit conversion bugs (run).**~~
+- **Fixed by labscript-utils PR #135, merged 2026-10-18, except the OptotuneLens default calibration.** ~~**B4. Other unit conversion bugs (run).**~~
   - `NovaTechDDS9m.py:22-25, 43-46` and `generic_frequency.py:26-27` mutate a class-level
     `derived_units` in place, so a subclass that defines `derived_units` gains duplicate
     units on each instantiation.
@@ -737,43 +737,43 @@ Paths are relative to each repo's root unless stated otherwise.
     arrays.
   - Every class except `BidirectionalCoilDriver` has `calibration_parameters=None` and then
     calls `.setdefault` on it.
-- **Fixed by labscript-utils PR #135, opened 2026-10-18.** ~~**B5. `labscript_utils/qtwidgets/imageoutput.py:180` (run).**~~ `QEvent` is undefined. The
+- **Fixed by labscript-utils PR #135, merged 2026-10-18.** ~~**B5. `labscript_utils/qtwidgets/imageoutput.py:180` (run).**~~ `QEvent` is undefined. The
   name is evaluated for every event delivered while the `ImageOutput` is disabled, so each
   one raises `NameError`. `ImageOutput` is used by `LightCrafterDMD`.
-- **Fixed by labscript-utils PR #135, opened 2026-10-18.** ~~**B6. `labscript_utils/qtwidgets/headerview_with_widgets.py:214-218` (run).**~~
+- **Fixed by labscript-utils PR #135, merged 2026-10-18.** ~~**B6. `labscript_utils/qtwidgets/headerview_with_widgets.py:214-218` (run).**~~
   `on_columnsRemoved` iterates `self.widgets.items()` and calls `setWidget(idx, None)`,
   which deletes from that dict. Line 155 raises on `max()` of an empty sequence when all
   sections are hidden. lyse does not currently remove widget columns.
-- **Fixed by labscript-utils PR #135, opened 2026-10-18.** ~~**B7. `labscript_utils/qtwidgets/toolpalette.py:188, 204, 129/132, 174` (run).**~~ The
+- **Fixed by labscript-utils PR #135, merged 2026-10-18.** ~~**B7. `labscript_utils/qtwidgets/toolpalette.py:188, 204, 129/132, 174` (run).**~~ The
   loops in `create_linked_width_group` and `add_to_linked_width_group` rebind the
   `width_group_name` parameter. `reorder_palette_by_index` calls the undefined `count()`.
   BLACS does not call these methods.
-- **Fixed by labscript-utils PR #135, opened 2026-10-18.** ~~**B8. `labscript_utils/labconfig.py:82-90` (read).**~~ Only `NoOptionError` is caught, so a
+- **Fixed by labscript-utils PR #135, merged 2026-10-18.** ~~**B8. `labscript_utils/labconfig.py:82-90` (read).**~~ Only `NoOptionError` is caught, so a
   missing section or missing labconfig file gives a raw `NoSectionError`. `shared_drive.py:16`
   triggers this at import when `[paths]` is absent. Line 47 mutates the caller's `defaults`
   dict.
-- **Fixed by labscript-utils PR #135, opened 2026-10-18, except the macOS `scutil` call.** ~~**B9. `labscript_profile/__init__.py:53-63` and `labscript-suite.pth` (read).**~~ The
+- **Fixed by labscript-utils PR #135, merged 2026-10-18, except the macOS `scutil` call.** ~~**B9. `labscript_profile/__init__.py:53-63` and `labscript-suite.pth` (read).**~~ The
   `.pth` code runs at every interpreter start and catches only `ModuleNotFoundError`. A
   labconfig with a parse error prints a traceback on every Python start in the
   environment. It uses `BasicInterpolation` without the env-var expansion of `LabConfig`,
   so `userlib = $HOME/...` is not added to `sys.path`. On macOS, `hostname()` runs `scutil`
   as a subprocess on every interpreter start.
-- **Fixed by labscript-utils PR #135, opened 2026-10-18.** ~~**B10. `labscript_utils/ls_zprocess.py:260, 105-110` (read).**~~
+- **Fixed by labscript-utils PR #135, merged 2026-10-18.** ~~**B10. `labscript_utils/ls_zprocess.py:260, 105-110` (read).**~~
   `issubclass(socket_class, SecureContext)` should test `SecureSocket`. The "security not
   configured" check is inside the `except` for a missing `allow_insecure`, so an explicit
   `allow_insecure = False` with no shared secret skips the explanatory error. Line 179
   names the nonexistent `labscript_utils.zprocess.ZMQServer`.
-- **Fixed by labscript-utils PR #135, opened 2026-10-18.** ~~**B11. `labscript_utils/filewatcher.py:70-73, 212, 230, 49-53` (read).**~~ The docstring
+- **Fixed by labscript-utils PR #135, merged 2026-10-18.** ~~**B11. `labscript_utils/filewatcher.py:70-73, 212, 230, 49-53` (read).**~~ The docstring
   allows a single path string, but `set(files)` splits a string into characters.
   `getfullargspec` counts `self`, so a two-argument bound-method callback is treated as a
   three-argument callback.
-- **Fixed by labscript-utils PR #135, opened 2026-10-18.** ~~**B12. `labscript_utils/connections.py:112, 114, 241` (read).**~~ `assert_superset` builds
+- **Fixed by labscript-utils PR #135, merged 2026-10-18.** ~~**B12. `labscript_utils/connections.py:112, 114, 241` (read).**~~ `assert_superset` builds
   the per-key diff lines without a newline. Line 241 is `name == _ensure_str(name)`, which
   is a comparison with no effect. Lines 358-365 are a commented-out test block with a
   personal path.
-- **Fixed by labscript-utils PR #135, opened 2026-10-18.** ~~**B13. `labscript_utils/__init__.py:62-74` (run).**~~ `dedent("a\n\n")` leaves
+- **Fixed by labscript-utils PR #135, merged 2026-10-18.** ~~**B13. `labscript_utils/__init__.py:62-74` (run).**~~ `dedent("a\n\n")` leaves
   `indentation = inf` and raises `TypeError`.
-- **Fixed by labscript-utils PR #135, opened 2026-10-18.** ~~**B14. Minor widget bugs.**~~
+- **Fixed by labscript-utils PR #135, merged 2026-10-18.** ~~**B14. Minor widget bugs.**~~
   - `qtwidgets/elide_label.py:36, 43`: `self.widget is None` tests the bound method and is
     always False (run).
   - `analogoutput.py:107`: the context menu position comes from the line edit but is mapped
@@ -782,13 +782,13 @@ Paths are relative to each repo's root unless stated otherwise.
     creates a `QMenu` that is never deleted.
   - `digitaloutput.py:102`: the inverted setter computes `not state` before `int()`, so the
     string `'0'` sets the wrong state.
-- **Fixed by labscript-utils PR #135, opened 2026-10-18.** ~~**B15. `labscript_utils/device_registry/_device_registry.py:212-213, 221-222` (read).**~~ A
+- **Fixed by labscript-utils PR #135, merged 2026-10-18.** ~~**B15. `labscript_utils/device_registry/_device_registry.py:212-213, 221-222` (read).**~~ A
   device registered with `runviewer_parser=None` raises
   `AttributeError: 'NoneType' object has no attribute 'split'` instead of a "no parser
   registered" message. Eight `register_classes.py` files pass `runviewer_parser=None`.
   After one failing `register_classes.py`, a retry of `populate_registry` raises "already
   registered".
-- **B16. Fixed** by labscript-utils PR #133, opened 2026-10-17 (the `fileno()` call; the
+- **B16. Fixed** by labscript-utils PR #133, merged 2026-10-18 (the `fileno()` call; the
   mkdir race remains). ~~**`labscript_utils/setup_logging.py:60, 68` (plausible).**~~
   `sys.stdout.fileno()` is
   called before the `sys.stdout is not None` check. Under plain `pythonw`, stdout is None.
@@ -844,7 +844,7 @@ Paths are relative to each repo's root unless stated otherwise.
   experimental feature (13).
 - **C2.** The `resample.pyx` header and README refer to `license.txt` and
   `raw/master/LICENSE`. The file is `LICENSE.txt`.
-- **Fixed by labscript-c-extensions PR #14, opened 2026-10-18 (also for `N_out = 3k + 1`).** ~~**B1. `resample.pyx:117` (run).**~~ If a caller passes `N_out` divisible by 3, the code
+- **Fixed by labscript-c-extensions PR #14, merged 2026-10-18 (also for `N_out = 3k + 1`).** ~~**B1. `resample.pyx:117` (run).**~~ If a caller passes `N_out` divisible by 3, the code
   writes `y_out[N_out]` and beyond. runviewer does not do this today.
 
 ## labscript-suite (metapackage and docs)
@@ -882,10 +882,10 @@ Paths are relative to `labscript_devices/`.
   smart cache holds a numpy array, but the incremental path calls `.append(None)` on it. A
   shot with more instructions than the previous one and no more than 10% changed raises
   `AttributeError` in `transition_to_buffered`.
-- **Fixed by labscript-devices PR #155, opened 2026-10-18.** ~~**B4. `PrawnDO/runviewer_parsers.py:85` (run).**~~ `int(chan, 16)` is applied to
+- **Fixed by labscript-devices PR #155, merged 2026-10-18.** ~~**B4. `PrawnDO/runviewer_parsers.py:85` (run).**~~ `int(chan, 16)` is applied to
   connections of the form `do3`, which raises `ValueError`. No PrawnDO output is shown in
   runviewer.
-- **Fixed by labscript-devices PR #155, opened 2026-10-18.** ~~**B5. `PrawnBlaster/runviewer_parsers.py:97-108`.**~~
+- **Fixed by labscript-devices PR #155, merged 2026-10-18.** ~~**B5. `PrawnBlaster/runviewer_parsers.py:97-108`.**~~
   - For a hardware-triggered PrawnBlaster, the final stop row is treated as a wait and
     indexes `clock_ticks[trigger_index]` past the end, so nothing clocked by a secondary
     PrawnBlaster is shown (run).
@@ -896,13 +896,13 @@ Paths are relative to `labscript_devices/`.
   timeout. Aborting a shot blocks `stop_tasks(abort=True)` in `join()` for up to the time
   until the next wait plus its timeout. When the read times out, the thread calls
   `send_resume_trigger()` during the abort.
-- **Fixed by labscript-devices PR #155, opened 2026-10-18.** ~~**B7. `PulseBlaster.py:1216-1260` (read).**~~ `PulseBlasterParser` treats `LONG_DELAY` rows
+- **Fixed by labscript-devices PR #155, merged 2026-10-18.** ~~**B7. `PulseBlaster.py:1216-1260` (read).**~~ `PulseBlasterParser` treats `LONG_DELAY` rows
   as a single delay of `length` and ignores `inst_data`. Any instruction longer than about
   57 s is shown too short.
-- **Fixed by labscript-devices PR #153 (issue #79), opened 2026-10-18.** ~~**B8. `PulseBlasterESRPro500.py` (read).**~~ There is no `@runviewer_parser` class.
+- **Fixed by labscript-devices PR #153 (issue #79), merged 2026-10-18.** ~~**B8. `PulseBlasterESRPro500.py` (read).**~~ There is no `@runviewer_parser` class.
   runviewer raises "No class decorated as a runviewer_parser found", and since the device
   is normally the master pseudoclock, the whole shot is not displayed.
-- **Fixed by labscript-devices PR #155, opened 2026-10-18.** ~~**B9. `PulseBlaster.py:648` (read).**~~
+- **Fixed by labscript-devices PR #155, merged 2026-10-18.** ~~**B9. `PulseBlaster.py:648` (read).**~~
   `PulseBlasterDirectOutputs.clock_limit = PulseBlaster.clock_limit` (8.3 MHz) is fixed for
   all subclasses. Direct outputs on ESR-PRO-200/500 are rejected by labscript when edges
   are closer than 120 ns.
@@ -916,7 +916,7 @@ Paths are relative to `labscript_devices/`.
   completes without an error and with fewer images, which are paired with the first
   exposures by `zip`. Spinnaker's `grab_multiple` has no retry loop, so a `GetNextImage`
   timeout takes this path.
-- **Fixed by labscript-devices PR #155, opened 2026-10-18.** ~~**B12. `IMAQdxCamera/blacs_tabs.py:264` (read).**~~ `QtGui.QApplication.instance()` does
+- **Fixed by labscript-devices PR #155, merged 2026-10-18.** ~~**B12. `IMAQdxCamera/blacs_tabs.py:264` (read).**~~ `QtGui.QApplication.instance()` does
   not exist under Qt5 with qtutils 4. The "Copy" button in the attributes dialog raises
   `AttributeError`.
 - **B13. `NovaTechDDS9M.py` (read).**
@@ -928,10 +928,10 @@ Paths are relative to `labscript_devices/`.
   - Line 167: `dds` is unbound when the first connection is out of range.
   - Line 382: `self.phase_mode.decode('utf8')` on a str.
   - Lines 404-410: `except socket.timeout` never triggers for pyserial.
-- **Fixed by labscript-devices PR #155, opened 2026-10-18.** ~~**B14. `PrawnBlaster/labscript_devices.py:403-405, 429`, `PrawnDO/labscript_devices.py:288`
+- **Fixed by labscript-devices PR #155, merged 2026-10-18.** ~~**B14. `PrawnBlaster/labscript_devices.py:403-405, 429`, `PrawnDO/labscript_devices.py:288`
   (plausible).**~~ There are no range checks before storing into uint32. A wait timeout or
   PrawnDO interval over 42.9 s (at 100 MHz) wraps when cast.
-- **Fixed by labscript-devices PR #155, opened 2026-10-18.** ~~**B15. `PrawnDO/labscript_devices.py:239, 244` (run).**~~
+- **Fixed by labscript-devices PR #155, merged 2026-10-18.** ~~**B15. `PrawnDO/labscript_devices.py:239, 244` (run).**~~
   `hasattr(self, "__intermediate")` is always False because the attribute is name-mangled.
   `set_initial_trigger_time()` on a clockline-triggered PrawnDO is accepted instead of
   raising.
@@ -942,7 +942,7 @@ Paths are relative to `labscript_devices/`.
     `set_acquire_state(False)` sends the bare string `'STOP'`.
   - `blacs_workers.py:16-19`, `TekScope.py:156-157`: the assert message is a separate
     statement.
-- **Fixed by labscript-devices PR #155, opened 2026-10-18.** ~~**B17. `PhaseMatrixQuickSyn.py:344` (read).**~~ `self.connection.write(b'OUTP:STAT 1')` has
+- **Fixed by labscript-devices PR #155, merged 2026-10-18.** ~~**B17. `PhaseMatrixQuickSyn.py:344` (read).**~~ `self.connection.write(b'OUTP:STAT 1')` has
   no `'\r'` terminator, so the gate command in `transition_to_buffered` is not executed.
   `update_reference_out`, `update_blanking` and `update_lock_recovery` are `pass`.
 - **B18. AndorSolis (read).** `andor_sdk/andor_utils.py:204`:
@@ -950,9 +950,9 @@ Paths are relative to `labscript_devices/`.
   the two end values are accepted. `andor_solis.py:160-165`: `EnableKeepCleans(mode)` has
   the body of `GetCurrentCamera`. `andor_solis.py:142-156, 566-571` are stubs that raise
   `NameError`.
-- **Fixed by labscript-devices PR #155, opened 2026-10-18.** ~~**B19. `PylonCamera/blacs_workers.py:129, 151` (read).**~~ `raise('Grab Error:', ...)`
+- **Fixed by labscript-devices PR #155, merged 2026-10-18.** ~~**B19. `PylonCamera/blacs_workers.py:129, 151` (read).**~~ `raise('Grab Error:', ...)`
   raises a tuple, which gives `TypeError` instead of the grab error.
-- **Fixed by labscript-devices PR #155, opened 2026-10-18.** ~~**B20. Smaller items (read).**~~
+- **Fixed by labscript-devices PR #155, merged 2026-10-18.** ~~**B20. Smaller items (read).**~~
   - `RFBlaster.py:39`: `wait_day = trigger_delay` is a typo for `wait_delay`.
   - `RFBlaster.py:~440`: the `except` clause does not catch `requests` exceptions, so the
     retry logic cannot run.

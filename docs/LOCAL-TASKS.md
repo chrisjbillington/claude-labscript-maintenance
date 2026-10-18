@@ -9,7 +9,7 @@ closed, then its row moves to Done. Delete nothing: a done row is the record.
 
 | Added | Task | Why not from the cloud | Status |
 |---|---|---|---|
-| 2026-10-18 | Remove the harness `KNOWN` markers once their fixes merge: `window_xpos` (D1) in the apps check after blacs #128, `globals_diff_shots` (runmanager B7) in the runmanager-api check after runmanager #136, `lyse.spinning_top` (D8) in the lyse check after lyse #144. Grep `harness/checks/` for `KNOWN` | the markers are needed until the fixes are on master | open |
+| 2026-10-18 | Remove the harness `KNOWN` markers once their fixes merge: `window_xpos` (D1) in the apps check after blacs #128, `globals_diff_shots` (runmanager B7) in the runmanager-api check after runmanager #136, `lyse.spinning_top` (D8) in the lyse check after lyse #144. Grep `harness/checks/` for `KNOWN` | the markers are needed until the fixes are on master | open; all three fixes are on master since 2026-10-18, so the markers can be removed |
 
 ## Done
 

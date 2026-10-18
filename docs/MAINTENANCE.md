@@ -29,6 +29,14 @@ since moved `master` of every repo. The changes that touch review items are:
 | `labscript-utils` | 22616a7 | PR #128, merged 2026-10-13 | bug fixes in zlock, excepthook, properties, ls_zprocess, splash and the header view widget |
 | `runmanager` | 08ccc99 | PR #130, merged 2026-10-17 as bfe63ba | module split of `runmanager/__init__.py`, widgets moved out of `__main__.py`, style cleanup |
 | `labscript-c-extensions` | (scope table) | PR #13, merged 2026-10-17 as b0f985d | item 19: `resample.pyx` NaN lead-in and loop bounds |
+| `labscript` | (scope table) | PRs #128 and #129, merged 2026-10-18; master 33cdb31 | items 2, 6, 7, 8; B1, B2, B4, B6 to B11 (B5 and B11 in part) |
+| `labscript-utils` | 22616a7 | PRs #133, #134 and #135, merged 2026-10-18; master c1aa2a3 | items 10, 18; B1 to B16 (B2, B4, B9 in part) |
+| `labscript-devices` | (scope table) | PRs #153, #154 and #155, merged 2026-10-18; master b6ea556 | items 3, 4, 5, 17; B4, B5, B7, B8, B9, B12, B14, B15, B17, B19, B20 |
+| `blacs` | (scope table) | PRs #128, #129 and #130, merged 2026-10-18; master cac5198 | items 11, 12, 13; B1, B2, B4 to B9 |
+| `runmanager` | 08ccc99 | PRs #134, #135 and #136, merged 2026-10-18; master 73199cb | items 9, 14; B1, B2, B3, B5 to B8, B10 to B13, B9 and B14 in part |
+| `runviewer` | (scope table) | PRs #76 and #77, merged 2026-10-18; master 38e5c0b | item 9; B1 to B5, B7 to B12 |
+| `lyse` | (scope table) | PRs #144, #145, #146 and #147, merged 2026-10-18; master c74fa4e | items 15, 16; B1 to B14 |
+| `labscript-c-extensions` | (scope table) | PR #14, merged 2026-10-18; master 80bae70 | B1: `resample` writes past `y_out` |
 
 ### labscript-utils PR #128 (ispielma)
 
@@ -126,46 +134,46 @@ unaffected. The review's line references map to the new layout as follows.
 | Item | Status |
 |---|---|
 | 1 `'a256'` dtypes | fixed, labscript PR #124, labscript-devices PR #149 and blacs PR #124, merged 2026-10-17 |
-| 2 `bitfield` dtype | fixed, labscript PR #129 (open) |
-| 3 NI analog input final read | fixed, labscript-devices PR #154 (open); verified by reading, needs a test on NI hardware |
-| 4 PrawnDO wait insertion | fixed, labscript-devices PR #154 (open) |
-| 5 PrawnBlaster and PrawnDO clock limit | fixed, labscript-devices PR #154 (open) |
-| 6 ramp tick count | fixed, labscript PR #128 (open) |
-| 7 `get_change_times` collision check | fixed, labscript PR #128 (open) |
-| 8 trigger proximity check | fixed, labscript PR #128 (open) |
-| 9 Qt6 check states | fixed, runmanager PR #135 and runviewer PR #76 (open) |
-| 10 `aom.py` `max` | fixed, labscript-utils PR #133 (open) |
-| 11 BLACS queue `get(2)` | fixed, blacs PR #129 (open); the mid-shot error poll is unchanged |
-| 12 BLACS error handlers | fixed, blacs PR #128 and blacs PR #129 (open) |
-| 13 `_rep` filename | fixed, blacs PR #129 (open) |
-| 14 preparse `task_done` | fixed, runmanager PR #135 (open) |
-| 15 lyse `blockSignals` | fixed, lyse PR #146 (open) |
-| 16 lyse on pandas 3 | fixed, lyse PR #146 (open) |
-| 17 PrawnBlaster wait without monitor | fixed, labscript-devices PR #153 (open) |
-| 18 `h5_lock` | fixed, labscript-utils PR #133 (open) |
+| 2 `bitfield` dtype | fixed, labscript PR #129, merged 2026-10-18 |
+| 3 NI analog input final read | fixed, labscript-devices PR #154, merged 2026-10-18; verified by reading, needs a test on NI hardware |
+| 4 PrawnDO wait insertion | fixed, labscript-devices PR #154, merged 2026-10-18 |
+| 5 PrawnBlaster and PrawnDO clock limit | fixed, labscript-devices PR #154, merged 2026-10-18 |
+| 6 ramp tick count | fixed, labscript PR #128, merged 2026-10-18 |
+| 7 `get_change_times` collision check | fixed, labscript PR #128, merged 2026-10-18 |
+| 8 trigger proximity check | fixed, labscript PR #128, merged 2026-10-18 |
+| 9 Qt6 check states | fixed, runmanager PR #135 and runviewer PR #76, merged 2026-10-18 |
+| 10 `aom.py` `max` | fixed, labscript-utils PR #133, merged 2026-10-18 |
+| 11 BLACS queue `get(2)` | fixed, blacs PR #129, merged 2026-10-18; the mid-shot error poll is unchanged |
+| 12 BLACS error handlers | fixed, blacs PR #128 and blacs PR #129, merged 2026-10-18 |
+| 13 `_rep` filename | fixed, blacs PR #129, merged 2026-10-18 |
+| 14 preparse `task_done` | fixed, runmanager PR #135, merged 2026-10-18 |
+| 15 lyse `blockSignals` | fixed, lyse PR #146, merged 2026-10-18 |
+| 16 lyse on pandas 3 | fixed, lyse PR #146, merged 2026-10-18 |
+| 17 PrawnBlaster wait without monitor | fixed, labscript-devices PR #153, merged 2026-10-18 |
+| 18 `h5_lock` | fixed, labscript-utils PR #133, merged 2026-10-18 |
 | 19 runviewer resampler bounds | fixed, labscript-c-extensions PR #13, merged 2026-10-17 as b0f985d |
 | 20 zlock port | fixed, labscript-utils PR #128 |
 
 Item 1 is fixed by the pull requests in the table below. Items 10 and 18 are fixed by
-labscript-utils PR #133 (open), which also fixes labscript-utils B16 (blacs #100),
-DEFECTS.md D3 and labscript-utils #60. Items 6, 7 and 8 are fixed by labscript PR #128
-(open), which also fixes labscript B1, B2, B4, B6, B7, B8, B9, B10 and most of B5 and B11,
-and labscript #16, #43 and #52. Items 12 and 17 are fixed by blacs PR #128 and labscript-devices PR #153, opened
-2026-10-18 with issue fixes. The second round of 2026-10-18 fixes items 2 (labscript
-#129), 3, 4 and 5 (labscript-devices #154), 9 (runmanager #135 and runviewer #76), 11,
-12 (the unbound `message`) and 13 (blacs #129), 14 (runmanager #135) and 15 and 16 (lyse
-#146), all open. Every Part 1 item now has a merged or open pull request; item 3 is
+labscript-utils PR #133, which also fixes labscript-utils B16 (blacs #100), DEFECTS.md D3
+and labscript-utils #60. Items 6, 7 and 8 are fixed by labscript PR #128, which also fixes
+labscript B1, B2, B4, B6, B7, B8, B9, B10 and most of B5 and B11, and labscript #16, #43
+and #52. Item 12 is fixed by blacs PR #128 and item 17 by labscript-devices PR #153, both
+of which also fix GitHub issues. The second round fixes items 2 (labscript #129), 3, 4 and 5
+(labscript-devices #154), 9 (runmanager #135 and runviewer #76), 11, 12 (the unbound
+`message`) and 13 (blacs #129), 14 (runmanager #135) and 15 and 16 (lyse #146). All of
+these were merged on 2026-10-18, so every Part 1 item is fixed on `master`; item 3 is
 verified by reading only and needs a test on NI hardware.
 
 ## Part 2 status
 
-The Part 2 bug lists are marked in place in `REVIEW.md`. As of 2026-10-18 every item has an
-open or merged pull request except: labscript B3 and the `do_checks` part of B5;
+The Part 2 bug lists are marked in place in `REVIEW.md`. As of 2026-10-18 every item is
+fixed by a merged pull request except: labscript B3 and the `do_checks` part of B5;
 blacs B3 (closing BLACS during a shot); runmanager B4 (uneven zip groups), the
 `compile_loop` timeout of B9 and two B14 items; labscript-utils B2 round-trip types, the
 OptotuneLens default calibration of B4 and the macOS `scutil` call of B9; and the
 labscript-devices items that need hardware (B1, B2, B3, B6, B10, B11, B13, B16, B18).
-runviewer B6 is not a bug. The pull requests are labscript #128, blacs #129 and #130,
+runviewer B6 is not a bug. The pull requests, all merged 2026-10-18, are labscript #128, blacs #129 and #130,
 runmanager #134 and #136, runviewer #77, lyse #145 and #147, labscript-utils #133 and
 #135, labscript-c-extensions #14 and labscript-devices #153 and #155.
 
@@ -180,15 +188,17 @@ on 2026-10-17 except runmanager #131 and labscript-suite #106, which raise compo
 pins and are held for the release sequence (`RELEASE-PLAN.md` section 5). Later on
 2026-10-17: qtutils #36 and #37 and desktop-app #34 (release sequence steps 2 and 3),
 workflow-sandbox #47 and the twelve sync PRs for defect D7 were merged, as were
-labscript-c-extensions #13 (item 19, closes runviewer #13). labscript-utils #133 and
-labscript #128 are open. On 2026-10-18: runmanager #134, blacs #128, lyse #145 and
-labscript-devices #153, the issue fixes for release sequence steps 7 to 11; all four are
-open. Later on 2026-10-18, the second round for the review Part 1 items and the small
-triaged issues: labscript #129, labscript-devices #154, runmanager #135, runviewer #76,
-blacs #129, lyse #146, labscript-utils #134, labscript-suite #109 and zprocess #32, all
-open. The third round, for the Part 2 bugs: blacs #130, labscript-devices #155, lyse #147,
-labscript-utils #135, runviewer #77, labscript-c-extensions #14 and runmanager #136, all
-open and each stacked on that repository's second-round branch.
+labscript-c-extensions #13 (item 19, closes runviewer #13). The fixes
+that followed: labscript-utils #133 and labscript #128 (opened 2026-10-17); runmanager
+#134, blacs #128, lyse #145 and labscript-devices #153, the issue fixes for release sequence steps 7
+to 11; the second round for the review Part 1 items and the small triaged issues
+(labscript #129, labscript-devices #154, runmanager #135, runviewer #76, blacs #129, lyse
+#146, labscript-utils #134, labscript-suite #109 and zprocess #32), and the third round
+for the Part 2 bugs (blacs #130, labscript-devices #155, lyse #147, labscript-utils #135,
+runviewer #77, labscript-c-extensions #14 and runmanager #136). These and lyse #144 were
+all merged on 2026-10-18 between 08:45 and 09:21 UTC. Many of their descriptions named
+several issues after one "Closes", which GitHub does not follow, so the remaining issues
+were closed by hand the same day; zprocess #16 is left open.
 
 The scheme rename needs setuptools_scm 10, which introduced the name
 `semver-pep440-release-branch` (setuptools_scm 9.2.2 does not have it); the default
