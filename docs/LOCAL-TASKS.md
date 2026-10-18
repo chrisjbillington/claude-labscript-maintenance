@@ -9,7 +9,7 @@ closed, then its row moves to Done. Delete nothing: a done row is the record.
 
 | Added | Task | Why not from the cloud | Status |
 |---|---|---|---|
-| | none | | |
+| 2026-10-18 | Finish the third fix round (REVIEW.md Part 2 bugs). Pushed and dispatched, pull requests not yet opened; drafts with the Claude note in the session scratchpad `round3/prs/<repo>.md` (replace `RUNSENTENCE` with the run sentence; stacked bases in brackets): blacs `part2-bugs` on `queue-fixes-and-defaults` [#129] (run 39094671210; B1, B4-B9), labscript-devices `part2-software-bugs` on `prawnblaster-and-esrpro500-fixes` [#153] (39094702770; B4, B5, B7, B9, B12, B14, B15, B17, B19, B20), lyse `part2-bugs` on `filebox-signals-and-pandas3` [#146] (39095000278; B1-B14), labscript-utils `part2-bugs` on `apparatus-name-check` [#134] (39095065484; B1-B15 except B16 done). Agents were still working when the usage limit was reached, branches may hold partial commits: runmanager `part2-bugs` on `check-states-and-preparse-recovery` [#135] (B1, B2, B3, B5-B11, B13, B14), runviewer `part2-bugs` on `qt6-check-states` [#76] (B1-B12), labscript-c-extensions `resample-nout` (B1). For each: review, push, dispatch, record in `TESTING.md`, open the pull request, update `PULL-REQUESTS.md`, `REVIEW.md` Part 2 marks, `MAINTENANCE.md`, `README.md`. Skipped by design: runmanager B4, blacs B3, labscript B3/B5 remainder, hardware-only labscript-devices items | the session's usage limit was reached mid-round | open |
 
 ## Done
 
