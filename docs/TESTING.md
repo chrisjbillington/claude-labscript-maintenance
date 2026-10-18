@@ -5,6 +5,24 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-18: the four fix branches on the local machine, Python 3.14, PySide6
+
+The harness ran on this machine (Python 3.14.8, PySide6, NumPy 2.5.4, Linux) with the
+branches made on 2026-10-18 installed from the clones: runmanager
+`compile-loop-and-remote-fixes` (854c5da), blacs `queue-robustness-and-window-geometry`
+(bbe883d), lyse `analysis-loop-and-dataframe-fixes` (455f19b) and labscript-devices
+`prawnblaster-and-esrpro500-fixes` (a4a5f6b), with the other components at their masters
+as of 2026-10-17. All eight steps passed (versions, profile, imports, compile, lyse,
+runviewer, runmanager-api, apps). The BLACS output of the `apps` step has no traceback:
+the first-launch `KeyError: 'window_xpos'` (defect D1) is gone with the blacs branch. The
+remaining `KNOWN` markers are runmanager B7 (`globals_diff_shots`) and D8
+(`lyse.spinning_top`, fixed by the unmerged lyse #144). The component table in the
+report lists stale commits because `install` does not refresh `repos/manifest.json`;
+the commits above are the branch heads that were installed.
+
+The GitHub Actions dispatches for the four branches are pending the branch pushes
+(`LOCAL-TASKS.md`).
+
 ## 2026-10-18: labscript-c-extensions master builds after #12 and #13
 
 Both `release.yml` runs on labscript-c-extensions `master` passed on all four runners
