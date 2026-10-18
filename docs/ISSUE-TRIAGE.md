@@ -37,16 +37,16 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 | 10 | labscript #52 duplicate output connection is silent | bug | 4 | Fix for next release (uniqueness check in `Device.add_device`); PR opened 2026-10-17: labscript #128 |
 | 11 | labscript #43 collision errors do not name outputs | feature | 4 | Fix for next release; PR opened 2026-10-17: labscript #128 |
 | 12 | labscript #41 no test suite | tooling | 4 | Fix for next release at smoke-test level |
-| 13 | zprocess #19 `curve_keypair` Not supported on conda Windows | bug (upstream) + diagnostics/docs | 4 | fix for next release (clear error, install docs) |
+| 13 | zprocess #19 `curve_keypair` Not supported on conda Windows | bug (upstream) + diagnostics/docs | 4 | fixed in zprocess #32 (opened 2026-10-18, open): clear error naming the pyzmq source, README Security section; the installation docs note is still to do |
 | 14 | runmanager #66 preparse memory blow-up counting shots | bug | 4 | fixed in runmanager #134 (opened 2026-10-18, open) |
 | 15 | runmanager #123 set_globals comment preservation with raw=True | bug | 4 | fixed in runmanager #134 (opened 2026-10-18, open); the offered PR was not used |
 | 16 | labscript-suite #56 release workflow with rc + final tag on one commit | tooling | 4 | fixed 2026-10-17: workflow-sandbox #46 and the sync PR on each of the twelve repos merged; issue closed |
 | 17 | blacs #56 window geometry restoration | bug | 3 | fixed in blacs #128 (opened 2026-10-18, open), with #52 |
 | 18 | blacs #100 setup_logging crashes when sys.stdout is None | bug | 3 | fix for next release (labscript-utils); PR opened 2026-10-17: labscript-utils #133 |
-| 19 | blacs #49 StopIteration before first yield gives fatal error | bug | 3 | fix for next release |
-| 20 | blacs #32 report which device paused the queue | feature | 3 | fix for next release |
-| 21 | blacs #7 file dialogs default to "C:\\" | feature | 3 | fix for next release |
-| 22 | blacs #72 default lyse host localhost, analysis on | feature | 3 | fix for next release |
+| 19 | blacs #49 StopIteration before first yield gives fatal error | bug | 3 | fixed in blacs #129 (opened 2026-10-18, open, stacked on #128) |
+| 20 | blacs #32 report which device paused the queue | feature | 3 | fixed in blacs #129 (opened 2026-10-18, open, stacked on #128) |
+| 21 | blacs #7 file dialogs default to "C:\\" | feature | 3 | fixed in blacs #129 (opened 2026-10-18, open, stacked on #128) |
+| 22 | blacs #72 default lyse host localhost, analysis on | feature | 3 | fixed in blacs #129 (opened 2026-10-18, open, stacked on #128) |
 | 23 | blacs #12 compile dialog unclosable when compiler child dies | bug | 3 | fix via runmanager #35 (refactor in progress), else later |
 | 24 | blacs #54 remote worker version check | feature | 3 | fix later (next release if zprocess #14 merges) |
 | 25 | labscript-devices #79 ESRPro500 missing runviewer parser, 21 vs 24 flags | bug | 3 | fixed in labscript-devices #153 (opened 2026-10-18, open): parser added and all 24 flags exposed; no short-pulse timing feature |
@@ -68,7 +68,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 | 41 | runmanager #33 abort only stops current sequence | bug | 3 | fixed in runmanager #134 (opened 2026-10-18, open) |
 | 42 | runmanager #30 no header between shot compilations | bug | 3 | fixed in runmanager #134 (opened 2026-10-18, open) |
 | 43 | runmanager #26 .h5 not appended (Linux) | bug | 3 | fixed in runmanager #134 (opened 2026-10-18, open) |
-| 44 | labscript-suite #5 apparatus name must be identifier | docs/tooling | 3 | fix for next release |
+| 44 | labscript-suite #5 apparatus name must be identifier | docs/tooling | 3 | fixed in labscript-utils #134 (validation in `labscript-profile-create`) and labscript-suite #109 (docs), both opened 2026-10-18, open |
 | 45 | labscript-suite #60 CITATION.cff in component repos | docs | 3 | fix for next release |
 | 46 | runmanager #97 remote is_compiling | feature | 3 | fix for next release if cheap |
 | 47 | runmanager #41 save window geometry | feature | 3 | fix later |
@@ -153,7 +153,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 | 126 | runmanager #37 favourite globals | feature | 2 | leave open |
 | 127 | runmanager #27 explicit save of globals | feature | 2 | leave open |
 | 128 | runmanager #44 arrow-key value stepping | feature | 2 | close as won't fix |
-| 129 | labscript-suite #59 add git to conda install line | docs | 2 | fix for next release (one word) |
+| 129 | labscript-suite #59 add git to conda install line | docs | 2 | fixed in labscript-suite #109 (opened 2026-10-18, open) |
 | 130 | labscript-suite #26 copyright headers | meta | 2 | fix for next release if cheap ("Monash University and contributors"), else later |
 | 131 | labscript-suite #103 headless/scriptable components | feature | 2 | close for legacy, pointer to rewrite |
 | 132 | labscript-suite #6 editor/hdfview in docs | docs | 2 | convert to docs |
@@ -222,7 +222,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 | 195 | runviewer #21 enabled checkbox column | UI | 1 | fix later or close |
 | 196 | runviewer #9 channel grouping | feature | 1 | leave open or remove buttons |
 | 197 | runviewer #3 rfblaster | feature | 1 | close as won't fix |
-| 198 | zprocess #16 libsodium | upstream | 1 | close as duplicate of #19 |
+| 198 | zprocess #16 libsodium | upstream | 1 | close as duplicate of #19; the clear error in zprocess #32 (opened 2026-10-18) covers it |
 | 199 | zprocess #13 venv shim | bug | 1 | close as fixed (4d7a5d3) |
 | 200 | zprocess #9 sphinx docs | docs | 1 | close as won't fix |
 | 201 | zprocess #8 zlock callback | feature | 1 | close as won't fix |
@@ -278,15 +278,15 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 - blacs #52 / #56: replace the `move()/resize()` geometry restore (`__main__.py:481-515`) with `saveGeometry()/restoreGeometry()` plus a `QScreen` bounds check; Qt6 and Windows 11 multi-monitor. Fixed in blacs #128 (opened 2026-10-18).
 - desktop-app #20: make `desktop_app/windows.py` pywin32 imports lazy so the launcher runs in an unactivated conda env. PR opened 2026-10-17: desktop-app #34.
 - blacs #100: guard `sys.stdout is None` in `labscript_utils/setup_logging.py:60` (and `sys.stderr` at `:73`).
-- blacs #49: handle `StopIteration` from the first `__next__` at `tab_base_classes.py:792`.
-- blacs #32, #7, #72: three trivial usability fixes (device names in pause status; dialog start directories from labconfig; localhost default for lyse).
+- blacs #49: handle `StopIteration` from the first `__next__` at `tab_base_classes.py:792`. Fixed in blacs #129 (opened 2026-10-18).
+- blacs #32, #7, #72: three trivial usability fixes (device names in pause status; dialog start directories from labconfig; localhost default for lyse). Fixed in blacs #129 (opened 2026-10-18).
 - blacs #57 and #97: not fixes, but launch-time rendering must be checked under PySide6 and PyQt6 before tagging.
 - blacs #54: becomes required if zprocess #14 (PAIR sockets) is merged, since mixed zprocess versions on remote worker PCs would then fail without a clear error.
 - blacs #19: delete `docs/UsingBLACS.pdf`, `docs/UsingBLACS.docx` and `docs/How to add a new device/` before the release.
 ### lyse, runviewer, zprocess, setuptools-conda, qtutils
 
 - zprocess #27: `SetConsoleMode` crash on Windows 11 / Windows Terminal when any labscript program is restarted. Two-line fix in `zprocess/utils.py:190`; needs a zprocess point release. Fixed by zprocess #28, merged 2026-10-17; issue closed. Tested on Windows 11 2026-10-17: the branch restarts BLACS from PowerShell in Windows Terminal, where 2.27.0 exits with the issue's traceback (`TESTING.md`).
-- zprocess #19 (and #16): conda defaults' Windows zeromq lacks CURVE, so secured installs fail with `ZMQError: Not supported`. Add a `zmq.has('curve')` check with a readable message and state the required pyzmq source in the release installation docs.
+- zprocess #19 (and #16): conda defaults' Windows zeromq lacks CURVE, so secured installs fail with `ZMQError: Not supported`. Add a `zmq.has('curve')` check with a readable message and state the required pyzmq source in the release installation docs. The error is in zprocess #32 (opened 2026-10-18); the docs note is still to do.
 - lyse #139: serial analysis-subprocess start-up is slower under PySide6/PyQt6, which the release moves users to. Fixed in lyse #145 (opened 2026-10-18).
 - lyse #14 and #90: small, long-standing behaviour bugs with contained fixes. Fixed in lyse #145 (opened 2026-10-18).
 - runviewer #13: resampler drops short pulses at t=0; labscript-c-extensions must be rebuilt for Python 3.13 to 3.15 anyway, so include the fix. PR opened 2026-10-17: labscript-c-extensions #13.
@@ -298,9 +298,9 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 - runmanager #66 (+ #50): preparse materialises the full parameter space to count shots; compute the count from axis lengths. Fixed in runmanager #134 (opened 2026-10-18).
 - runmanager #123: `remote.set_globals(raw=True)` must not append comments; reporter offered a PR. Fixed in runmanager #134 (opened 2026-10-18).
 - runmanager #33, #30, #26: trivial compile-loop/GUI fixes (drain queue on abort; header line per shot; append `.h5`). Fixed in runmanager #134 (opened 2026-10-18).
-- labscript-suite #5: validate the apparatus name in `labscript-profile-create` and document it.
+- labscript-suite #5: validate the apparatus name in `labscript-profile-create` and document it. Fixed in labscript-utils #134 and labscript-suite #109 (opened 2026-10-18).
 - labscript-suite #60: add `CITATION.cff` to the component repos.
-- labscript-suite #59: add the agreed note that `git` must be available in the labscript env (`conda install git`), or drop that page.
+- labscript-suite #59: add the agreed note that `git` must be available in the labscript env (`conda install git`), or drop that page. Fixed in labscript-suite #109 (opened 2026-10-18).
 - labscript-suite #105 (indirect): bump `requires-python` (currently `>=3.8`) and the component version pins in the meta-package and runmanager `pyproject.toml` for the 3.11-3.15 release; optionally add a uv developer-install docs page.
 
 ## 3. Detailed per-repo reports
@@ -2111,10 +2111,10 @@ unless a full path is given.
 | 4 | desktop-app #20 launcher imports pywin32 before activating the env | bug | 4 | fix for next release; PR opened 2026-10-17: desktop-app #34 |
 | 5 | blacs #56 window geometry restoration | bug | 3 | fixed in blacs #128 (opened 2026-10-18, open), with #52 |
 | 6 | blacs #100 setup_logging crashes when sys.stdout is None | bug | 3 | fix for next release (labscript-utils) |
-| 7 | blacs #49 StopIteration before first yield gives fatal error | bug | 3 | fix for next release |
-| 8 | blacs #32 report which device paused the queue | feature | 3 | fix for next release |
-| 9 | blacs #7 file dialogs default to "C:\\" | feature | 3 | fix for next release |
-| 10 | blacs #72 default lyse host localhost, analysis on | feature | 3 | fix for next release |
+| 7 | blacs #49 StopIteration before first yield gives fatal error | bug | 3 | fixed in blacs #129 (opened 2026-10-18, open, stacked on #128) |
+| 8 | blacs #32 report which device paused the queue | feature | 3 | fixed in blacs #129 (opened 2026-10-18, open, stacked on #128) |
+| 9 | blacs #7 file dialogs default to "C:\\" | feature | 3 | fixed in blacs #129 (opened 2026-10-18, open, stacked on #128) |
+| 10 | blacs #72 default lyse host localhost, analysis on | feature | 3 | fixed in blacs #129 (opened 2026-10-18, open, stacked on #128) |
 | 11 | blacs #12 compile dialog unclosable when compiler child dies | bug | 3 | fix via runmanager #35 (refactor in progress), else later |
 | 12 | blacs #54 remote worker version check | feature | 3 | fix later (next release if zprocess #14 merges) |
 | 13 | blacs #58 final values for custom-UI tabs | feature | 2 | fix later |
@@ -2149,8 +2149,8 @@ unless a full path is given.
 - blacs #52 / #56: replace the `move()/resize()` geometry restore (`__main__.py:481-515`) with `saveGeometry()/restoreGeometry()` plus a `QScreen` bounds check; Qt6 and Windows 11 multi-monitor. Fixed in blacs #128 (opened 2026-10-18).
 - desktop-app #20: make `desktop_app/windows.py` pywin32 imports lazy so the launcher runs in an unactivated conda env. PR opened 2026-10-17: desktop-app #34.
 - blacs #100: guard `sys.stdout is None` in `labscript_utils/setup_logging.py:60` (and `sys.stderr` at `:73`).
-- blacs #49: handle `StopIteration` from the first `__next__` at `tab_base_classes.py:792`.
-- blacs #32, #7, #72: three trivial usability fixes (device names in pause status; dialog start directories from labconfig; localhost default for lyse).
+- blacs #49: handle `StopIteration` from the first `__next__` at `tab_base_classes.py:792`. Fixed in blacs #129 (opened 2026-10-18).
+- blacs #32, #7, #72: three trivial usability fixes (device names in pause status; dialog start directories from labconfig; localhost default for lyse). Fixed in blacs #129 (opened 2026-10-18).
 - blacs #57 and #97: not fixes, but launch-time rendering must be checked under PySide6 and PyQt6 before tagging.
 - blacs #54: becomes required if zprocess #14 (PAIR sockets) is merged, since mixed zprocess versions on remote worker PCs would then fail without a clear error.
 - blacs #19: delete `docs/UsingBLACS.pdf`, `docs/UsingBLACS.docx` and `docs/How to add a new device/` before the release.
@@ -2840,7 +2840,7 @@ Reviewed in the style of PR-REVIEW.md section 2. Head `453459d` (master merged i
 | Rank | Issue | Type | Importance | Action |
 |---|---|---|---|---|
 | 1 | zprocess #27 `disable_quick_edit` crash on ConPTY | bug (crash, Windows 11) | 5 | fix for next release |
-| 2 | zprocess #19 `curve_keypair` Not supported on conda Windows | bug (upstream) + diagnostics/docs | 4 | fix for next release (clear error, install docs) |
+| 2 | zprocess #19 `curve_keypair` Not supported on conda Windows | bug (upstream) + diagnostics/docs | 4 | fixed in zprocess #32 (opened 2026-10-18, open): clear error naming the pyzmq source, README Security section; the installation docs note is still to do |
 | 3 | lyse #14 multishot runs while paused | bug | 3 | fixed in lyse #145 (opened 2026-10-18, open) |
 | 4 | lyse #90 dict results flattened inconsistently | bug | 3 | fixed in lyse #145 (opened 2026-10-18, open) |
 | 5 | lyse #139 serial subprocess start-up | bug (performance) | 3 | fixed in lyse #145 (opened 2026-10-18, open) |
@@ -2883,7 +2883,7 @@ Reviewed in the style of PR-REVIEW.md section 2. Head `453459d` (master merged i
 | 42 | runviewer #21 enabled checkbox column | UI | 1 | fix later or close |
 | 43 | runviewer #9 channel grouping | feature | 1 | leave open or remove buttons |
 | 44 | runviewer #3 rfblaster | feature | 1 | close as won't fix |
-| 45 | zprocess #16 libsodium | upstream | 1 | close as duplicate of #19 |
+| 45 | zprocess #16 libsodium | upstream | 1 | close as duplicate of #19; the clear error in zprocess #32 (opened 2026-10-18) covers it |
 | 46 | zprocess #13 venv shim | bug | 1 | close as fixed (4d7a5d3) |
 | 47 | zprocess #9 sphinx docs | docs | 1 | close as won't fix |
 | 48 | zprocess #8 zlock callback | feature | 1 | close as won't fix |
@@ -2894,7 +2894,7 @@ Reviewed in the style of PR-REVIEW.md section 2. Head `453459d` (master merged i
 ### Release-relevant issues
 
 - zprocess #27: `SetConsoleMode` crash on Windows 11 / Windows Terminal when any labscript program is restarted. Two-line fix in `zprocess/utils.py:190`; needs a zprocess point release. Fixed by zprocess #28, merged 2026-10-17; issue closed. Tested on Windows 11 2026-10-17: the branch restarts BLACS from PowerShell in Windows Terminal, where 2.27.0 exits with the issue's traceback (`TESTING.md`).
-- zprocess #19 (and #16): conda defaults' Windows zeromq lacks CURVE, so secured installs fail with `ZMQError: Not supported`. Add a `zmq.has('curve')` check with a readable message and state the required pyzmq source in the release installation docs.
+- zprocess #19 (and #16): conda defaults' Windows zeromq lacks CURVE, so secured installs fail with `ZMQError: Not supported`. Add a `zmq.has('curve')` check with a readable message and state the required pyzmq source in the release installation docs. The error is in zprocess #32 (opened 2026-10-18); the docs note is still to do.
 - lyse #139: serial analysis-subprocess start-up is slower under PySide6/PyQt6, which the release moves users to. Fixed in lyse #145 (opened 2026-10-18).
 - lyse #14 and #90: small, long-standing behaviour bugs with contained fixes. Fixed in lyse #145 (opened 2026-10-18).
 - runviewer #13: resampler drops short pulses at t=0; labscript-c-extensions must be rebuilt for Python 3.13 to 3.15 anyway, so include the fix. PR opened 2026-10-17: labscript-c-extensions #13.
@@ -3585,7 +3585,7 @@ Sources and limits:
 | 4 | runmanager #33 abort only stops current sequence | bug | 3 | fixed in runmanager #134 (opened 2026-10-18, open) |
 | 5 | runmanager #30 no header between shot compilations | bug | 3 | fixed in runmanager #134 (opened 2026-10-18, open) |
 | 6 | runmanager #26 .h5 not appended (Linux) | bug | 3 | fixed in runmanager #134 (opened 2026-10-18, open) |
-| 7 | labscript-suite #5 apparatus name must be identifier | docs/tooling | 3 | fix for next release |
+| 7 | labscript-suite #5 apparatus name must be identifier | docs/tooling | 3 | fixed in labscript-utils #134 (validation in `labscript-profile-create`) and labscript-suite #109 (docs), both opened 2026-10-18, open |
 | 8 | labscript-suite #60 CITATION.cff in component repos | docs | 3 | fix for next release |
 | 9 | runmanager #97 remote is_compiling | feature | 3 | fix for next release if cheap |
 | 10 | runmanager #41 save window geometry | feature | 3 | fix later |
@@ -3606,7 +3606,7 @@ Sources and limits:
 | 25 | runmanager #37 favourite globals | feature | 2 | leave open |
 | 26 | runmanager #27 explicit save of globals | feature | 2 | leave open |
 | 27 | runmanager #44 arrow-key value stepping | feature | 2 | close as won't fix |
-| 28 | labscript-suite #59 add git to conda install line | docs | 2 | fix for next release (one word) |
+| 28 | labscript-suite #59 add git to conda install line | docs | 2 | fixed in labscript-suite #109 (opened 2026-10-18, open) |
 | 29 | labscript-suite #26 copyright headers | meta | 2 | fix for next release if cheap ("Monash University and contributors"), else later |
 | 30 | labscript-suite #103 headless/scriptable components | feature | 2 | close for legacy, pointer to rewrite |
 | 31 | labscript-suite #6 editor/hdfview in docs | docs | 2 | convert to docs |
@@ -3637,7 +3637,7 @@ Sources and limits:
 - runmanager #66 (+ #50): preparse materialises the full parameter space to count shots; compute the count from axis lengths. Fixed in runmanager #134 (opened 2026-10-18).
 - runmanager #123: `remote.set_globals(raw=True)` must not append comments; reporter offered a PR. Fixed in runmanager #134 (opened 2026-10-18).
 - runmanager #33, #30, #26: trivial compile-loop/GUI fixes (drain queue on abort; header line per shot; append `.h5`). Fixed in runmanager #134 (opened 2026-10-18).
-- labscript-suite #5: validate the apparatus name in `labscript-profile-create` and document it.
+- labscript-suite #5: validate the apparatus name in `labscript-profile-create` and document it. Fixed in labscript-utils #134 and labscript-suite #109 (opened 2026-10-18).
 - labscript-suite #60: add `CITATION.cff` to the component repos.
-- labscript-suite #59: add the agreed note that `git` must be available in the labscript env (`conda install git`), or drop that page.
+- labscript-suite #59: add the agreed note that `git` must be available in the labscript env (`conda install git`), or drop that page. Fixed in labscript-suite #109 (opened 2026-10-18).
 - labscript-suite #105 (indirect): bump `requires-python` (currently `>=3.8`) and the component version pins in the meta-package and runmanager `pyproject.toml` for the 3.11-3.15 release; optionally add a uv developer-install docs page.

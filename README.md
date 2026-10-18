@@ -62,6 +62,13 @@ and the file:line evidence.
   defect D1), lyse #145 (#14, #90, #139) and labscript-devices #153 (#109, #79, labscript
   #95, defect D9). Each passed the harness on Python 3.11 to 3.14 with all three Qt
   bindings (`docs/TESTING.md`). All four are open.
+- Nine pull requests of review fixes opened later on 2026-10-18: labscript #129,
+  labscript-devices #154, runmanager #135, runviewer #76, blacs #129 (stacked on #128), lyse
+  #146 (stacked on #145), labscript-utils #134 (stacked on #133), labscript-suite #109 and
+  zprocess #32. Every Part 1 review item now has a merged or open pull request; item 3
+  (the NI_DAQmx final read) is verified by reading only and needs a test on NI hardware.
+  Each passed the harness on Python 3.11 to 3.14 with all three Qt bindings
+  (`docs/TESTING.md`). All nine are open.
 - The release pull requests from contributors (labscript-devices #110, #126, #144, #87,
   #63, lyse #132, labscript-utils #117, prawn_digital_output #23) were merged 2026-10-17
   with maintainer fix commits (`docs/LOCAL-TASKS.md`). The step 2 and 3 pull requests

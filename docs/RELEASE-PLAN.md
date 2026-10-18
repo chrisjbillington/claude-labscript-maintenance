@@ -291,7 +291,8 @@ which give file:line and the reasoning.
 - desktop-app #20: `desktop_app/windows.py` imports pywin32 in the launcher before the
   environment is activated; make the imports lazy (desktop-app 0.5.1). desktop-app #34 merged 2026-10-17.
 - zprocess #19 and #16: call `zmq.has('curve')` before CURVE APIs and raise a readable
-  error; document that conda users need conda-forge's pyzmq.
+  error; document that conda users need conda-forge's pyzmq. Fixed in zprocess #32 (opened
+  2026-10-18); the install-docs note is still to do.
 - blacs #100: `setup_logging.py:60,73` crash when `sys.stdout` is `None` (pythonw). PR
   opened 2026-10-17: labscript-utils #133, which also carries REVIEW.md items 10 and 18,
   DEFECTS.md D3 and labscript-utils #60.
@@ -320,8 +321,9 @@ which give file:line and the reasoning.
   labscript-utils #60; labscript-suite #5, #59, #60: each under an hour, see the triage.
   Status 2026-10-18: lyse #14, #90 and #139 fixed in lyse #145 (opened 2026-10-18); runviewer #13 merged (labscript-c-extensions
   #13); labscript #16 is in labscript #128 and labscript-utils #60 in labscript-utils
-  #133, both open. blacs #49, #32, #7, #72 and labscript-suite #5, #59, #60 not
-  started.
+  #133, both open. blacs #49, #32, #7 and #72 fixed in blacs #129 (opened 2026-10-18,
+  stacked on #128); labscript-suite #5 in labscript-utils #134 and labscript-suite #109
+  and #59 in labscript-suite #109 (opened 2026-10-18); labscript-suite #60 not started.
 - labscript #41: there are no tests in labscript or labscript-utils. The harness in
   this repository (`harness/`, results in `TESTING.md`) runs install, import, compile,
   lyse, runviewer-parser, runmanager-API and application start-up checks on Ubuntu and
@@ -362,7 +364,8 @@ API and BLACS submission paths specifically.
   pineblasterv2 #1, setuptools-conda #5) and the roughly 95 issues marked close in
   ISSUE-TRIAGE.md, each with the one-line reason from the triage.
 - Docs: minimum Python 3.11, PySide6 as the recommended binding with PyQt5 and PyQt6
-  supported, the `git` note (labscript-suite #59), apparatus-name rules (#5),
+  supported, the `git` note (labscript-suite #59) and apparatus-name rules (#5), both in
+  labscript-suite #109 (opened 2026-10-18),
   CITATION.cff in component repos (#60); delete `blacs/docs/UsingBLACS.*` and
   `docs/How to add a new device` (blacs #19).
 - Release notes per package with contributors (labscript-suite #21 checklist); the

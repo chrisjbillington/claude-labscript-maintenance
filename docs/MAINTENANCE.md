@@ -126,21 +126,21 @@ unaffected. The review's line references map to the new layout as follows.
 | Item | Status |
 |---|---|
 | 1 `'a256'` dtypes | fixed, labscript PR #124, labscript-devices PR #149 and blacs PR #124, merged 2026-10-17 |
-| 2 `bitfield` dtype | open |
-| 3 NI analog input final read | open |
-| 4 PrawnDO wait insertion | open |
-| 5 PrawnBlaster and PrawnDO clock limit | open |
+| 2 `bitfield` dtype | fixed, labscript PR #129 (open) |
+| 3 NI analog input final read | fixed, labscript-devices PR #154 (open); verified by reading, needs a test on NI hardware |
+| 4 PrawnDO wait insertion | fixed, labscript-devices PR #154 (open) |
+| 5 PrawnBlaster and PrawnDO clock limit | fixed, labscript-devices PR #154 (open) |
 | 6 ramp tick count | fixed, labscript PR #128 (open) |
 | 7 `get_change_times` collision check | fixed, labscript PR #128 (open) |
 | 8 trigger proximity check | fixed, labscript PR #128 (open) |
-| 9 Qt6 check states | open |
+| 9 Qt6 check states | fixed, runmanager PR #135 and runviewer PR #76 (open) |
 | 10 `aom.py` `max` | fixed, labscript-utils PR #133 (open) |
-| 11 BLACS queue `get(2)` | open |
-| 12 BLACS error handlers | fixed, blacs PR #128 (open); the unbound `message` log line remains |
-| 13 `_rep` filename | open; the 2022 WIP PRs blacs #90 and runmanager #104 contain a fix |
-| 14 preparse `task_done` | open |
-| 15 lyse `blockSignals` | open |
-| 16 lyse on pandas 3 | open |
+| 11 BLACS queue `get(2)` | fixed, blacs PR #129 (open); the mid-shot error poll is unchanged |
+| 12 BLACS error handlers | fixed, blacs PR #128 and blacs PR #129 (open) |
+| 13 `_rep` filename | fixed, blacs PR #129 (open) |
+| 14 preparse `task_done` | fixed, runmanager PR #135 (open) |
+| 15 lyse `blockSignals` | fixed, lyse PR #146 (open) |
+| 16 lyse on pandas 3 | fixed, lyse PR #146 (open) |
 | 17 PrawnBlaster wait without monitor | fixed, labscript-devices PR #153 (open) |
 | 18 `h5_lock` | fixed, labscript-utils PR #133 (open) |
 | 19 runviewer resampler bounds | fixed, labscript-c-extensions PR #13, merged 2026-10-17 as b0f985d |
@@ -150,9 +150,12 @@ Item 1 is fixed by the pull requests in the table below. Items 10 and 18 are fix
 labscript-utils PR #133 (open), which also fixes labscript-utils B16 (blacs #100),
 DEFECTS.md D3 and labscript-utils #60. Items 6, 7 and 8 are fixed by labscript PR #128
 (open), which also fixes labscript B1, B2, B4, B6, B7, B8, B9, B10 and most of B5 and B11,
-and labscript #16, #43 and #52. Item 12 is fixed by blacs PR #128 (open) and item 17 by
-labscript-devices PR #153 (open), both opened 2026-10-18 with issue fixes. No open pull
-request addresses the other items.
+and labscript #16, #43 and #52. Items 12 and 17 are fixed by blacs PR #128 and labscript-devices PR #153, opened
+2026-10-18 with issue fixes. The second round of 2026-10-18 fixes items 2 (labscript
+#129), 3, 4 and 5 (labscript-devices #154), 9 (runmanager #135 and runviewer #76), 11,
+12 (the unbound `message`) and 13 (blacs #129), 14 (runmanager #135) and 15 and 16 (lyse
+#146), all open. Every Part 1 item now has a merged or open pull request; item 3 is
+verified by reading only and needs a test on NI hardware.
 
 ## Pull requests opened by the maintenance track
 
@@ -168,6 +171,9 @@ workflow-sandbox #47 and the twelve sync PRs for defect D7 were merged, as were
 labscript-c-extensions #13 (item 19, closes runviewer #13). labscript-utils #133 and
 labscript #128 are open. On 2026-10-18: runmanager #134, blacs #128, lyse #145 and
 labscript-devices #153, the issue fixes for release sequence steps 7 to 11; all four are
+open. Later on 2026-10-18, the second round for the review Part 1 items and the small
+triaged issues: labscript #129, labscript-devices #154, runmanager #135, runviewer #76,
+blacs #129, lyse #146, labscript-utils #134, labscript-suite #109 and zprocess #32, all
 open.
 
 The scheme rename needs setuptools_scm 10, which introduced the name

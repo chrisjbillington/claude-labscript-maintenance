@@ -5,6 +5,17 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-18: the second fix round on GitHub Actions
+
+Nine `test.yml` dispatches, one per branch pushed on 2026-10-18 for the review Part 1
+items and the small triaged issues, each with the other components at their masters as
+of 03:00 UTC: labscript-utils `apparatus-name-check` (bc59222) (on `release-3.5.0-fixes`, the #133 branch) as run [39091163160](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39091163160); labscript-suite `docs-apparatus-name-and-git` (6a3992c) as run [39091165515](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39091165515); lyse `filebox-signals-and-pandas3` (00a26a1) (on `analysis-loop-and-dataframe-fixes`, the #145 branch) as run [39091201955](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39091201955); labscript `bitfield-dtype` (3516cb1) as run [39091236660](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39091236660); zprocess `curve-support-check` (5b3ad91) as run [39091238876](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39091238876); labscript-devices `nidaqmx-prawndo-prawnblaster-fixes` (b1b477f) as run [39092094838](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39092094838); runmanager `check-states-and-preparse-recovery` (03b54f9) as run [39092298549](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39092298549); runviewer `qt6-check-states` (eec9997) as run [39092300767](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39092300767); blacs `queue-fixes-and-defaults` (a10b3f8) (on `queue-robustness-and-window-geometry`, the #128 branch) as run [39092453984](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39092453984). The 25 jobs of each run (Ubuntu and Windows, Python 3.11 to 3.14,
+PySide6, PyQt6 and PyQt5, plus the Ubuntu Python 3.14 PySide6 job with `numpy<2.5`)
+passed every step. The pull requests labscript-utils #134, labscript-suite #109, lyse
+#146, labscript #129, zprocess #32, labscript-devices #154, runmanager #135, runviewer
+#76 and blacs #129 were opened on these results. The NI_DAQmx change in labscript-devices
+#154 is not exercised by the harness and needs a test on NI hardware.
+
 ## 2026-10-18: the four fix branches on GitHub Actions
 
 Four `test.yml` dispatches, one per branch pushed on 2026-10-18, each with the other

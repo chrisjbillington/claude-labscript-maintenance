@@ -56,25 +56,30 @@ Paths are relative to each repo's root unless stated otherwise.
      `AnalogIn`), `NI_DAQmx/blacs_workers.py:956` (wait monitor), `PrawnBlaster/blacs_workers.py:497`
      (wait results), `Camera.py:107`, `AlazarTechBoard.py:157-158`,
      `CiceroOpalKellyXEM3001.py:652`.
-2. **`labscript/labscript/utils.py:210`: `bitfield()` passes `dtype=np.dtype` instead of
-   `dtype=dtype` (run).** Any NI digital port on which line 0 is unused, or a PrawnDO
+2. **Fixed** by labscript PR #129, opened 2026-10-18.
+   ~~**`labscript/labscript/utils.py:210`: `bitfield()` passes `dtype=np.dtype` instead of
+   `dtype=dtype` (run).**~~ Any NI digital port on which line 0 is unused, or a PrawnDO
    without `do0`, fails to compile with `TypeError: Cannot convert np.dtype into a dtype`.
    This is a regression from the 2024-01 refactor (6e43872). Lines 207 and 214 also index
    `n[dtype]` by the class `np.uint8` etc., so a `np.dtype` instance raises `KeyError`.
 
 ## 1.2 Wrong output with no error
 
-3. **`labscript-devices` `NI_DAQmx/blacs_workers.py:544` (read).** `stop_task()` calls
+3. **Fixed** by labscript-devices PR #154, opened 2026-10-18; verified by reading only and
+   needs a test on NI hardware.
+   ~~**`labscript-devices` `NI_DAQmx/blacs_workers.py:544` (read).**~~ `stop_task()` calls
    `self.read(self.task, None, -1)`, but the guard at line 454 compares the argument to
    `self.task.taskHandle.value`, so the final read returns early. Samples acquired after the
    last `EveryNSamples` callback are dropped on every shot. A shot shorter than one callback
    interval raises "No data was acquired". This is probably the cause of the workaround at
    lines 672-677.
-4. **`labscript-devices` `PrawnDO/labscript_devices.py:299-300` (run).** `wait_idxs` are
+4. **Fixed** by labscript-devices PR #154, opened 2026-10-18.
+   ~~**`labscript-devices` `PrawnDO/labscript_devices.py:299-300` (run).**~~ `wait_idxs` are
    indices that already count earlier waits, but `np.insert` interprets a list of indices
    relative to the original array. With two or more waits, the k-th wait is inserted k
    instructions late and with the wrong held output word.
-5. **`labscript-devices` `PrawnBlaster/labscript_devices.py:244` and
+5. **Fixed** by labscript-devices PR #154, opened 2026-10-18.
+   ~~**`labscript-devices` `PrawnBlaster/labscript_devices.py:244` and~~
    `PrawnDO/labscript_devices.py:202` (run).** `self.clock_limit *= factor` scales the clock
    limit in the wrong direction for a non-default `clock_frequency`. With
    `clock_frequency=50e6`, both devices report a 20 MHz limit instead of 5 MHz.
@@ -95,7 +100,8 @@ Paths are relative to each repo's root unless stated otherwise.
    trigger" check is `max(self.clock_limit, compiler.wait_delay) < trigger_time - t`. It
    compares a rate in Hz with a time, and the inequality is reversed, so it can never raise
    in practice. The error message has the same unit error.
-9. **Qt6 check states (run for enum semantics, read for code paths).** On PyQt6 and PySide6,
+9. **Fixed** by runmanager PR #135 and runviewer PR #76, opened 2026-10-18.
+   ~~**Qt6 check states (run for enum semantics, read for code paths).**~~ On PyQt6 and PySide6,
    `Qt.CheckState.Unchecked` is truthy.
    - `runmanager/runmanager/__main__.py:1957` stores `checkState()` as the shuffle flag, and
      `runmanager/__init__.py:603` tests its truthiness, so every axis is always shuffled.
@@ -111,25 +117,28 @@ Paths are relative to each repo's root unless stated otherwise.
 
 ## 1.3 Hangs, stuck states and crashes
 
-11. **`blacs` `blacs/experiment_queue.py:882` (run).** `self.current_queue.get(2)` passes 2
+11. **Fixed** by blacs PR #129, opened 2026-10-18; the mid-shot error poll is unchanged.
+    ~~**`blacs` `blacs/experiment_queue.py:882` (run).**~~ `self.current_queue.get(2)` passes 2
     as `block`, not `timeout`, so the `except queue.Empty` branch that polls tabs for error
     state is unreachable. If a tab's state machine has exited with a fatal error during the
     shot, the queue manager blocks at "Saving data..." until the user restarts that tab. The
     mid-shot error poll at lines 761-773 is inside the `try` after `get_nowait()`, so it
     only runs when an abort or restart message was just dequeued.
-12. **Fixed** by blacs PR #128, opened 2026-10-18, for the shot-file handlers; the unbound
-    `message` (now line 997) remains, inside a handler that pauses the queue.
+12. **Fixed** by blacs PR #128 (the shot-file handlers) and blacs PR #129 (the unbound
+    `message`), both opened 2026-10-18.
     ~~**`blacs` `blacs/experiment_queue.py:808-823, 930-945, 999` (read).**~~ The error handlers
     reopen the shot file and call `shutil.move` unguarded. If the shot file was deleted or
     is unreadable, or if `clean_h5_file` returned False, the handler raises and `manage()`
     exits. The status stays at "Transitioning to buffered...", and `process_request` keeps
     answering "Experiment added successfully". Line 999 logs `message`, which is unbound if
     `process_request` raised during a repeat.
-13. **`blacs` `blacs/experiment_queue.py:437` (run).**
+13. **Fixed** by blacs PR #129, opened 2026-10-18.
+    ~~**`blacs` `blacs/experiment_queue.py:437` (run).**~~
     `''.join(basename.split('_rep')[:-1])` deletes every earlier `_rep` in the full path.
     `/data/mot_repump_scan/2026/mot_repump_scan_0.h5` becomes
     `/data/motump_scan/2026/motump_scan_0_rep00002.h5` on the second repeat.
-14. **`runmanager` `runmanager/__main__.py:2776-2786` (read).** `preparse_globals_loop`
+14. **Fixed** by runmanager PR #135, opened 2026-10-18.
+    ~~**`runmanager` `runmanager/__main__.py:2776-2786` (read).**~~ `preparse_globals_loop`
     calls `task_done()` only after a successful `preparse_globals()`. After an exception,
     `preparse_globals_required.join()` never returns, every remote API call times out until
     restart, and the Engage button stays disabled until a later parse succeeds. Triggers:
@@ -139,12 +148,14 @@ Paths are relative to each repo's root unless stated otherwise.
     - Line 2692: `expansion_type, name = expansion_name.split()` raises `ValueError` for a
       zip group name containing whitespace. The same failure occurs in `load_configuration`
       (line 3347).
-15. **`lyse` `lyse/filebox.py:463-473` (run for the Qt effect).** `update_row` calls
+15. **Fixed** by lyse PR #146, opened 2026-10-18.
+    ~~**`lyse` `lyse/filebox.py:463-473` (run for the Qt effect).**~~ `update_row` calls
     `self._model.blockSignals(True)` and then returns early when `filepath` is not a row.
     Any multishot routine that calls `Sequence(...).save_result(...)` triggers this, as does
     removing a shot while its analysis is running. The model stays blocked until the next
     successful `update_row`: removed rows remain visible and status changes do not repaint.
-16. **`lyse` on pandas 3 (run).**
+16. **Fixed** by lyse PR #146, opened 2026-10-18.
+    ~~**`lyse` on pandas 3 (run).**~~
     - `lyse/filebox.py:482-494`: `update_row` catches only `ValueError`, but pandas 3 raises
       `TypeError` for an incompatible-dtype `.at` assignment (float into an int64 column,
       str into float64, etc.). The exception pauses analysis.
