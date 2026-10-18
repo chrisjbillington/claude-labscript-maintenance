@@ -320,8 +320,8 @@ which give file:line and the reasoning.
   labscript-utils #60; labscript-suite #5, #59, #60: each under an hour, see the triage.
   Status 2026-10-18: lyse #14, #90 and #139 fixed on the lyse branch
   `analysis-loop-and-dataframe-fixes`; runviewer #13 merged (labscript-c-extensions
-  #13); labscript #16 merged in labscript #128's scope; labscript-utils #60 in
-  labscript-utils #133. blacs #49, #32, #7, #72 and labscript-suite #5, #59, #60 not
+  #13); labscript #16 is in labscript #128 and labscript-utils #60 in labscript-utils
+  #133, both open. blacs #49, #32, #7, #72 and labscript-suite #5, #59, #60 not
   started.
 - labscript #41: there are no tests in labscript or labscript-utils. The harness in
   this repository (`harness/`, results in `TESTING.md`) runs install, import, compile,
