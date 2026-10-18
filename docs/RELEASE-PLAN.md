@@ -352,7 +352,8 @@ its pull request branch, dispatch the test workflow with the pull request refs a
 Status 2026-10-18: all six are merged. The fix commits were pushed to the pull request
 branches and labscript-utils #117, labscript-devices #126, #144, #87 and #63 and
 prawn_digital_output #23 were merged on 2026-10-17 (`LOCAL-TASKS.md` has the merge
-commits); `patches/` holds only the blacs #123 comment trim. PrawnBlaster #37 and #35
+commits). The blacs #123 comment trim went into blacs #128, merged 2026-10-18, and
+`patches/` is empty. PrawnBlaster #37 and #35
 are not prepared: both need firmware changes tested on hardware and a host-side change,
 and neither blocks the release.
 

@@ -24,7 +24,7 @@ paragraph per PR, section 3 contains the detailed per-group reports.
 
 | # | PR | Type | Imp. | Merges | Recommended action |
 |---|---|---|---|---|---|
-| 1 | blacs #123 plugin-loading bugfixes (ispielma, 2026) | bugfix | 4 | merged 2026-10-17 (d061535) | Merged as is after testing; the comment trim rides the next blacs pull request |
+| 1 | blacs #123 plugin-loading bugfixes (ispielma, 2026) | bugfix | 4 | merged 2026-10-17 (d061535) | Merged as is after testing; the comment trim went into blacs #128, merged 2026-10-18 |
 | 2 | labscript-devices #110 Windfreak SynthHD (dihm, 2024) | feature | 4 | yes | Merge after three one-line fixes. Merged 2026-10-17 with fix commit 30979be (merge 2a2d785) |
 | 3 | labscript-devices #126 AD9959 DDS Sweeper (carterturn, 2025) | feature | 4 | yes | Merge after deleting the dead runviewer parser and fixing `clock_limit`. Merged 2026-10-17 with fix commit 357495a (merge 6f78a56); the worker changes are not tested on hardware |
 | 4 | zprocess #14 PAIR sockets (mjdoris, 2021) | bugfix, behaviour change | 3 | conflict | Maintainer rework: 14 real lines plus a version check for mixed zprocess versions |
