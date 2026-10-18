@@ -525,8 +525,8 @@ maintenance branch is a squash merge of the whole of `master`. After this releas
   screen (blacs #122, runmanager #129, runviewer #72, lyse #138). The author closed
   all of them on 2026-10-13 and 2026-10-15 without comment. The desktop-app side
   (desktop-app #29, `.app` bundles, `short_display_name` read at
-  `desktop_app/shell.py:65`) is merged. Fusion is more consistent across platforms
-  and is worth adopting on all platforms if the problems that it causes can be fixed.
-  Not for this release, but to be reconsidered.
+  `desktop_app/shell.py:65`) is merged. Fusion is more consistent across platforms,
+  and we may adopt it if the problems that it causes can be fixed. Probably not in this
+  release, but to be reconsidered.
 - Free-threaded Python builds (setuptools-conda #26) and Intel macOS after the
   `macos-15-intel` runner retires in 2027.
