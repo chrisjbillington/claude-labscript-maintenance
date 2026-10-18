@@ -43,7 +43,7 @@ paragraph per PR, section 3 contains the detailed per-group reports.
 | 22 | prawn_digital_output #23 testing notebook (dihm, 2025) | tooling | 2 | yes | Merge after stripping outputs and fixing the save branch. Merged 2026-10-17 with fix commit 121448f (merge ec7d967) |
 | 23 | setuptools-conda #5 extras support (philipstarkey, 2020) | feature | 2 | conflict | Close; untested and the parser it modifies was rewritten |
 | 24 | lyse #118 + #85 rename Run to Shot (dihm 2024, philipstarkey 2020) | refactor | 1 | conflict | Close; participants agreed to abandon in 2025 |
-| 25 | blacs #121 shared plugin refactor (ispielma, 2026) | refactor | 1 | yes | Close; depends on closed labscript-utils PRs, superseded by #123 |
+| 25 | blacs #121 shared plugin refactor (ispielma, 2026) | refactor | 1 | closed 2026-10-16 by the author | Close; depends on closed labscript-utils PRs, superseded by #123. Closed by the author without comment |
 | 26 | blacs #89 retry on timeout (mjdoris, 2021) | workaround | 1 | yes | Close; duplicates jobs if the worker did receive the message |
 | 27 | desktop-app #6 Windows CI (rpanderson, 2020) | tooling-CI | 1 | conflict | Close as obsolete |
 | 28 | pineblasterv2 #1 Wi-Fire pseudoclock (ARFritsch, 2020) | firmware | 1 | yes | Close; archive the repo |
@@ -201,7 +201,7 @@ commits behind, conflicts in `__init__.py`, `__main__.py` and the docs. Nobody c
 **blacs #121.** Requires `labscript_utils.plugins` and a new `Splash` signature from
 labscript-utils PRs 126/127, both closed unmerged. Deletes a test HDF5 file still
 referenced by device_base_class.py and adds a `.DS_Store`. Its fixes were resubmitted as
-#123.
+#123. Closed by the author on 2026-10-16 without comment.
 
 **blacs #89.** The `put` timeouts never fire in practice; the retry triggers on the ack
 `get(30)` timeout, and if the worker did receive the request the job runs twice and the
@@ -1111,6 +1111,7 @@ Base: `origin/master` = e5757c7 (2026-06-04, merge of #119). #90 is reviewed els
 - **Rewrite relevance**: None beyond the general observation that a plugin API should be defined once in a shared package; the rewrite has its own device/worker model.
 - **Importance**: 1. Depends on closed PRs in another repo; the useful bug fixes have been resubmitted separately as #123.
 - **Recommended action**: Close as obsolete (superseded by #123 for the fixes; the shared-plugin framework would need a labscript-utils PR first and a design discussion before that).
+- **Status 2026-10-18**: closed by the author on 2026-10-16 without comment, and the branch deleted. The author had closed labscript-utils #125, #126 and #127 on 2026-10-13, also without comment.
 
 ### blacs #105: Virtual Devices BLACS Plugin (carterturn, opened 2024-10-09, last updated 2026-07-01)
 
@@ -1183,7 +1184,7 @@ Base: `origin/master` = e5757c7 (2026-06-04, merge of #119). #90 is reviewed els
 | 1 | #123 plugin-loading bugfixes | bugfix | 4 | Merge after small fixes (drop/justify `has_option` change, trim comments, document commit 3) |
 | 2 | #105 Virtual Devices plugin | feature | 3 | Ask author: finish EO, remove polling thread, store tuples in item data, remove star imports, squash; merge `output_classes.py` fixes now |
 | 3 | #88 lock monitor plugin | feature | 2 | Close as out of scope / separate package (or merge with matplotlib optional and Qt6 check) |
-| 4 | #121 shared plugin refactor | refactor | 1 | Close as obsolete (labscript-utils counterpart closed; fixes resubmitted as #123) |
+| 4 | #121 shared plugin refactor | refactor | 1 | Close as obsolete (labscript-utils counterpart closed; fixes resubmitted as #123). Closed by the author 2026-10-16 |
 | 5 | #89 tab/worker retry | bugfix | 1 | Close; unsafe retry, superseded by PAIR-socket diagnosis in zprocess |
 
 ## 3.x PR review: lyse #132, lyse #118/#85, runmanager #104 + blacs #90, runmanager #128
