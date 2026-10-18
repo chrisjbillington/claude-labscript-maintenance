@@ -5,6 +5,18 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-18: the third fix round (review Part 2 bugs) on GitHub Actions
+
+Seven `test.yml` dispatches, one per branch pushed on 2026-10-18 for the REVIEW.md Part 2
+bugs, each with the other components at their masters as of 03:45 UTC: blacs `part2-bugs` (634f0cc) (on `queue-fixes-and-defaults`, the #129 branch) as run [39094671210](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39094671210); labscript-devices `part2-software-bugs` (9c03f2c) (on `prawnblaster-and-esrpro500-fixes`, the #153 branch) as run [39094702770](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39094702770); lyse `part2-bugs` (74f1968) (on `filebox-signals-and-pandas3`, the #146 branch) as run [39095000278](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39095000278); labscript-utils `part2-bugs` (9c10631) (on `apparatus-name-check`, the #134 branch) as run [39095065484](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39095065484); runviewer `part2-bugs` (13c39f6) (on `qt6-check-states`, the #76 branch) as run [39095202070](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39095202070); labscript-c-extensions `resample-nout` (c47656d) as run [39095204228](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39095204228); runmanager `part2-bugs` (da0fd6b) (on `check-states-and-preparse-recovery`, the #135 branch) as run [39095349356](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39095349356). The 25
+jobs of each run (Ubuntu and Windows, Python 3.11 to 3.14, PySide6, PyQt6 and PyQt5,
+plus the Ubuntu Python 3.14 PySide6 job with `numpy<2.5`) passed every step. The pull
+requests blacs #130, labscript-devices #155, lyse #147, labscript-utils #135, runviewer
+#77, labscript-c-extensions #14 and runmanager #136 were opened on these results.
+With the runmanager branch installed, the runmanager-api check's `globals_diff_shots`
+item (marked `KNOWN` for runmanager B7) passes; the marker is removed once runmanager
+#136 merges.
+
 ## 2026-10-18: the second fix round on GitHub Actions
 
 Nine `test.yml` dispatches, one per branch pushed on 2026-10-18 for the review Part 1

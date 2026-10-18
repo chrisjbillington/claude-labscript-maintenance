@@ -157,6 +157,18 @@ and labscript #16, #43 and #52. Items 12 and 17 are fixed by blacs PR #128 and l
 #146), all open. Every Part 1 item now has a merged or open pull request; item 3 is
 verified by reading only and needs a test on NI hardware.
 
+## Part 2 status
+
+The Part 2 bug lists are marked in place in `REVIEW.md`. As of 2026-10-18 every item has an
+open or merged pull request except: labscript B3 and the `do_checks` part of B5;
+blacs B3 (closing BLACS during a shot); runmanager B4 (uneven zip groups), the
+`compile_loop` timeout of B9 and two B14 items; labscript-utils B2 round-trip types, the
+OptotuneLens default calibration of B4 and the macOS `scutil` call of B9; and the
+labscript-devices items that need hardware (B1, B2, B3, B6, B10, B11, B13, B16, B18).
+runviewer B6 is not a bug. The pull requests are labscript #128, blacs #129 and #130,
+runmanager #134 and #136, runviewer #77, lyse #145 and #147, labscript-utils #133 and
+#135, labscript-c-extensions #14 and labscript-devices #153 and #155.
+
 ## Pull requests opened by the maintenance track
 
 `PULL-REQUESTS.md` lists every pull request opened from this repository, with links and
@@ -174,7 +186,9 @@ labscript-devices #153, the issue fixes for release sequence steps 7 to 11; all 
 open. Later on 2026-10-18, the second round for the review Part 1 items and the small
 triaged issues: labscript #129, labscript-devices #154, runmanager #135, runviewer #76,
 blacs #129, lyse #146, labscript-utils #134, labscript-suite #109 and zprocess #32, all
-open.
+open. The third round, for the Part 2 bugs: blacs #130, labscript-devices #155, lyse #147,
+labscript-utils #135, runviewer #77, labscript-c-extensions #14 and runmanager #136, all
+open and each stacked on that repository's second-round branch.
 
 The scheme rename needs setuptools_scm 10, which introduced the name
 `semver-pep440-release-branch` (setuptools_scm 9.2.2 does not have it); the default
