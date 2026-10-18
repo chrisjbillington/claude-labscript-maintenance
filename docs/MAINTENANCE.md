@@ -194,7 +194,9 @@ Open:
   labscript-utils B9.
 - The labscript-devices items that need hardware: B1, B2, B3, B6, B10, B11, B13, B16
   and B18 (its EMCCD gain range check is fixed by labscript-devices #144, merged
-  2026-10-17; `EnableKeepCleans` and the stubs remain). To be discussed with the maintainer, including whether they go in one pull
+  2026-10-17; `EnableKeepCleans` and the stubs remain). Maintainer decision 2026-10-18 on
+  B18: fix `EnableKeepCleans` from the Andor SDK documentation; leave the stub functions
+  for a user of the camera to implement. To be discussed with the maintainer, including whether they go in one pull
   request or several. The merged changes that need a hardware test are listed in
   `RELEASE-PLAN.md` section 4.7.
 
