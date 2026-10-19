@@ -52,7 +52,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 | 21 | blacs #7 file dialogs default to "C:\\" | feature | 3 | fixed in blacs #129 (merged 2026-10-18); issue closed |
 | 22 | blacs #72 default lyse host localhost, analysis on | feature | 3 | fixed in blacs #129 (merged 2026-10-18); issue closed |
 | 23 | blacs #12 compile dialog unclosable when compiler child dies | bug | 3 | fix via runmanager #35 (refactor in progress), else later |
-| 24 | blacs #54 remote worker version check | feature | 3 | fix later (next release if zprocess #14 merges) |
+| 24 | blacs #54 remote worker version check | feature | 3 | fix later; no longer tied to zprocess #14, since zprocess #33 negotiates the socket type |
 | 25 | labscript-devices #79 ESRPro500 missing runviewer parser, 21 vs 24 flags | bug | 3 | fixed in labscript-devices #153 (merged 2026-10-18): parser added and all 24 flags exposed; no short-pulse timing feature; issue closed |
 | 26 | labscript-devices #49 declare missing dependencies | tooling | 3 | fix for next release (per-device extras) |
 | 27 | labscript-devices #104 project structure / per-device deps | meta | 3 | leave open; extras in release |
@@ -285,7 +285,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 - blacs #49: handle `StopIteration` from the first `__next__` at `tab_base_classes.py:792`. Fixed in blacs #129 (merged 2026-10-18).
 - blacs #32, #7, #72: three trivial usability fixes (device names in pause status; dialog start directories from labconfig; localhost default for lyse). Fixed in blacs #129 (merged 2026-10-18).
 - blacs #57 and #97: not fixes, but launch-time rendering must be checked under PySide6 and PyQt6 before tagging.
-- blacs #54: becomes required if zprocess #14 (PAIR sockets) is merged, since mixed zprocess versions on remote worker PCs would then fail without a clear error.
+- blacs #54: becomes required if zprocess #14 (PAIR sockets) is merged, since mixed zprocess versions on remote worker PCs would then fail without a clear error. Not required by zprocess #33 (2026-10-19), which negotiates the socket type.
 - blacs #19: delete `docs/UsingBLACS.pdf`, `docs/UsingBLACS.docx` and `docs/How to add a new device/` before the release.
 ### lyse, runviewer, zprocess, setuptools-conda, qtutils
 
@@ -1752,10 +1752,10 @@ unless a full path is given.
 - **Scope**: blacs worker startup; remote-worker setups only
 - **Related**: zprocess #14 (PAIR sockets; PR-REVIEW says it needs exactly this kind of version check for mixed zprocess versions), labscript #28, blacs #13
 - **Effort**: small (send `labscript_utils.__version__`/`blacs.__version__` in the `init` call, compare in the worker, raise a wrapped error)
-- **Release relevance**: yes if zprocess #14 or any wire-format change is merged; otherwise no.
+- **Release relevance**: yes if a wire-format change is merged without negotiation; otherwise no. zprocess #33 (2026-10-19) negotiates the PAIR socket change, so it does not need this.
 - **Rewrite relevance**: requirement: protocol/version negotiation between controller and remote device workers.
 - **Importance**: 3
-- **Recommended action**: fix later; fix for next release only if zprocess #14 goes in.
+- **Recommended action**: fix later; fix for next release only if zprocess #14 goes in. 2026-10-19: zprocess #33 does the PAIR change with negotiation, so this is not required by it.
 
 ### blacs #53: Ways of speeding up cycle time. Pipelining, readahead, removing redundant steps (philipstarkey, opened 2019-12-08 [migrated], last activity 2019-12-09, 6 comments)
 - **Summary**: Design notes: split transition_to_buffered/manual into independent steps (read instructions, program, read data, save data, reconfigure), run independent steps concurrently, skip redundant ones, optionally read the shot file ahead of time. Profile first.
@@ -2158,7 +2158,7 @@ unless a full path is given.
 - blacs #49: handle `StopIteration` from the first `__next__` at `tab_base_classes.py:792`. Fixed in blacs #129 (merged 2026-10-18).
 - blacs #32, #7, #72: three trivial usability fixes (device names in pause status; dialog start directories from labconfig; localhost default for lyse). Fixed in blacs #129 (merged 2026-10-18).
 - blacs #57 and #97: not fixes, but launch-time rendering must be checked under PySide6 and PyQt6 before tagging.
-- blacs #54: becomes required if zprocess #14 (PAIR sockets) is merged, since mixed zprocess versions on remote worker PCs would then fail without a clear error.
+- blacs #54: becomes required if zprocess #14 (PAIR sockets) is merged, since mixed zprocess versions on remote worker PCs would then fail without a clear error. Not required by zprocess #33 (2026-10-19), which negotiates the socket type.
 - blacs #19: delete `docs/UsingBLACS.pdf`, `docs/UsingBLACS.docx` and `docs/How to add a new device/` before the release.
 
 ## 3.x Issue triage: lyse, runviewer, zprocess, setuptools-conda, qtutils (2026-10-17)

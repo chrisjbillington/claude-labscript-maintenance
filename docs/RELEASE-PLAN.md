@@ -510,7 +510,10 @@ maintenance branch is a squash merge of the whole of `master`. After this releas
 
 - zprocess #14 (PAIR sockets): correct idea, but it breaks mixed-version remote workers
   with no clear error; needs the version check (blacs #54) and a decision on how to
-  break compatibility. Next zprocess minor after 2.28.0.
+  break compatibility. Next zprocess minor after 2.28.0. Done 2026-10-19 as zprocess #33:
+  the socket type is negotiated through the parent info and the remote process server's
+  protocol version, so no compatibility is broken and blacs #54 is not needed for it.
+  Merge after the `v2.28.0` tag.
 - labscript-devices #148 (TriggerableCamera and DummyCamera): the right structure, but
   removes the `mock` kwarg from every connection table and needs hardware testing;
   schedule for labscript-devices 3.5.0 with #106 rebased on top.

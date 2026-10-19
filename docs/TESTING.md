@@ -5,6 +5,41 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-19: zprocess PAIR sockets (zprocess #33)
+
+Branch `pair-sockets` on chrisjbillington/zprocess (head 71fe1dd, two commits on master
+1de4c26): explicit poller event flags, then PAIR sockets for the parent/child channel
+and the in-process `ReadQueue` sockets, negotiated through `parentinfo['pair_sockets']`
+and the remote process server's protocol version (1.1.0 on the branch, 1.0.0 before).
+
+**libzmq behaviour** (harness venv, Python 3.14.8, pyzmq 27.2.0, libzmq 4.3.5): a PAIR
+socket connected to a PUSH or PULL socket, in either direction, reports CONNECTED then
+DISCONNECTED on the connecting side; the sender's `send` succeeds and the message is
+never delivered. A second PAIR peer connecting to an occupied PAIR socket completes the
+handshake but receives nothing and has its own messages dropped. A PAIR socket over TCP
+reconnects after the bound side is closed and rebound, and messages queued meanwhile are
+delivered in both directions, so the zmq manual's statement that PAIR sockets do not
+reconnect does not hold on this version. A reconnect test with a port in the ephemeral
+range fails with "Address already in use" because the connecting side's retries
+self-connect to its own port; this is a test artefact, not a PAIR property.
+
+**Local:** the zprocess test suite on the branch passes in the harness venv: 74 tests in
+110 s, one new (`test_legacy_server_process`, a remote process server whose protocol
+query returns 1.0.0). The three mixed-version combinations were run end to end with the
+installed master zprocess as the old side and the clone as the new side, each with a
+real `RemoteProcessServer` in its own process and a `Process` subclass that echoes its
+own zprocess path and socket type: old server with new parent used PUSH and PULL sockets
+and printed the warning naming the server; new server with old parent used PUSH and
+PULL; new server with new parent used PAIR. Each exchanged a message.
+
+**GitHub Actions:** dispatch of `test.yml` with `zprocess=chrisjbillington/zprocess@pair-sockets`
+and `all_steps` on, the other components at their masters as of 12:14 UTC, as run
+[39250476711](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39250476711).
+The 25 jobs for Python 3.11 to 3.14 (Ubuntu and Windows, PySide6, PyQt6 and PyQt5, plus
+the `numpy<2.5` job) passed every step including `zprocess-tests` (111 s on Ubuntu, 115 s
+on Windows); the six Python 3.15 jobs failed at "Install the components" on the h5py
+build as before. zprocess #33 was opened on this result.
+
 ## 2026-10-19: BLACS shot cycle with the non-blocking state display and without qtlock enforcement
 
 Measurements for blacs #132 (`state-display-nonblocking`, bfaaf25) and qtutils #38

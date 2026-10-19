@@ -227,7 +227,8 @@ all merged on 2026-10-18 between 08:45 and 09:21 UTC. Many of their descriptions
 several issues after one "Closes", which GitHub does not follow, so the remaining issues
 were closed by hand the same day; zprocess #16 is left open. Later on 2026-10-18, after the
 maintainer's decisions: labscript #130 (labscript #104 and the rest of B5), runmanager
-#137 (B4) and blacs #131 (B3), all open.
+#137 (B4) and blacs #131 (B3), all open. On 2026-10-19: zprocess #33 (PAIR sockets with
+version negotiation, PR-REVIEW.md item 4), held for the `v2.28.0` tag.
 
 The scheme rename needs setuptools_scm 10, which introduced the name
 `semver-pep440-release-branch` (setuptools_scm 9.2.2 does not have it); the default
