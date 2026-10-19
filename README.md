@@ -38,6 +38,17 @@ been fixed already. The ranked tables at the top of `docs/ISSUE-TRIAGE.md` and
 `docs/PR-REVIEW.md` give the per-item actions; the rest of those files is the reasoning
 and the file:line evidence.
 
+## State as of 2026-10-19
+
+- The maintainer's lab machine had five locally modified suite files. Two changes
+  (blacs `require_group('data')`, lyse `data` group attributes in the dataframe) were
+  already on `master`. Two gave blacs #132 (the tab `state` setter posts its label
+  update instead of blocking, which halves the per-tab mainloop overhead per
+  transition) and qtutils #38 (`qtlock.enforce()` only with `QTUTILS_ENFORCE_QTLOCK`
+  set), both passing the harness on Python 3.11 to 3.14 with all three Qt bindings and
+  measured with `tools/blacs-timing/` (`docs/TESTING.md`). The fifth, `os.nice(10)` in
+  the lyse analysis subprocess, is a nice-to-have in `docs/RELEASE-PLAN.md` section 6.
+
 ## State as of 2026-10-18
 
 - runmanager PR #130 (the module split) was merged 2026-10-17 as bfe63ba with a fix

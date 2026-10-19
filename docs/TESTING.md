@@ -5,6 +5,54 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-19: BLACS shot cycle with the non-blocking state display and without qtlock enforcement
+
+Measurements for blacs #132 (`state-display-nonblocking`, bfaaf25) and qtutils #38
+(`qtlock-enforce-opt-in`, 6d0377b), made with `tools/blacs-timing/` in the local
+harness venv (Python 3.14.8, PySide6 6.12.0, offscreen Qt platform) on the maintainer's
+laptop (12th Gen Core i7-1270P, 12 cores). Each run compiles a 0.1 s shot with a
+`DummyPseudoclock` and one or seven `DummyIntermediateDevice`s, submits 50 copies to
+BLACS and takes medians over the last 49 from `BLACS.log`. Every configuration was run
+twice. "Overhead per event" is the median over a tab's `transition_to_buffered` and
+`transition_to_manual` events of the time outside the worker job; the range is over
+tabs and runs.
+
+| Tabs | blacs | qtutils | Cycle (s) | Overhead per event per tab (ms) | Instruct to ack wait (ms) | Finalise to next event (ms) |
+|---|---|---|---|---|---|---|
+| 2 | master | master | 0.160, 0.168 | 11 to 15 | 2 to 3 | 2 to 3 |
+| 2 | branch | master | 0.161, 0.161 | 6 to 10 | 1 | 0 |
+| 2 | master | branch | 0.161, 0.159 | 11 to 15 | 2 to 3 | 2 to 3 |
+| 2 | branch | branch | 0.156, 0.156 | 5 to 9 | 0 to 1 | 0 |
+| 8 | master | master | 0.231, 0.230 | 27 to 39 | 6 to 9 | 4 to 7 |
+| 8 | branch | master | 0.215, 0.212 | 14 to 24 | 2 to 3 | 1 to 3 |
+| 8 | master | branch | 0.201, 0.201 | 21 to 30 | 4 to 7 | 3 to 5 |
+| 8 | branch | branch | 0.197, 0.201 | 17 to 22 | 2 to 5 | 1 to 2 |
+
+The blacs change halves the per-tab overhead and removes the two steps that contain
+only a `state` assignment; the cycle saving is about 0.017 s with 8 tabs and within
+noise with 2, because the tabs transition in parallel. Disabling the qtlock profiling
+hook saves 0.03 s per cycle with 8 tabs and nothing measurable with 2. The same two
+changes were measured on the lab machine (an Intel NUC, 11th Gen Core i3-1115G4, three
+real device tabs: a serial pseudoclock, a camera and a FunctionRunner; 1.405 s sequence;
+BLACS 3.2.3 with the change applied to the installed file) on 2026-09-30, as medians of
+ten shots excluding the first after each restart. Disabling `qtlock.enforce()` took the
+cycle from 1.883 s to 1.845 s (transition to buffered 0.217 s to 0.194 s, transition to
+manual 0.166 s to 0.155 s, mainloop overhead per transition event per tab 85 to 118 ms
+down to 56 to 82 ms). The non-blocking `state` setter, measured with enforcement
+already disabled, took the cycle from 1.845 s to 1.781 s (transition to buffered 0.194 s
+to 0.166 s, transition to manual 0.155 s to 0.144 s, overhead per event per tab 56 to
+82 ms down to 30 to 42 ms, "Instructing worker" to "Waiting for worker to acknowledge"
+19.5 ms to 2.5 ms, "Finalising function" to "Waiting for next event" 16 ms to 1 ms).
+
+Two `test.yml` dispatches, each with the other components at their masters as of 11:00
+UTC: blacs `state-display-nonblocking` (bfaaf25) as run
+[39241386260](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39241386260)
+and qtutils `qtlock-enforce-opt-in` (6d0377b) as run
+[39241439736](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39241439736).
+The 25 jobs of each run (Ubuntu and Windows, Python 3.11 to 3.14, PySide6, PyQt6 and
+PyQt5, plus the Ubuntu Python 3.14 PySide6 job with `numpy<2.5`) passed every step. The
+pull requests blacs #132 and qtutils #38 were opened on these results.
+
 ## 2026-10-18: the harness without KNOWN markers, on the masters
 
 Push run [39121553218](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39121553218)

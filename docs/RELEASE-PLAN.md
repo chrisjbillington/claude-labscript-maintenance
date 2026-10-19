@@ -531,3 +531,8 @@ maintenance branch is a squash merge of the whole of `master`. After this releas
   release, but to be reconsidered.
 - Free-threaded Python builds (setuptools-conda #26) and Intel macOS after the
   `macos-15-intel` runner retires in 2027.
+- Lower the scheduling priority of the lyse analysis subprocess, so that analysis
+  routines do not slow BLACS when both run on one machine. A nice-to-have, not
+  scheduled. The maintainer's lab machine runs `os.nice(10)` at the top of
+  `lyse/analysis_subprocess.py`; a mainline version needs a Windows equivalent (`os.nice`
+  does not exist there) and probably a labconfig setting instead of a fixed value.
