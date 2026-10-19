@@ -27,7 +27,7 @@ paragraph per PR, section 3 contains the detailed per-group reports.
 | 1 | blacs #123 plugin-loading bugfixes (ispielma, 2026) | bugfix | 4 | merged 2026-10-17 (d061535) | Merged as is after testing; the comment trim went into blacs #128, merged 2026-10-18 |
 | 2 | labscript-devices #110 Windfreak SynthHD (dihm, 2024) | feature | 4 | yes | Merge after three one-line fixes. Merged 2026-10-17 with fix commit 30979be (merge 2a2d785) |
 | 3 | labscript-devices #126 AD9959 DDS Sweeper (carterturn, 2025) | feature | 4 | yes | Merge after deleting the dead runviewer parser and fixing `clock_limit`. Merged 2026-10-17 with fix commit 357495a (merge 6f78a56); the worker changes are not tested on hardware |
-| 4 | zprocess #14 PAIR sockets (mjdoris, 2021) | bugfix, behaviour change | 3 | conflict | Maintainer rework: 14 real lines plus a version check for mixed zprocess versions. Done as zprocess #33 (opened 2026-10-19, held for the `v2.28.0` tag); #14 stays open until #33 is merged |
+| 4 | zprocess #14 PAIR sockets (mjdoris, 2021) | bugfix, behaviour change | 3 | conflict | Maintainer rework: 14 real lines plus a version check for mixed zprocess versions. Done as zprocess #33 (opened 2026-10-19, for 2.28.0); #14 stays open until #33 is merged |
 | 5 | labscript-devices #148 TriggerableCamera + DummyCamera (ispielma, 2026) | refactor, feature | 3 | yes | Design feedback to author, hardware test, then merge; merge #144, #87, #63 first or re-apply onto it |
 | 6 | labscript-devices #144 Andor fixes (TesseTiemens, 2026) | bugfix | 3 | yes | Ask author: SyntaxError on Python < 3.12, wrong model string, semaphore deadlock. Merged 2026-10-17 with fix commit 2d65acd (merge 2d0b872), without the fast setup path and the semaphore |
 | 7 | lyse #132 data-group attributes in dataframe (chrisjbillington, 2026) | feature | 3 | yes | Merge after changing overwrite to merge-into-existing. Merged 2026-10-17 with fix commit 001df5f (merge ca8d78e) |
@@ -87,8 +87,8 @@ versions on remote worker computers fail with no useful error; a version check i
 parent-info handshake is needed. Moot for shotscript. **Status 2026-10-19:** re-done on
 master as zprocess #33 with the socket type negotiated through `parentinfo` and the
 remote process server's protocol version, so every mixed combination works (`TESTING.md`,
-"zprocess PAIR sockets"); to be merged after the `v2.28.0` tag. #14 is left open until
-then.
+"zprocess PAIR sockets"); goes into 2.28.0 (maintainer's decision 2026-10-19). #14 is
+left open until #33 is merged.
 
 **labscript-devices #148.** Separates the generic camera device/tab/worker from the
 IMAQdx backend and adds a DummyCamera that evaluates an image function at compile time
