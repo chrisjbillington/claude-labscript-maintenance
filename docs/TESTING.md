@@ -5,6 +5,22 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-21: runmanager #141 (non-default output folder marker from an icon)
+
+Branch `non-default-folder-icon` on labscript-suite/runmanager (head 9912fd0, one commit
+on master 7e692f4): the marker is rendered from a `QIcon` at the small icon size instead
+of the `pixmap` property in `main.ui` (DEFECTS.md D11).
+
+**Local** (harness venv, Python 3.14.8, PySide6 6.12, the window built headless in a
+namespace with a scratch profile): the label's pixmap is 16×16 at scale factor 1 and
+32×32 at device pixel ratio 2 at scale factor 2, 16 logical pixels in both cases.
+
+**GitHub Actions:** dispatch of `test.yml` with
+`runmanager=labscript-suite/runmanager@non-default-folder-icon`, merged into master by
+the harness, as run
+[39565207484](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39565207484).
+All 25 jobs passed every step, with the three known markers for #139 and #140 reported.
+
 ## 2026-10-21: qtutils #39 (16×16 icons with @2x variants)
 
 Branch `icons-16px-base` on philipstarkey/qtutils (head 1e853c6, one commit on master
