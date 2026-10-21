@@ -7,8 +7,9 @@ table.
 
 ## 2026-10-21: runmanager #140 (custom and automatic expansion settings)
 
-Branch `expansion-settings` on labscript-suite/runmanager (head 469c8b3, one commit on
-the #139 branch 803bb74): the globals file records whether each expansion setting is
+Branch `expansion-settings` on labscript-suite/runmanager (head 223dff4, one commit on
+the #139 branch 2101a63; 469c8b3 before the drop-down icons were set to the small icon
+size and plain scalars were added to the screenshots): the globals file records whether each expansion setting is
 custom, `automatic_expansions` computes the automatic settings, ranges are outer, and
 the GUI edits the settings with a drop-down. The commit was revised on the maintainer's
 request after the first screenshots (ce24437): no expansion shows as `None`, the entry
@@ -35,12 +36,15 @@ harness: run
 [39552719146](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39552719146)
 on ce24437 passed every step in all 25 jobs; run
 [39555021218](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39555021218)
-on 469c8b3 passed every step in all 25 jobs as well.
+on 469c8b3 passed every step in all 25 jobs as well, and run
+[39556519853](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39556519853)
+on 223dff4 passed every step in all 25 jobs.
 
 ## 2026-10-21: runmanager #139 (topological evaluator)
 
-Branch `topological-evaluator` on labscript-suite/runmanager (head 803bb74, one commit on
-master 7e692f4): `evaluate_globals` evaluates each expression once in dependency order
+Branch `topological-evaluator` on labscript-suite/runmanager (head 2101a63, one commit on
+master 7e692f4; 803bb74 before `TraceDictionary` was removed on the maintainer's
+request): `evaluate_globals` evaluates each expression once in dependency order
 read from the syntax trees, instead of the retry loop over all unevaluated expressions.
 
 **Local** (harness venv, Python 3.14.8, PySide6): a chain of three globals defined in
@@ -61,7 +65,16 @@ harness, as runs
 [39550004014](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39550004014)
 (2243c87, the same code before a documentation change) and
 [39550548845](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39550548845)
-(803bb74). All 25 jobs of each passed every step.
+(803bb74). All 25 jobs of each passed every step. On 2101a63, run
+[39556509567](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39556509567)
+failed the `runmanager-api` check in all 25 jobs only because the check had been
+extended for the API that #140 adds (`get_expansion_custom`, `get_custom_expansions`,
+`automatic_expansions`, ranges as `outer`); every other check passed. Those checks are
+now marked as known for #140 and run only when the API is present; with that harness,
+run
+[39557980780](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39557980780)
+on 2101a63 passed every step in all 25 jobs, with the API presence check reported as
+known and the expansion settings checks skipped.
 
 ## 2026-10-21: the harness tests a pull request merged into the current default branch
 
