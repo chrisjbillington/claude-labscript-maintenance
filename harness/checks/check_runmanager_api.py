@@ -100,8 +100,7 @@ evaluated, _, _ = runmanager.evaluate_globals(
 check(isinstance(evaluated['scan']['amplitude'], runmanager.ExpansionError),
       f"non-iterable outer global holds ExpansionError: {evaluated['scan']['amplitude']!r}")
 check(not isinstance(evaluated['fixed']['derived'], Exception) and evaluated['fixed']['derived'] == 10,
-      f"global referring to it evaluates: derived = {evaluated['fixed']['derived']!r}",
-      known='runmanager #138')
+      f"global referring to it evaluates: derived = {evaluated['fixed']['derived']!r}")
 runmanager.set_value(gf, 'scan', 'amplitude', '[0.1, 0.2, 0.3]')
 
 # Diff and tokenizer

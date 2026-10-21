@@ -33,7 +33,7 @@ at "Install the components" on the h5py build as before. The push of the extende
 to `main` also ran the masters as run
 [39535056606](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39535056606),
 where every job for 3.11 to 3.14 failed only at the new check, as expected without the
-fix; the check is marked as known until runmanager #138 is merged.
+fix. runmanager #138 was merged on this result (3e1de29, 03:55 UTC).
 
 ## 2026-10-19: zprocess PAIR sockets (zprocess #33)
 
