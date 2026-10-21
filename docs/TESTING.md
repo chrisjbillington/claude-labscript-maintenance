@@ -5,6 +5,33 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-21: the harness tests a pull request merged into the current default branch
+
+`harness/suite.py clone` fetched `refs/pull/N/head` for a `pr/N` ref, the branch as
+pushed, so a run on a pull request did not include changes merged to the default branch
+after the branch was made (the first #137 run below failed for that reason). It now
+fetches the default branch and the pull request head in full and merges them itself
+(commit 00ad31b; an intermediate version, 10c8a0f, used GitHub's `refs/pull/N/merge`,
+which is recomputed only when something asks about the pull request).
+
+**Local**: cloning into a scratch directory with `runmanager=pr/137` gives head 4e11a18
+merged into master 3e1de29 with the pull request's change present, on a fresh clone and
+on an existing shallow clone; `runmanager=pr/136`, which is merged, gives the master
+tip; `labscript-devices=pr/148`, which conflicts with master, stops with a message and
+leaves the clone clean.
+
+**GitHub Actions:** on the final version, the dispatch with `runmanager=pr/137` as run
+[39545120783](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39545120783)
+passed every step in all 25 jobs for Python 3.11 to 3.14, with the clone log showing
+the head merged into master 3e1de29, and the push run
+[39545120201](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39545120201)
+on the masters passed the same 25 jobs, with the 6 Python 3.15 jobs failing at install
+on h5py as before. The same two runs on the intermediate version,
+[39544208125](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39544208125)
+and
+[39544207365](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39544207365),
+gave the same results.
+
 ## 2026-10-21: runmanager #137 (uneven zip groups) shortened and brought up to date
 
 Branch `zip-length-check` on labscript-suite/runmanager: the zip group length check in
