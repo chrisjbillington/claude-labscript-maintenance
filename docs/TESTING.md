@@ -36,7 +36,11 @@ gave the same results.
 
 Branch `zip-length-check` on labscript-suite/runmanager: the zip group length check in
 `evaluate_globals` rewritten in 16 lines in place of 24 (a9f99cb), then `master` merged
-in for #138 (head 4e11a18).
+in for #138 (4e11a18). The branch was then replaced by the single commit 28fc9ae on
+master 3e1de29 with the same tree; run
+[39546648678](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39546648678),
+dispatched with `runmanager=pr/137` on the harness that merges the pull request into
+the current master itself, passed every step in all 25 jobs.
 
 **Local** (harness venv, Python 3.14.8, PySide6): with a zip group of lengths 3 and 2,
 an outer global and a constant, both zip globals hold the `ValueError` naming the
