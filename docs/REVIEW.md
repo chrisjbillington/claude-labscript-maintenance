@@ -461,7 +461,7 @@ Paths are relative to each repo's root unless stated otherwise.
   deliberately blank expansion is reset to `outer` on every restart, and after deactivating
   and reactivating its group. With `x = [1,2,3]` and a cleared expansion, a fresh session
   produces 3 shots instead of 1.
-- **Fixed by runmanager PR #137, opened 2026-10-18 (an error on each global of the zip group).** ~~**B4. `runmanager/__init__.py:572` (run).**~~ Zip groups with unequal lengths are silently
+- **Fixed by runmanager PR #137, merged 2026-10-21 (an error on each global of the zip group).** ~~**B4. `runmanager/__init__.py:572` (run).**~~ Zip groups with unequal lengths are silently
   truncated by `zip(*axis)`. If this is intended, the GUI should indicate it.
 - **Fixed by runmanager PR #136, merged 2026-10-18.** ~~**B5. `runmanager/__main__.py:1819-1821` (read).**~~ `close_current_tab` calls
   `close_group` inside iteration over `currently_open_groups` with no `break`, so Ctrl+W

@@ -173,7 +173,7 @@ on 2026-10-18: labscript #128, blacs #129 and #130, runmanager #134 and #136, ru
 labscript-devices #153 and #155. Fixed by pull requests opened later on 2026-10-18 after
 the maintainer's decisions: the rest of labscript B5 (labscript #130), blacs B3, which
 aborts and requeues the running shot (blacs #131), and runmanager B4, which makes uneven
-zip groups an error (runmanager #137).
+zip groups an error (runmanager #137, merged 2026-10-21).
 
 Not changed by maintainer decision on 2026-10-18: the `compile_loop` timeout of
 runmanager B9 (Restart subprocess ends the wait) and the labscript-utils B2 round-trip
@@ -227,7 +227,7 @@ all merged on 2026-10-18 between 08:45 and 09:21 UTC. Many of their descriptions
 several issues after one "Closes", which GitHub does not follow, so the remaining issues
 were closed by hand the same day; zprocess #16 is left open. Later on 2026-10-18, after the
 maintainer's decisions: labscript #130 (labscript #104 and the rest of B5), runmanager
-#137 (B4) and blacs #131 (B3), all open. On 2026-10-19: zprocess #33 (PAIR sockets with
+#137 (B4, merged 2026-10-21) and blacs #131 (B3); labscript #130 and blacs #131 are open. On 2026-10-19: zprocess #33 (PAIR sockets with
 version negotiation, PR-REVIEW.md item 4), for zprocess 2.28.0.
 
 The scheme rename needs setuptools_scm 10, which introduced the name

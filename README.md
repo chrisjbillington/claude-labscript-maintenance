@@ -77,8 +77,9 @@ and the file:line evidence.
 - Three pull requests opened later on 2026-10-18 after the maintainer's decisions, each
   passing the harness on Python 3.11 to 3.14 with all three Qt bindings: labscript #130
   (removes the pylab star import, labscript #104; secondary pseudoclocks in the
-  shared-trigger check), runmanager #137 (uneven zip groups are an error) and blacs #131
-  (closing BLACS during a shot aborts and requeues it). All three are open. labscript B3
+  shared-trigger check), runmanager #137 (uneven zip groups are an error, merged 2026-10-21) and blacs #131
+  (closing BLACS during a shot aborts and requeues it). labscript #130 and blacs #131 are
+  open. labscript B3
   (`wait_delay`) and the labscript-devices hardware items are waiting for discussion
   (`docs/MAINTENANCE.md`, "Part 2 status"). Breaking changes for the release notes and the
   changes that need hardware testing are listed in `docs/RELEASE-PLAN.md` sections 4.6 and
