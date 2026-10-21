@@ -5,6 +5,31 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-21: auto scroll to end after hiding (runmanager #32)
+
+Branch `auto-scroll-after-show` in the local qtutils clone (head 2ee0c86, one commit on
+master d330ae1, not pushed; `patches/qtutils-auto-scroll-after-show.patch`).
+`set_auto_scroll_to_end` records whether the scrollbar is at the end only while its
+scroll area is visible, and scrolls to the end after a show event if it was at the end
+before.
+
+**Local** (harness venv, Python 3.14.8, PySide6 6.12.0; and Python 3.12 venvs with PyQt5
+and PyQt6 from PyPI; offscreen Qt platform, also the Wayland and xcb platforms for
+PySide6): an `OutputBox` or a bare `QPlainTextEdit` in the first tab of a `QTabWidget`.
+
+| Scenario, with the Output tab hidden while 50 lines are written | master | branch |
+|---|---|---|
+| 3 or 60 lines before, scrollback cap reached, `\r` progress lines, wrapped lines, window resized | at end | at end |
+| user clicked in the box first (text cursor above the end) | scrolled to the cursor; on PySide6 and PyQt6 does not follow further output, on PyQt5 follows it again | at end, follows further output |
+| hidden at the 1000-line scrollback cap | at end, but the recorded state is "not at end" until the next value change | at end |
+| `QTableView` (as in the lyse file box), switching tabs, hiding or minimising the window | at end | at end |
+| user scrolled up first (`QTableView`) | stays where the user left it | stays where the user left it |
+
+A `QPlainTextEdit` that the user scrolled up, with the text cursor at the end, scrolls to
+the end on the first show after a hidden append on both master and the branch; Qt does
+this, not qtutils. `unset_auto_scroll_to_end` stops the scrolling. The lyse file box
+table did not show the defect in any scenario tried.
+
 ## 2026-10-21: qtutils #40 (exec_ alias only in PyQt6)
 
 Branch `exec-alias-pyqt6` on philipstarkey/qtutils (head e8be350, one commit on master

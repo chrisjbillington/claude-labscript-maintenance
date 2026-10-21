@@ -9,6 +9,7 @@ closed, then its row moves to Done. Delete nothing: a done row is the record.
 
 | Added | Task | Why not from the cloud | Status |
 |---|---|---|---|
+| 2026-10-21 | Push the qtutils fix for runmanager #32 when the maintainer approves it: `git checkout -b auto-scroll-after-show origin/master && git am ../../patches/qtutils-auto-scroll-after-show.patch` in `repos/qtutils`, push to philipstarkey/qtutils, dispatch `test.yml` with `qtutils=philipstarkey/qtutils@auto-scroll-after-show`, then open the pull request | made in a local session as a proposed fix; the maintainer has not yet asked for a pull request | open |
 | 2026-10-18 | Delete the merged pull request branches `part2-bugs` in labscript-utils (#135, 9c10631), `compile-loop-and-remote-fixes` in runmanager (#134, 854c5da), `part2-bugs` in runviewer (#77, 13c39f6) and `resample-first-bin` in labscript-c-extensions (#13, d80a2a8); each branch head is the merged pull request head. chrisjbillington/zprocess `sync-workflow-tag-step-shell` is at 4d14175, which differs from the merged head of #31 (2e326ad); check it before deleting | the session's permission policy refused the branch deletion | open |
 
 ## Done
