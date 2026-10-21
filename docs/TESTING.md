@@ -5,6 +5,30 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-21: runmanager #137 (uneven zip groups) shortened and brought up to date
+
+Branch `zip-length-check` on labscript-suite/runmanager: the zip group length check in
+`evaluate_globals` rewritten in 16 lines in place of 24 (a9f99cb), then `master` merged
+in for #138 (head 4e11a18).
+
+**Local** (harness venv, Python 3.14.8, PySide6): with a zip group of lengths 3 and 2,
+an outer global and a constant, both zip globals hold the `ValueError` naming the
+lengths, the other two globals are unaffected and `count_shots` gives 0; with
+`raise_exceptions=True` the `ValueError` is raised with both names; with equal lengths
+the group expands to 6 shots. A zip global that is an iterator without a length is
+skipped by the check and caught by the strict `zip` in the expansion. The #138 case (a
+non-iterable `outer` global holds `ExpansionError` and a global that refers to it
+evaluates) passes after the merge.
+
+**GitHub Actions:** two dispatches of `test.yml` with `runmanager=pr/137`, the other
+components at their masters as of 04:03 UTC. Run
+[39541941749](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39541941749),
+on a9f99cb, failed the `runmanager-api` check in all 25 jobs at the case that #138
+added, because the branch did not yet contain #138; every other check passed. Run
+[39542471272](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39542471272),
+on 4e11a18 after the merge, passed every step in all 25 jobs for Python 3.11 to 3.14
+(Ubuntu and Windows, PySide6, PyQt6 and PyQt5, plus the `numpy<2.5` job).
+
 ## 2026-10-21: runmanager #138 (expansion error keeps the value in the namespace)
 
 Branch `expansion-error-namespace` on labscript-suite/runmanager (head b5c4b25, one commit
