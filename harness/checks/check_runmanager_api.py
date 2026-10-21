@@ -92,6 +92,17 @@ except Exception as e:
     check('undefined_name' in str(e), f'evaluation error raised: {type(e).__name__}')
 runmanager.set_value(gf, 'fixed', 'duration', '1.0')
 
+# A global that fails the expansion check is still in the namespace for the globals
+# that refer to it
+runmanager.set_value(gf, 'scan', 'amplitude', '5')
+evaluated, _, _ = runmanager.evaluate_globals(
+    runmanager.get_globals(runmanager.get_all_groups(gf)), raise_exceptions=False)
+check(isinstance(evaluated['scan']['amplitude'], runmanager.ExpansionError),
+      f"non-iterable outer global holds ExpansionError: {evaluated['scan']['amplitude']!r}")
+check(not isinstance(evaluated['fixed']['derived'], Exception) and evaluated['fixed']['derived'] == 10,
+      f"global referring to it evaluates: derived = {evaluated['fixed']['derived']!r}")
+runmanager.set_value(gf, 'scan', 'amplitude', '[0.1, 0.2, 0.3]')
+
 # Diff and tokenizer
 d = runmanager.dict_diff({'a': 1, 'b': 2}, {'a': 1, 'b': 3, 'c': 4})
 check(set(d) == {'b', 'c'}, f'dict_diff {d}')
