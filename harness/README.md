@@ -24,8 +24,12 @@ python harness/suite.py test --python 3.14 [--step NAME] [--skip NAME] [--all]
 `clone` puts the components in `repos/` (`--repos-dir` to change). A component with no
 ref is fetched at its upstream default branch, unless a clone already exists there, in
 which case the clone is used as it is. A ref is a branch, tag, commit or `pr/<N>`, for
-example `labscript=pr/124` or `zprocess=chrisjbillington/zprocess@fix-conpty`. The
-resolved commits are written to `repos/manifest.json` and appear in the report.
+example `labscript=pr/124` or `zprocess=chrisjbillington/zprocess@fix-conpty`. `pr/<N>`
+is the pull request merged into its base branch (GitHub's `refs/pull/N/merge`), so the
+result is the code that merging would produce; it does not exist for a pull request that
+is closed or that conflicts with its base branch, and `clone` then stops with a message.
+The resolved commits, and for a `pr/<N>` ref the pull request head and the base commit
+it was merged into, are written to `repos/manifest.json` and appear in the report.
 
 `install` makes `harness/venvs/py<version>` with uv (`--venv` to change) and installs
 every component from its clone in one resolver run, with the Qt binding and any pins.

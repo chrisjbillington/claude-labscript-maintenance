@@ -63,8 +63,9 @@ This repository holds the notes, plans and tooling for maintaining the labscript
 
 - Check a change in one harness venv while making it. Before asking for a pull request
   to be merged, dispatch `.github/workflows/test.yml` with the pull request refs
-  (`name=pr/N`), so that the change has a result on Ubuntu and Windows for every supported
-  Python and Qt binding, and record the run in `docs/TESTING.md`.
+  (`name=pr/N`, which tests the pull request merged into its base branch), so that the
+  change has a result on Ubuntu and Windows for every supported Python and Qt binding,
+  and record the run in `docs/TESTING.md`.
 - Prefer few tests, mostly integration or end-to-end tests that go through public entry
   points: install the packages, compile a shot with dummy devices, read it back, run the
   runviewer parsers on it. Do not add unit tests that restate the implementation.

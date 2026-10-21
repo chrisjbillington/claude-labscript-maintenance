@@ -127,9 +127,20 @@ def parse_spec(spec):
 
 
 def fetch_ref(ref):
+    """The git ref to fetch for `ref`. `pr/<N>` is GitHub's merge ref, the pull request
+    merged into its base branch."""
     if ref.startswith('pr/'):
-        return f'refs/pull/{ref[3:]}/head'
+        return f'refs/pull/{ref[3:]}/merge'
     return ref
+
+
+def merge_parents(dest):
+    """The parents of the checked-out merge ref's commit, (base, head), read from the raw
+    commit because a shallow clone hides parents."""
+    commit = subprocess.run(['git', '-C', str(dest), 'cat-file', 'commit', 'HEAD'],
+                            capture_output=True, text=True, check=True).stdout
+    parents = [line.split()[1] for line in commit.splitlines() if line.startswith('parent ')]
+    return tuple(parents[:2])
 
 
 def cmd_clone(args):
@@ -157,12 +168,22 @@ def cmd_clone(args):
             run(['git', '-C', dest, 'remote', 'add', 'origin', url], check=True)
         else:
             run(['git', '-C', dest, 'remote', 'set-url', 'origin', url], check=True)
-        run(['git', '-C', dest, 'fetch', '-q', '--depth', '1', 'origin', fetch_ref(ref)], check=True)
+        fetched = run(['git', '-C', dest, 'fetch', '-q', '--depth', '1', 'origin', fetch_ref(ref)])
+        if fetched.returncode and ref.startswith('pr/'):
+            raise SystemExit(f'{name}: {repo} has no merge ref for {ref}; the pull request '
+                             'is closed or conflicts with its base branch')
+        fetched.check_returncode()
         run(['git', '-C', dest, 'checkout', '-q', '--detach', 'FETCH_HEAD'], check=True)
         head = subprocess.run(['git', '-C', str(dest), 'rev-parse', 'HEAD'],
                               capture_output=True, text=True, check=True).stdout.strip()
-        log(f'{name}: {repo} {ref} at {head[:10]}')
         manifest[name] = {'repo': repo, 'ref': ref, 'commit': head}
+        if ref.startswith('pr/'):
+            base, pr_head = merge_parents(dest)
+            manifest[name].update(base=base, head=pr_head)
+            log(f'{name}: {repo} {ref} head {pr_head[:10]} merged into base {base[:10]} '
+                f'as {head[:10]}')
+        else:
+            log(f'{name}: {repo} {ref} at {head[:10]}')
     (repos_dir / 'manifest.json').write_text(json.dumps(manifest, indent=1))
 
 
@@ -296,6 +317,8 @@ def write_report(results, info, manifest, path):
     lines += ['', '| Component | Ref | Commit |', '|---|---|---|']
     for name, m in manifest.items():
         ref = f"{m['repo']}@{m['ref']}" if m.get('repo') else 'existing clone'
+        if m.get('head'):
+            ref += f" (head {m['head'][:10]} merged into base {m['base'][:10]})"
         lines.append(f"| {name} | {ref} | {m['commit'][:10]} |")
     text = '\n'.join(lines) + '\n'
     path.write_text(text)
