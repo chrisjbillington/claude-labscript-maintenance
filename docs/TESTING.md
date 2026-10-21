@@ -5,6 +5,36 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-21: runmanager #138 (expansion error keeps the value in the namespace)
+
+Branch `expansion-error-namespace` on labscript-suite/runmanager (head b5c4b25, one commit
+on master 73199cb): `evaluate_globals` puts the value of a global that fails the
+iterability check for its expansion into the namespace before recording the
+`ExpansionError` (DEFECTS.md D10).
+
+**Local** (harness venv, Python 3.14.8, PySide6): with `x = np.linspace(0, 10, 10)`
+set to `outer` and `y = np.max(x)`, then `x` edited to `5`, the library evaluation and
+the GUI's `guess_expansion_modes` on a stub gave on master `x` holding `ExpansionError`,
+`y` holding `NameError`, the expansion still `outer` and 0 shots; on the branch `y = 5`,
+the expansion blank and 1 shot. The `runmanager-api` check was extended with this case
+(a non-iterable `outer` global holds `ExpansionError` and a global that refers to it
+evaluates); it fails on master and passes on the branch.
+
+**GitHub Actions:** dispatch of `test.yml` with
+`runmanager=labscript-suite/runmanager@expansion-error-namespace`, the other components
+at their masters as of 02:48 UTC, as run
+[39535057217](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39535057217).
+24 of the 25 jobs for Python 3.11 to 3.14 (Ubuntu and Windows, PySide6, PyQt6 and PyQt5,
+plus the `numpy<2.5` job) passed every step. The Ubuntu 3.13 PyQt5 job passed every step
+up to `runmanager-api` and failed at `apps`: runmanager raised "Address already in use"
+on its labconfig port, so the remote API connection timed out; the runner already had a
+process on that port, which is unrelated to the change. The six Python 3.15 jobs failed
+at "Install the components" on the h5py build as before. The push of the extended check
+to `main` also ran the masters as run
+[39535056606](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39535056606),
+where every job for 3.11 to 3.14 failed only at the new check, as expected without the
+fix; the check is marked as known until runmanager #138 is merged.
+
 ## 2026-10-19: zprocess PAIR sockets (zprocess #33)
 
 Branch `pair-sockets` on chrisjbillington/zprocess (head 71fe1dd, two commits on master
