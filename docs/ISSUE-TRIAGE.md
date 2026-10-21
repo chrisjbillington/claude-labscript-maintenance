@@ -235,7 +235,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 | 204 | setuptools-conda #2 save recipes | feature | 1 | close as won't fix |
 | 205 | runmanager #47 lazy shot-file creation | proposal | 1 | close as fixed |
 | 206 | runmanager #53 ModuleWatcher reloads runmanager | bug | 1 | close as obsolete |
-| 207 | runmanager #32 output box scrolling | bug | 1 | reproduced 2026-10-21; fix on qtutils branch `auto-scroll-after-show`, not yet pushed |
+| 207 | runmanager #32 output box scrolling | bug | 1 | reproduced 2026-10-21; fixed by qtutils #41 (open) |
 | 208 | runmanager #2 FingerTabBar paintEvent | bug | 1 | close as won't fix |
 | 209 | runmanager #62 nested group folders | feature | 1 | close as won't fix |
 | 210 | runmanager #125 per-variable history (empty) | feature | 1 | close as stale |
@@ -2832,7 +2832,7 @@ setuptools-conda #5). These are covered in PR-REVIEW.md and are only referenced 
 - **Rewrite relevance**: none.
 - **Importance**: 2.
 - **Recommended action**: close now that 4.1.3 is released; open specific issues for any alias found during release testing.
-- **Status**: closed 2026-10-21 with a comment. The issue's premise that older PyQt5 lacks `exec()` is wrong: the sip declarations in the PyQt5 5.0 and 5.14 sources define `exec` under `%If (Py_v3)`, and the method tables of the PyPI wheels for 5.9 to 5.15 contain both names, so every Python 3 build of PyQt5 has both spellings. Only PyQt6 lacks `exec_()`. qtutils #40 keeps that alias alone and corrects the comment.
+- **Status**: closed 2026-10-21 with a comment. The issue's premise that older PyQt5 lacks `exec()` is wrong: the sip declarations in the PyQt5 5.0 and 5.14 sources define `exec` under `%If (Py_v3)`, and the method tables of the PyPI wheels for 5.9 to 5.15 contain both names, so every Python 3 build of PyQt5 has both spellings. Only PyQt6 lacks `exec_()`. qtutils #40 keeps that alias alone and corrects the comment; the alias stays because released runviewer calls `exec_()` on its warning box, which runviewer #78 changes to `exec()`.
 
 ### qtutils PR #32: Add Outputbox clearing options (#2) (Json-To-String, opened 2026-05-16, last updated 2026-05-20)
 
@@ -3210,7 +3210,7 @@ Sources and limits:
 - **Rewrite relevance**: none
 - **Importance**: 1
 - **Recommended action**: close as stale (reopen in qtutils if it recurs).
-- **Status (2026-10-21)**: reproduced. If the user has clicked in the output box, so that the text cursor is above the end, and output arrives while the Output tab is hidden, the box scrolls to the cursor when the tab is shown and, on Qt 6, no longer follows new output. `QPlainTextEdit` scrolls to its cursor on the first show after text was appended while hidden, and `set_auto_scroll_to_end` (`qtutils/auto_scroll_to_end.py:18-22`) records the resulting value change as the user scrolling away from the end. Fixed on the qtutils branch `auto-scroll-after-show` (`patches/qtutils-auto-scroll-after-show.patch`); verification in `docs/TESTING.md`.
+- **Status (2026-10-21)**: reproduced. If the user has clicked in the output box, so that the text cursor is above the end, and output arrives while the Output tab is hidden, the box scrolls to the cursor when the tab is shown and, on Qt 6, no longer follows new output. `QPlainTextEdit` scrolls to its cursor on the first show after text was appended while hidden, and `set_auto_scroll_to_end` (`qtutils/auto_scroll_to_end.py:18-22`) records the resulting value change as the user scrolling away from the end. Fixed by qtutils #41 (open); verification in `docs/TESTING.md`.
 
 ### runmanager #30: Output of multiple compilations not easily distinguishable (philipstarkey for chrisjbillington, opened 2014-10-04, last activity 2014-10-04, 0 comments)
 - **Summary**: Print a visible header with the shot filename before each compilation.
@@ -3620,7 +3620,7 @@ Sources and limits:
 | 31 | labscript-suite #6 editor/hdfview in docs | docs | 2 | convert to docs |
 | 32 | runmanager #47 lazy shot-file creation | proposal | 1 | close as fixed |
 | 33 | runmanager #53 ModuleWatcher reloads runmanager | bug | 1 | close as obsolete |
-| 34 | runmanager #32 output box scrolling | bug | 1 | reproduced 2026-10-21; fix on qtutils branch `auto-scroll-after-show`, not yet pushed |
+| 34 | runmanager #32 output box scrolling | bug | 1 | reproduced 2026-10-21; fixed by qtutils #41 (open) |
 | 35 | runmanager #2 FingerTabBar paintEvent | bug | 1 | close as won't fix |
 | 36 | runmanager #62 nested group folders | feature | 1 | close as won't fix |
 | 37 | runmanager #125 per-variable history (empty) | feature | 1 | close as stale |

@@ -5,10 +5,10 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
-## 2026-10-21: auto scroll to end after hiding (runmanager #32)
+## 2026-10-21: qtutils #41 (auto scroll to end after hiding, runmanager #32)
 
-Branch `auto-scroll-after-show` in the local qtutils clone (head 2ee0c86, one commit on
-master d330ae1, not pushed; `patches/qtutils-auto-scroll-after-show.patch`).
+Branch `auto-scroll-after-show` on philipstarkey/qtutils (head 2ee0c86, one commit on
+master d330ae1), qtutils #41.
 `set_auto_scroll_to_end` records whether the scrollbar is at the end only while its
 scroll area is visible, and scrolls to the end after a show event if it was at the end
 before.
@@ -29,6 +29,29 @@ A `QPlainTextEdit` that the user scrolled up, with the text cursor at the end, s
 the end on the first show after a hidden append on both master and the branch; Qt does
 this, not qtutils. `unset_auto_scroll_to_end` stops the scrolling. The lyse file box
 table did not show the defect in any scenario tried.
+
+**GitHub Actions:** run
+[39569702167](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39569702167)
+of `test.yml` with `qtutils=philipstarkey/qtutils@auto-scroll-after-show` passed every
+step in all 25 jobs (the six Python 3.15 jobs fail at install as always). Run
+[39570652352](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39570652352)
+with `qtutils=pr/41`: RESULT41.
+
+## 2026-10-21: runviewer #78 (exec() on the warning box)
+
+Branch `message-box-exec` on labscript-suite/runviewer (head 6feafc1, one commit on
+master 38e5c0b): the warning box for files that are not valid HDF5 files calls `exec()`,
+which was the last `exec_()` call on a program code path in the suite.
+
+**Local** (a Python 3.14.8 venv with PyQt5 5.15.11, PyQt6 6.11.0 and PySide6 6.12.0):
+`QMessageBox` has `exec` with each binding, and the module compiles.
+
+**GitHub Actions:** run
+[39568743406](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39568743406)
+of `test.yml` with `runviewer=labscript-suite/runviewer@message-box-exec` passed every
+step in all 25 jobs (the six Python 3.15 jobs fail at install as always). Run
+[39569717948](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39569717948)
+with `runviewer=pr/78` passed every step in all 25 jobs as well.
 
 ## 2026-10-21: qtutils #40 (exec_ alias only in PyQt6)
 
