@@ -21,6 +21,21 @@ the harness, as run
 [39565207484](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39565207484).
 All 25 jobs passed every step, with the three known markers for #139 and #140 reported.
 
+## 2026-10-21: qtutils #38 revised (enforce only on a non-empty value)
+
+Branch `qtlock-enforce-opt-in` on philipstarkey/qtutils (head 066b805, one commit on
+master d330ae1): `qtlock.enforce()` runs on import only when `QTUTILS_ENFORCE_QTLOCK` is
+non-empty.
+
+**Local** (harness venv, Python 3.14): importing qtutils from the branch installs the
+`threading` profile hook with the variable set to `1`, and does not install it with the
+variable unset or set to an empty string.
+
+**GitHub Actions:** dispatch of `test.yml` with `qtutils=pr/38`, run
+[39565884745](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39565884745):
+the 25 jobs for Python 3.11 to 3.14 passed every step, and the 6 Python 3.15 jobs failed
+at "Install the components" on the h5py build, as on the masters.
+
 ## 2026-10-21: qtutils #39 (16×16 icons with @2x variants)
 
 Branch `icons-16px-base` on philipstarkey/qtutils (head 1e853c6, one commit on master
