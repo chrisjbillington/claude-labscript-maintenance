@@ -127,7 +127,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 | 96 | labscript-utils #104 excepthook uses Tk | question | 2 | Close as answered; optional stderr fallback |
 | 97 | labscript #112 timing limited by slow component | support | 2 | Convert to docs (gated clocks page), close |
 | 98 | qtutils #22 RTD version string | tooling | 2 | fixed in qtutils #37 (merged 2026-10-17); issue closed |
-| 99 | qtutils #31 PyQt6 aliases tracker | meta | 2 | close |
+| 99 | qtutils #31 PyQt6 aliases tracker | meta | 2 | closed 2026-10-21; the dead `exec()` alias branch is removed in qtutils #40 |
 | 100 | qtutils #2 / PR #32 clear output box | feature | 2 | fixed in qtutils #36 (merged 2026-10-17) (context-menu part of #32, author credited); issue closed |
 | 101 | lyse #35 persist hidden columns | feature | 2 | fix later |
 | 102 | lyse #41 plot window size | bug | 2 | fix later |
@@ -294,7 +294,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 - lyse #139: serial analysis-subprocess start-up is slower under PySide6/PyQt6, which the release moves users to. Fixed in lyse #145 (merged 2026-10-18).
 - lyse #14 and #90: small, long-standing behaviour bugs with contained fixes. Fixed in lyse #145 (merged 2026-10-18).
 - runviewer #13: resampler drops short pulses at t=0; labscript-c-extensions must be rebuilt for Python 3.13 to 3.15 anyway, so include the fix. fixed in labscript-c-extensions #13 (merged 2026-10-17).
-- qtutils #31 (close; aliases shipped in 4.1.3, which lyse pins) and #22 (RTD shows version 0.1.0.dev1; fixed in qtutils #37 (merged 2026-10-17)).
+- qtutils #31 (closed 2026-10-21; aliases shipped in 4.1.3, which lyse pins; qtutils #40 removes the `exec()` alias branch, which no binding needs) and #22 (RTD shows version 0.1.0.dev1; fixed in qtutils #37 (merged 2026-10-17)).
 - setuptools-conda #26 only if conda packages are built for free-threaded Pythons.
 ### runmanager, labscript-suite
 
@@ -2832,6 +2832,7 @@ setuptools-conda #5). These are covered in PR-REVIEW.md and are only referenced 
 - **Rewrite relevance**: none.
 - **Importance**: 2.
 - **Recommended action**: close now that 4.1.3 is released; open specific issues for any alias found during release testing.
+- **Status**: closed 2026-10-21 with a comment. The issue's premise that older PyQt5 lacks `exec()` is wrong: the sip declarations in the PyQt5 5.0 and 5.14 sources define `exec` under `%If (Py_v3)`, and the method tables of the PyPI wheels for 5.9 to 5.15 contain both names, so every Python 3 build of PyQt5 has both spellings. Only PyQt6 lacks `exec_()`. qtutils #40 keeps that alias alone and corrects the comment.
 
 ### qtutils PR #32: Add Outputbox clearing options (#2) (Json-To-String, opened 2026-05-16, last updated 2026-05-20)
 
@@ -2852,7 +2853,7 @@ Reviewed in the style of PR-REVIEW.md section 2. Head `453459d` (master merged i
 | 5 | lyse #139 serial subprocess start-up | bug (performance) | 3 | fixed in lyse #145 (merged 2026-10-18); issue closed |
 | 6 | runviewer #13 pulses at t=0 dropped by resampler | bug (in labscript-c-extensions) | 3 | fixed in labscript-c-extensions #13 (merged 2026-10-17); issue closed |
 | 7 | qtutils #22 RTD version string | tooling | 2 | fixed in qtutils #37 (merged 2026-10-17); issue closed |
-| 8 | qtutils #31 PyQt6 aliases tracker | meta | 2 | close |
+| 8 | qtutils #31 PyQt6 aliases tracker | meta | 2 | closed 2026-10-21; the dead `exec()` alias branch is removed in qtutils #40 |
 | 9 | qtutils #2 / PR #32 clear output box | feature | 2 | fixed in qtutils #36 (merged 2026-10-17) (context-menu part of #32, author credited); issue closed |
 | 10 | lyse #35 persist hidden columns | feature | 2 | fix later |
 | 11 | lyse #41 plot window size | bug | 2 | fix later |
@@ -2904,7 +2905,7 @@ Reviewed in the style of PR-REVIEW.md section 2. Head `453459d` (master merged i
 - lyse #139: serial analysis-subprocess start-up is slower under PySide6/PyQt6, which the release moves users to. Fixed in lyse #145 (merged 2026-10-18).
 - lyse #14 and #90: small, long-standing behaviour bugs with contained fixes. Fixed in lyse #145 (merged 2026-10-18).
 - runviewer #13: resampler drops short pulses at t=0; labscript-c-extensions must be rebuilt for Python 3.13 to 3.15 anyway, so include the fix. fixed in labscript-c-extensions #13 (merged 2026-10-17).
-- qtutils #31 (close; aliases shipped in 4.1.3, which lyse pins) and #22 (RTD shows version 0.1.0.dev1; fixed in qtutils #37 (merged 2026-10-17)).
+- qtutils #31 (closed 2026-10-21; aliases shipped in 4.1.3, which lyse pins; qtutils #40 removes the `exec()` alias branch, which no binding needs) and #22 (RTD shows version 0.1.0.dev1; fixed in qtutils #37 (merged 2026-10-17)).
 - setuptools-conda #26 only if conda packages are built for free-threaded Pythons.
 
 ## 3.x Issue triage: runmanager, labscript-suite, mise, bias

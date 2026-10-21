@@ -5,6 +5,28 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-21: qtutils #40 (exec_ alias only in PyQt6)
+
+Branch `exec-alias-pyqt6` on philipstarkey/qtutils (head e8be350, one commit on master
+d330ae1): the `exec`/`exec_` alias block keeps only the PyQt6 branch.
+
+**Local** (a Python 3.14.8 venv with PyQt5 5.15.11, PyQt6 6.11.0 and PySide6 6.12.0,
+offscreen Qt platform): with each binding selected through `QT_ENV`, `QCoreApplication`
+and `QDialog` have both `exec` and `exec_` after importing `qtutils.qt`, and an
+application event loop started with either spelling runs and returns 0. Without qtutils,
+PyQt6 has neither `exec_`. The removed branch could never run: the sip declarations in
+the PyQt5 5.0 and 5.14 sources define `exec` under `%If (Py_v3)` next to an unconditional
+`exec_`, the method name tables in the QtCore binaries of the PyPI wheels for 5.9, 5.11.3,
+5.12, 5.13.0 and 5.15.0 contain both names, and PyPI has never carried Python 2 wheels of
+PyQt5.
+
+**GitHub Actions:** run
+[39566433436](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39566433436)
+of `test.yml` with `qtutils=philipstarkey/qtutils@exec-alias-pyqt6` passed every step in
+all 25 jobs (the six Python 3.15 jobs fail at install as always). Run
+[39567292587](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39567292587)
+with `qtutils=pr/40` passed every step in all 25 jobs as well.
+
 ## 2026-10-21: runmanager #141 (non-default output folder marker from an icon)
 
 Branch `non-default-folder-icon` on labscript-suite/runmanager (head 9912fd0, one commit
