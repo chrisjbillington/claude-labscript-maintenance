@@ -35,6 +35,11 @@ This repository holds the notes, plans and tooling for maintaining the labscript
   where to apply it with `git am`. Do not push it as a branch to the upstream
   repository. The local session deletes the patch file once it is applied. A commit
   kept only in a clone under `repos/` for a later pull request is stored the same way.
+- Keep a pull request branch as a small number of self-contained commits on top of the
+  current default branch. Bring it up to date by rebasing and force-pushing, never by
+  merging the default branch into it; fold a fix to a commit into that commit. The test
+  harness merges a pull request into the default branch for testing only. If the
+  rebase or the force-push is blocked, stop and ask the maintainer to do it.
 - Delete a branch in a component repository once its pull request is merged, and record
   in `docs/LOCAL-TASKS.md` any branch that the session cannot delete itself.
 - Describe verification in commit messages and pull request descriptions in plain
