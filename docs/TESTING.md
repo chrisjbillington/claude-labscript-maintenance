@@ -35,7 +35,7 @@ table did not show the defect in any scenario tried.
 of `test.yml` with `qtutils=philipstarkey/qtutils@auto-scroll-after-show` passed every
 step in all 25 jobs (the six Python 3.15 jobs fail at install as always). Run
 [39570652352](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39570652352)
-with `qtutils=pr/41`: RESULT41.
+with `qtutils=pr/41` passed every step in all 25 jobs as well.
 
 ## 2026-10-21: runviewer #78 (exec() on the warning box)
 
