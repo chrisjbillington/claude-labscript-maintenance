@@ -76,6 +76,22 @@ left running by an earlier run still accepts connections.
 The applications use the ports in the labconfig (42517 to 42523 and 7339 to 7341), so
 the `apps` step fails if a suite application is already running on the machine.
 
+On a Linux machine that has a real profile and running suite servers, the harness can run
+in a user, mount and network namespace instead, with a scratch directory as the home of
+the mapped root user, so that the profile goes to that directory and the ports are
+separate. The profile path comes from the user name, so `LOGNAME` and `USER` are set to
+`root`:
+
+```
+mkdir -p /tmp/fakeroot
+unshare -Urmn sh -c 'ip link set lo up && mount --bind /tmp/fakeroot /root \
+    && export HOME=/root LOGNAME=root USER=root \
+    && python harness/suite.py test --python 3.14 --work /tmp/harness-work'
+```
+
+The X display is still reachable through its socket, so an application started this way
+appears on the desktop.
+
 ## Requirements
 
 uv on the PATH or installed in the Python that runs `suite.py`; git; a C compiler for

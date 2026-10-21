@@ -32,6 +32,7 @@ API = [
     'flatten_globals', 'get_grouplist', 'get_globalslist', 'get_value', 'get_units',
     'set_units', 'get_expansion', 'next_sequence_index', 'make_single_run_file',
     'is_valid_python_identifier', 'add_expansion_groups', 'TraceDictionary',
+    'get_expansion_custom', 'get_custom_expansions', 'automatic_expansions',
 ]
 missing = [n for n in API if not hasattr(runmanager, n)]
 check(not missing, f'public API present (missing: {missing})')
@@ -81,8 +82,28 @@ _, dims = runmanager.expand_globals(
     {'outer amplitude': {'order': 1, 'shuffle': False}, 'zip zip1': {'order': 0, 'shuffle': False}},
     return_dimensions=True)
 check(dims.get('zip zip1') == 2 and dims.get('outer amplitude') == 3, f'dimensions {dims}')
-check(runmanager.guess_expansion_type([1, 2]) == 'outer' and runmanager.guess_expansion_type(3) == '',
-      'guess_expansion_type')
+check(runmanager.guess_expansion_type([1, 2]) == 'outer' and runmanager.guess_expansion_type(3) == ''
+      and runmanager.guess_expansion_type(range(3)) == 'outer' and runmanager.guess_expansion_type((1, 2)) == '',
+      'guess_expansion_type: lists and ranges are outer, tuples and scalars are not')
+
+# Expansion settings record whether the user chose them. set_expansion records a custom
+# setting unless told otherwise, and automatic_expansions keeps custom settings, makes
+# lists outer and zips derived lists with the list they derive from
+custom = runmanager.get_custom_expansions(groups)
+check(custom['scan'] == {'amplitude': True, 'gain': True, 'offset': True} and custom['fixed']['derived'] is True
+      and custom['fixed']['duration'] is False, f'get_custom_expansions {custom}')
+runmanager.set_expansion(gf, 'fixed', 'derived', '', custom=False)
+check(runmanager.get_expansion_custom(gf, 'fixed', 'derived') is False, 'set_expansion with custom=False')
+flat_values = runmanager.flatten_globals(evaluated, evaluated=True)
+flat_custom = {name: flag for group in runmanager.get_custom_expansions(groups).values() for name, flag in group.items()}
+automatic = runmanager.automatic_expansions(flat_values, hierarchy, expansions, flat_custom)
+check(automatic == {'amplitude': 'outer', 'gain': 'zip1', 'offset': 'zip1', 'duration': '', 'use_do': '',
+                    'derived': 'outer'},
+      f'automatic_expansions with a custom outer amplitude: {automatic}')
+flat_custom['amplitude'] = False
+automatic = runmanager.automatic_expansions(flat_values, hierarchy, expansions, flat_custom)
+check(automatic['amplitude'] == 'amplitude' and automatic['derived'] == 'amplitude',
+      f'automatic_expansions zips a derived list with its source: {automatic}')
 
 runmanager.set_value(gf, 'fixed', 'duration', 'undefined_name + 1')
 try:
