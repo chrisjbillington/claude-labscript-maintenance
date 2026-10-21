@@ -92,6 +92,25 @@ except Exception as e:
     check('undefined_name' in str(e), f'evaluation error raised: {type(e).__name__}')
 runmanager.set_value(gf, 'fixed', 'duration', '1.0')
 
+# Globals that refer to each other in a cycle get an error naming the cycle, and a
+# global that refers to one of them gets a NameError; a global referring to another in a
+# conditional expression depends on both branches
+runmanager.set_value(gf, 'fixed', 'duration', 'use_do + 1')
+runmanager.set_value(gf, 'fixed', 'use_do', 'duration > 0')
+runmanager.set_value(gf, 'fixed', 'derived', 'amplitude if duration else gain')
+evaluated, hierarchy, _ = runmanager.evaluate_globals(
+    runmanager.get_globals(runmanager.get_all_groups(gf)), raise_exceptions=False)
+cycle_error = evaluated['fixed']['duration']
+check(isinstance(cycle_error, ValueError) and 'duration' in str(cycle_error) and 'use_do' in str(cycle_error)
+      and evaluated['fixed']['use_do'] is cycle_error,
+      f'globals in a cycle hold an error naming the cycle: {cycle_error!r}')
+check(isinstance(evaluated['fixed']['derived'], NameError),
+      f"global referring to a cycle holds NameError: {evaluated['fixed']['derived']!r}")
+check(hierarchy.get('derived') == ['amplitude', 'duration', 'gain'], f'hierarchy of a conditional: {hierarchy}')
+runmanager.set_value(gf, 'fixed', 'duration', '1.0')
+runmanager.set_value(gf, 'fixed', 'use_do', 'True')
+runmanager.set_value(gf, 'fixed', 'derived', 'array(amplitude) * 2')
+
 # A global that fails the expansion check is still in the namespace for the globals
 # that refer to it
 runmanager.set_value(gf, 'scan', 'amplitude', '5')
