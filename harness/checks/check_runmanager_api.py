@@ -31,7 +31,7 @@ API = [
     'find_comments', 'remove_comments_and_tokenify', 'ExpansionError', 'iterator_to_tuple',
     'flatten_globals', 'get_grouplist', 'get_globalslist', 'get_value', 'get_units',
     'set_units', 'get_expansion', 'next_sequence_index', 'make_single_run_file',
-    'is_valid_python_identifier', 'add_expansion_groups', 'TraceDictionary',
+    'is_valid_python_identifier', 'add_expansion_groups',
     'get_expansion_custom', 'get_custom_expansions', 'automatic_expansions',
 ]
 missing = [n for n in API if not hasattr(runmanager, n)]
