@@ -18,6 +18,10 @@ This repository holds the notes, plans and tooling for maintaining the labscript
   installs, and Windows, Linux and macOS. Windows is the platform most labs run.
 - Prefer dependencies that the default conda channels carry. Before requiring a package
   or version that only conda-forge has, raise it with the maintainer.
+- Do not keep dead code. When a change makes a function, class or export unused, remove
+  it in the same change, even if it is public, and say so in the pull request
+  description. Compatibility is for files and behaviour that users depend on, not for
+  names that nothing calls.
 
 ## Repositories
 
