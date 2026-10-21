@@ -128,10 +128,11 @@ evaluated, hierarchy, _ = runmanager.evaluate_globals(
 cycle_error = evaluated['fixed']['duration']
 check(isinstance(cycle_error, ValueError) and 'duration' in str(cycle_error) and 'use_do' in str(cycle_error)
       and evaluated['fixed']['use_do'] is cycle_error,
-      f'globals in a cycle hold an error naming the cycle: {cycle_error!r}')
+      f'globals in a cycle hold an error naming the cycle: {cycle_error!r}', known='runmanager #139')
 check(isinstance(evaluated['fixed']['derived'], NameError),
       f"global referring to a cycle holds NameError: {evaluated['fixed']['derived']!r}")
-check(hierarchy.get('derived') == ['amplitude', 'duration', 'gain'], f'hierarchy of a conditional: {hierarchy}')
+check(hierarchy.get('derived') == ['amplitude', 'duration', 'gain'], f'hierarchy of a conditional: {hierarchy}',
+      known='runmanager #139')
 runmanager.set_value(gf, 'fixed', 'duration', '1.0')
 runmanager.set_value(gf, 'fixed', 'use_do', 'True')
 runmanager.set_value(gf, 'fixed', 'derived', 'array(amplitude) * 2')

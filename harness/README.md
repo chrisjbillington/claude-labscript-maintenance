@@ -61,8 +61,10 @@ failed. Set `GITHUB_STEP_SUMMARY` and the report is appended to it.
 
 A check for a known open bug is marked `KNOWN` in the log and does not fail the step.
 When the bug is fixed the check prints `FIXED` so that the marker can be removed. At
-present the `runmanager-api` check "expansion settings API present" is marked as known
-for runmanager #140, and the checks of that API run only when it is present.
+present the `runmanager-api` checks "globals in a cycle hold an error naming the cycle"
+and "hierarchy of a conditional" are marked as known for runmanager #139, and
+"expansion settings API present" is marked as known for runmanager #140, with the
+checks of that API run only when it is present.
 
 ## The profile
 
