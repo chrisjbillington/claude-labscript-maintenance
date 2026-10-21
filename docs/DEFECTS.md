@@ -20,6 +20,7 @@ fix is made, in which case the row names the pull request. Importance uses the s
 | D6 | 2026-10-17 | labscript-devices `labscript_devices/IMAQdxCamera/blacs_tabs.py:264` | `on_copy_clicked` calls `QtGui.QApplication.instance().clipboard()`; `QtGui` has no `QApplication` under PySide6 or PyQt6, so the Copy button of the attributes dialog raises `AttributeError` with a Qt6 binding | 3 | read | fixed in [labscript-devices #155](https://github.com/labscript-suite/labscript-devices/pull/155), merged 2026-10-18 (REVIEW.md labscript-devices B12) |
 | D7 | 2026-10-17 | release workflow `release.yml:45` and `:235` (rpanderson/workflow-sandbox master, synced to ten repositories by the sync PRs listed in `PULL-REQUESTS.md`) | The "Ignore tags other than the pushed tag" step has no `shell: bash`, so on Windows runners it runs under PowerShell, where `${GITHUB_REF_NAME}` is empty, and deletes the pushed tag; a tag push builds a development version on Windows | 5 | run | fixed in zprocess by #31 (f5f4685), confirmed by the `v2.28.0rc2` run 39029064804, which built 2.28.0rc2 on windows-2022 (`TESTING.md`); fixed in the sandbox by [workflow-sandbox #47](https://github.com/rpanderson/workflow-sandbox/pull/47), merged 2026-10-17 (51023a1), and in the twelve other repositories by the sync PRs merged the same day (`PULL-REQUESTS.md`) |
 | D8 | 2026-10-17 | lyse `lyse/__init__.py:76` | `lyse.spinning_top` raises `AttributeError` and `from lyse import *` does not provide it since 3.3.0: the lazy loader serves only `path` after the variable moved to `lyse.utils.worker` | 4 | run | fixed in [lyse #144](https://github.com/labscript-suite/lyse/pull/144), merged 2026-10-18, which replaced #142 after GitHub closed it |
+| D10 | 2026-10-21 | runmanager `runmanager/evaluator.py:125-135`, `runmanager/__main__.py:2855-2865` | A global with the `outer` expansion that is edited to a non-iterable value keeps the `outer` expansion and shows `'int' object is not iterable` for as long as another global refers to it; the referring global shows `NameError`. Without the referring global the expansion is reset to blank, as intended | 3 | run | open; reported by the maintainer from runmanager 3.3.0, reproduced on master 73199cb |
 
 ## Detail
 
@@ -133,3 +134,26 @@ raises, and a star import has `path` but not `spinning_top`. Fix: read both name
 `lyse.utils.worker` in `__getattr__` and list `spinning_top` in `__all__`, which lyse #144
 (formerly #142) does. The harness `lyse` step checks both names and marks them as known until the fix
 is merged.
+
+### D10. An `outer` global edited to a constant is not reset while another global refers to it
+
+With `x = np.linspace(0, 10, 10)` (expansion `outer`) and `y = np.max(x)`, editing `x`
+to `5` leaves `x` with the `outer` expansion, `x` shows `ExpansionError: 'int' object is
+not iterable` and `y` shows `NameError: name 'x' is not defined`. Clearing the expansion
+of `x` by hand makes both evaluate. The preparse is meant to clear the expansion itself:
+`guess_expansion_modes` ignores an `ExpansionError` and resets the expansion of a global
+that is no longer a list or array (`runmanager/__main__.py:2855-2865`). It does not reach
+that step because `evaluate_globals` leaves a global that raised `ExpansionError` out of
+the evaluation namespace (`runmanager/evaluator.py:125-135`), so `y` raises `NameError`,
+and `guess_expansion_modes` returns without changes when any global holds an exception
+other than `ExpansionError`. With no global referring to `x`, the expansion is reset on
+the next parse.
+
+Reproduced on master 73199cb with a globals file made through `group_manager`, the
+library evaluation and the GUI's `guess_expansion_modes` called on a stub: after the edit
+the evaluation is `{'x': ExpansionError, 'y': NameError}`, the expansion of `x` is still
+`outer` and the shot count is 0. The same code is in 3.3.0 (`runmanager/__init__.py:468-472`
+and `__main__.py:3438-3448` of that release). Fix: in `evaluate_globals`, put the value of
+a global that raised `ExpansionError` into the namespace before recording the error, since
+the expression itself evaluated. With that change the same steps give `x = 5` with a
+blank expansion, `y = 5` and one shot.
