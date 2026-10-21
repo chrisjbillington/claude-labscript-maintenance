@@ -5,6 +5,32 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-21: runmanager #139 (topological evaluator)
+
+Branch `topological-evaluator` on labscript-suite/runmanager (head 803bb74, one commit on
+master 7e692f4): `evaluate_globals` evaluates each expression once in dependency order
+read from the syntax trees, instead of the retry loop over all unevaluated expressions.
+
+**Local** (harness venv, Python 3.14.8, PySide6): a chain of three globals defined in
+reverse order evaluates; a two-global cycle, a self-reference, a global that refers to the
+cycle, an undefined name and a syntax error each hold the expected error and the rest
+evaluate; a conditional records both branches in the hierarchy; comprehension variables
+and lambda arguments are not dependencies; a global named `pi` is used by the globals that
+refer to it; the expansion error, zip length and generator cases behave as before. A chain
+of 1000 globals defined last-first evaluates in 0.05 s, against 11.7 s on master (the
+same chain in definition order takes 0.02 s on master). The `runmanager-api` check was
+extended with a cycle and a conditional case and passes, run through `harness/suite.py` in
+a user, mount and network namespace with a scratch home directory so that the machine's
+own profile and zlock server are not touched.
+
+**GitHub Actions:** dispatches of `test.yml` with
+`runmanager=labscript-suite/runmanager@topological-evaluator`, merged into master by the
+harness, as runs
+[39550004014](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39550004014)
+(2243c87, the same code before a documentation change) and
+[39550548845](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39550548845)
+(803bb74). All 25 jobs of each passed every step.
+
 ## 2026-10-21: the harness tests a pull request merged into the current default branch
 
 `harness/suite.py clone` fetched `refs/pull/N/head` for a `pr/N` ref, the branch as
