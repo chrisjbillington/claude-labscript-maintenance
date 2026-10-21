@@ -7,10 +7,13 @@ table.
 
 ## 2026-10-21: runmanager #140 (custom and automatic expansion settings)
 
-Branch `expansion-settings` on labscript-suite/runmanager (head ce24437, one commit on
+Branch `expansion-settings` on labscript-suite/runmanager (head 469c8b3, one commit on
 the #139 branch 803bb74): the globals file records whether each expansion setting is
 custom, `automatic_expansions` computes the automatic settings, ranges are outer, and
-the GUI edits the settings with a drop-down.
+the GUI edits the settings with a drop-down. The commit was revised on the maintainer's
+request after the first screenshots (ce24437): no expansion shows as `None`, the entry
+is `Auto` rather than `Automatic`, the drop-down puts `Auto` first and gives `outer` and
+the zip groups their icons, and an empty entry means `Auto`.
 
 **Local** (harness venv, Python 3.14.8, PySide6): the library functions round-trip the
 flags, rename and delete carry them, files without the subgroup read as None and accept
@@ -20,16 +23,19 @@ of the zip roots. The GUI, driven programmatically on a demo file with a scratch
 (the namespace method in `harness/README.md`), migrates a file without the flags as
 designed, makes a derived global custom when "outer" is chosen for it and returns its
 source to plain outer, records a typed zip group name on Enter, discards the edit on
-Escape, and returns the globals to automatic settings from the reset action. The
+Escape, returns a global to `Auto` on an empty entry, records a custom none on a typed
+`None`, and returns the globals to automatic settings from the reset action. The
 screenshots in `docs/source/img` of the branch were taken from these runs. The
 `runmanager-api` check, extended for the flags, `automatic_expansions` and a range,
 passes through `harness/suite.py`.
 
-**GitHub Actions:** dispatch of `test.yml` with
+**GitHub Actions:** dispatches of `test.yml` with
 `runmanager=labscript-suite/runmanager@expansion-settings`, merged into master by the
-harness, as run
-[39552719146](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39552719146).
-All 25 jobs passed every step.
+harness: run
+[39552719146](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39552719146)
+on ce24437 passed every step in all 25 jobs; run
+[39555021218](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39555021218)
+on 469c8b3 passed every step in all 25 jobs as well.
 
 ## 2026-10-21: runmanager #139 (topological evaluator)
 
