@@ -5,11 +5,40 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-21: qtutils #39 (16×16 icons with @2x variants)
+
+Branch `icons-16px-base` on philipstarkey/qtutils (head 1e853c6, one commit on master
+d330ae1): the 16×16 icons from before 244c556 are the base files, the 32×32 files are the
+`@2x` variants, and each file has an extension-less alias (DEFECTS.md D11).
+
+**Local** (harness venv, Python 3.14.8, PySide6 6.12, the rebuilt resource): for
+`:/qtutils/fugue/exclamation-white.png`, `:qtutils/fugue/exclamation-white` and
+`:/qtutils/custom/outer`, `QIcon.availableSizes` is [16] at scale factor 1 and [16, 32]
+at scale factor 2, `QIcon.pixmap(16)` is 16 px at ratio 1 and 32 px at ratio 2, and a raw
+`QPixmap` is 16 px at either; a logo stays 32 px. Without the alias the extension-less
+form loaded through the image reader's extension search and had no `@2x` variant. The
+resource compiler stores a file listed twice only once (a two-entry test resource was
+22 bytes larger than a one-entry one); the resource is 11.5 MB against 8.2 MB. In
+runmanager, driven as for #140, the non-default output folder label's pixmap is 16×16
+and the expansion editor's drop-down icons are 16 px without an explicit icon size.
+
+**GitHub Actions:** dispatches of `test.yml` with
+`qtutils=philipstarkey/qtutils@icons-16px-base`: run
+[39560415769](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39560415769)
+failed the `runmanager-api` check in all 25 jobs only on the cycle and conditional
+cases that runmanager #139 adds, since runmanager was at master; those are now marked as
+known for #139, and run
+[39561230839](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39561230839)
+passed every step in all 25 jobs with the three known markers reported. With
+`runmanager=labscript-suite/runmanager@expansion-settings` as well, run
+[39560501402](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39560501402)
+passed every step in all 25 jobs.
+
 ## 2026-10-21: runmanager #140 (custom and automatic expansion settings)
 
-Branch `expansion-settings` on labscript-suite/runmanager (head 223dff4, one commit on
-the #139 branch 2101a63; 469c8b3 before the drop-down icons were set to the small icon
-size and plain scalars were added to the screenshots): the globals file records whether each expansion setting is
+Branch `expansion-settings` on labscript-suite/runmanager (head db18f83, one commit on
+the #139 branch 2101a63; 469c8b3 before plain scalars were added to the screenshots,
+223dff4 with an explicit icon size on the drop-down that qtutils #{n} made unnecessary): the globals file records whether each expansion setting is
 custom, `automatic_expansions` computes the automatic settings, ranges are outer, and
 the GUI edits the settings with a drop-down. The commit was revised on the maintainer's
 request after the first screenshots (ce24437): no expansion shows as `None`, the entry
@@ -38,7 +67,9 @@ on ce24437 passed every step in all 25 jobs; run
 [39555021218](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39555021218)
 on 469c8b3 passed every step in all 25 jobs as well, and run
 [39556519853](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39556519853)
-on 223dff4 passed every step in all 25 jobs.
+on 223dff4 passed every step in all 25 jobs, and run
+[39560501402](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39560501402)
+on db18f83 with the qtutils #{n} branch passed every step in all 25 jobs.
 
 ## 2026-10-21: runmanager #139 (topological evaluator)
 
