@@ -60,8 +60,9 @@ failed. Set `GITHUB_STEP_SUMMARY` and the report is appended to it.
 | `zprocess-tests` | The zprocess test suite with pytest. Skipped unless `--all` or `--step zprocess-tests` is given; it takes two minutes |
 
 A check for a known open bug is marked `KNOWN` in the log and does not fail the step.
-When the bug is fixed the check prints `FIXED` so that the marker can be removed. No
-check is marked as known at present.
+When the bug is fixed the check prints `FIXED` so that the marker can be removed. At
+present the `runmanager-api` check "expansion settings API present" is marked as known
+for runmanager #140, and the checks of that API run only when it is present.
 
 ## The profile
 
