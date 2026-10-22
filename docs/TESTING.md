@@ -5,6 +5,49 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-22: lyse #153 (Abort button) and the `lyse-gui` harness step
+
+Branch `abort-analysis` on labscript-suite/lyse (head 5e698ae, on the head of lyse #151,
+6c8312d, on master c74fa4e), tested with zprocess #34 (`pr/34`), which the worker restart
+path needs (DEFECTS.md D14). The new `lyse-gui` harness step runs the lyse GUI in the
+check process under the offscreen platform, adds a routine that loops in Python
+(`time.sleep(0.01)` in a loop) and one that sleeps for 600 s, submits the example shot
+and clicks Abort.
+
+**Local** (a venv with Python 3.14.8, PySide6 6.12.0 and PyQt6 6.11.0, in the user
+namespace of `harness/README.md`): with both bindings, the looping routine stops 0.1 s
+after Abort with "Interrupted" in the output box and its worker survives; the sleeping
+routine's worker is replaced 7.8 s to 7.9 s after Abort (the 5 s abort timeout, 2 s for
+the quit that the restart sends first, then SIGTERM); analysis is paused after each; the
+interrupted worker then runs a routine to completion and the shot is marked as analysed.
+Without the Abort button (lyse master), the step reports KNOWN for lyse #153 and
+passes.
+
+Run 39716288975 with `lyse=abort-analysis zprocess=pr/34`: the 21 Ubuntu and Windows
+jobs for Python 3.11 to 3.14 with PySide6 and PyQt5, and Ubuntu with PyQt6, passed every
+step; the four Windows PyQt6 jobs hung in `lyse-gui` before the check's first output
+and were cancelled by the maintainer after 35 minutes. The check created the
+QApplication before importing the lyse entry module, which calls
+`desktop_app.set_process_appid()` and so installs the Windows event hook with a
+QApplication already present; lyse itself does these the other way round. The check
+now imports the lyse entry module first (harness commit cb88106). The run also showed
+that `run_step` relayed the check's output in the calling thread and waited with the
+timeout only after the pipe closed, so a check that hangs without exiting was never
+timed out; the output is now relayed in a thread and on timeout the check's process
+tree is ended (tested locally with a check that starts a child and sleeps: ended after
+3 s with no child left).
+
+Run 39719962771 with the same refs after that commit: the 25 jobs for Python 3.11 to
+3.14 passed every step; the looping routine stopped 0.1 s after Abort on every job and
+the sleeping routine's worker was replaced after 8 s to 9 s (Windows PyQt6: 9.1 s).
+The Python 3.15 jobs fail at install as always.
+
+The PyQt6 jobs' `lyse-gui` logs hold 20 to 24 tracebacks `AttributeError: 'QApplication'
+object has no attribute 'fontMetrics'` from `lyse/widgets.py:76`, raised whenever the
+status column of a shot that is not fully analysed is painted; the checks pass because
+the excepthook reports the exception and painting continues. Recorded as DEFECTS.md
+D17.
+
 ## 2026-10-22: lyse #152 (removing many shots, DEFECTS.md D16)
 
 Branch `faster-shot-removal` on labscript-suite/lyse (head 0bb3acd, two commits on master

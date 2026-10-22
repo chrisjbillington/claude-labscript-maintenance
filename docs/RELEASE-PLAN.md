@@ -458,7 +458,7 @@ Dependency order. Each is tagged on a `maintenance/x.y.x` branch per the release
 | 6 | labscript | 3.5.0 | #123, #52, #43, #104, #16 |
 | 7 | runmanager | 3.4.0 | #130 refactor plus fixes, #66, #123, #33, #30, #26 |
 | 8 | blacs | 3.3.0 | PR #123, #46, #52, #100, front-panel dtype, Qt6 work |
-| 9 | lyse | 3.4.0 | PR #132, #14, #90, #139, Qt6 work |
+| 9 | lyse | 3.4.0 | PR #132, #14, #90, #139, Qt6 work; Abort button (PR #153) |
 | 10 | runviewer | 3.3.0 | Qt6 work, c-extensions pin |
 | 11 | labscript-devices | 3.4.0 | dtype fixes, #109, #79, #95, PRs #110, #126, #87, #63, #144 |
 | 12 | labscript-suite | 3.4.0 | pins, docs, `requires-python` |

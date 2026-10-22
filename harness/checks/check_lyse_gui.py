@@ -21,7 +21,7 @@ from qtutils.qt import QtCore, QtWidgets
 
 qapplication = QtWidgets.QApplication.instance()
 
-ABORT_FEATURE = 'lyse abort-analysis branch'
+ABORT_FEATURE = 'lyse #153'
 routines_dir = WORK / 'routines'
 routines_dir.mkdir(exist_ok=True)
 loop_script = routines_dir / 'loop_routine.py'
