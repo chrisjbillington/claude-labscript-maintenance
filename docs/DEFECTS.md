@@ -26,6 +26,7 @@ fix is made, in which case the row names the pull request. Importance uses the s
 | D13 | 2026-10-22 | lyse `lyse/filebox.py:1004`, `:1028` (`do_singleshot_analysis`, `do_multishot_analysis`), `:462` (`update_row`) | After an analysis routine, the analysis thread calls `update_row` once for each shot that the routine saved results to; each call is a separate request to the main thread, reads the whole row, goes through every model column and emits `layoutChanged`. After a multishot routine that saves results to every shot, no other analysis runs for 15 s with 1000 shots, growing faster than linearly; a user with 10,000 shots reported a long hang | 3 | run | reported by the maintainer from lyse 3.3.0; fix in [lyse #150](https://github.com/labscript-suite/lyse/pull/150), open |
 | D14 | 2026-10-22 | zprocess `zprocess/utils.py:46`, `:67`, `:83` (`Interruptor`), with lyse `lyse/routines.py:606` and runmanager `runmanager/__main__.py:1375` | `Interruptor.subscribe()` waits on its XPUB socket for the subscription message, but an XPUB socket passes on only the first subscription to a topic, so a second thread that subscribes while another thread is subscribed blocks forever. `ReadQueue.get()` and `ReadQueue.put()` use the same default interruptor under different locks, so `put()` blocks while another thread is in `get()`. Restarting or removing a lyse analysis routine while it is running hangs the lyse GUI: `check_child_exited` calls `from_worker.put()` while the analysis thread is in `from_worker.get()`. runmanager's Restart subprocess during a compilation calls `from_child.put()` in the same way | 4 | run (lyse, minimal `ReadQueue` case); read (runmanager) | reported by the maintainer; fixed in [zprocess #34](https://github.com/chrisjbillington/zprocess/pull/34), open |
 | D15 | 2026-10-22 | lyse `lyse/analysis_subprocess.py:341` (`AnalysisWorker.mainloop`) | The worker holds the kill lock for the whole of each task, so SIGTERM is deferred until the routine finishes. On Linux and macOS a routine that is restarted or removed while it runs ignores lyse's SIGTERM and, if it is still running 2 s later, is ended with SIGKILL, which is not deferred for an open HDF5 file. `labscript_utils.h5_lock` already holds the kill lock while each HDF5 file is open | 3 | run | found while investigating D14; fixed in [lyse #151](https://github.com/labscript-suite/lyse/pull/151), open |
+| D16 | 2026-10-22 | lyse `lyse/filebox.py:338-353` (`DataFrameModel.remove_selection`), `:652-656` (`renumber_rows`), `lyse/widgets.py:20-26` (`UneditableModel.flags`) | Removing many selected shots takes minutes: 61 s for 3990 of 4000 shots with 200 data columns, increasing with the square of the number of shots. `UneditableModel` overrides `flags()` in Python, and `selectedRows()` calls it for every cell of every selected row; rows are removed from the Qt model one at a time from the top, so each removal moves every row below it; with integer indexing, `renumber_rows` looks up three dataframe columns for every row | 3 | run | reported by the maintainer; fixed in [lyse #152](https://github.com/labscript-suite/lyse/pull/152), open |
 
 ## Detail
 
@@ -268,3 +269,27 @@ object header version number"). Without the routine-wide lock, SIGTERM ends the 
 at once, or when its open HDF5 file is closed. On Windows `terminate()` ignores the kill
 lock in both cases. Fix: lyse #151 removes the routine-wide lock and the unused
 `kill_lock` global (`TESTING.md`, 2026-10-22).
+
+### D16. Removing many shots from lyse takes minutes
+
+`DataFrameModel.remove_selection` reads the selected rows with
+`QItemSelectionModel.selectedRows()`. For each row, `selectedRows()` checks every
+selection range and calls the model's `flags()` for every column. The model is a
+`lyse.widgets.UneditableModel`, which overrides `flags()` in Python to clear
+`ItemIsEditable`, so a selection of 2000 rows of a table with 205 columns makes about
+400,000 calls into Python. `remove_selection` then removes the rows from the Qt model
+one at a time, starting at the top, so each removal moves every row below it. With
+`integer_indexing` enabled in the labconfig, `renumber_rows`, which runs after every
+removal and renumbers every remaining row, looks up `sequence_index`, `run number` and
+`run repeat` in the dataframe once for each row.
+
+Measured with `DataFrameModel` and a `QTableView` in the harness venv (Python 3.14,
+PySide6, offscreen platform) and 200 data columns: removing 990 of 1000 shots took
+4.8 s, 3990 of 4000 took 61 s, and 2000 of 4000 with integer indexing took 39 s. With
+lyse #152, which sets `NoEditTriggers` on the views instead of overriding `flags()`,
+reads the rows from the selection ranges, removes each contiguous block with one
+`removeRows()` call starting with the last block, and looks up the three columns once,
+these took 0.14 s, 0.47 s and 0.28 s, and 15990 of 16000 took 1.9 s (`TESTING.md`,
+2026-10-22). A selection of many separate rows, such as every other row, needs one
+`removeRows()` call per block, and each call moves the rows below the block, so its
+removal time is proportional to the number of blocks times the number of rows.

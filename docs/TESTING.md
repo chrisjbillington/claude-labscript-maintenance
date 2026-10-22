@@ -5,6 +5,39 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-22: lyse #152 (removing many shots, DEFECTS.md D16)
+
+Branch `faster-shot-removal` on labscript-suite/lyse (head 0bb3acd, two commits on master
+c74fa4e), compared with master c74fa4e. A script creates `lyse.filebox.DataFrameModel`
+with a `QTableView` and a stub application, adds shots with 200 data columns through
+`add_files` in batches of 1000, selects rows, calls `remove_selection(confirm=False)`
+and checks that the dataframe, the Qt model rows, `row_number_by_filepath` and the row
+headers list the remaining shots in order. The timings are for the harness venv (Python
+3.14.8, PySide6 6.12.0, pandas 3.0.6, offscreen Qt platform):
+
+| Shots removed | master | branch |
+|---|---|---|
+| 990 of 1000 | 4.8 s | 0.14 s |
+| 3990 of 4000 | 61 s | 0.47 s |
+| 2000 of 4000, integer indexing | 39 s | 0.28 s |
+| 2667 of 4000 in blocks of 7, integer indexing | 36 s | 0.37 s |
+| 8000 of 16000 | not run | 1.1 s |
+| 15990 of 16000, integer indexing | not run | 1.9 s |
+
+A profile of the branch before the selection ranges replaced `selectedRows()`, removing
+1990 of 2000 shots, spent 4.0 s of 4.3 s in 408,000 calls to `UneditableModel.flags()`.
+With `NoEditTriggers` and no `flags()` override, `selectedRows()` still took 1.3 s for
+7990 rows that were selected one row per range, as each row is checked against every
+range. The same consistency checks pass with PyQt6 6.11.0 and PyQt5 5.15.11 for 1990 of
+2000 shots, contiguous and in blocks of 7. With all three bindings, double-clicking,
+F2 and typing open no editor in the shots table, the edit columns dialog or a routine
+list, and a routine checkbox toggles on click; with the default edit triggers, an
+editor opens.
+
+Run 39715065177 with `lyse=labscript-suite/lyse@faster-shot-removal`: the 25 jobs for
+Python 3.11 to 3.14 passed every step (the six Python 3.15 jobs fail at install as
+always).
+
 ## 2026-10-22: zprocess #34 and lyse #151 (DEFECTS.md D14 and D15)
 
 Branches `interruptor-concurrent-subscribe` on chrisjbillington/zprocess (head c407999,
