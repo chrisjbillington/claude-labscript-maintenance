@@ -72,6 +72,21 @@ for name, (times, values) in traces.items():
     check(times[0] >= 0 and times[-1] <= shot.stop_time + final_tick,
           f'trace {name} spans {times[0]:.6g} to {times[-1]:.6g} s of {shot.stop_time} s')
 
+# The example experiment sets digital_out high from 1 s to 1.75 s and ramps analog_out
+# from 0 V to 1 V between 1.5 s and 1.75 s.
+if check('intermediate_device' in with_parser, 'DummyIntermediateDevice has a runviewer parser',
+         known='labscript-devices dummy-intermediate-runviewer-parser'):
+    def value_at(name, t):
+        times, values = traces[name]
+        return values[np.searchsorted(times, t, side='right') - 1]
+
+    for t, expected in [(0.5, 0), (1.25, 1), (2.0, 0)]:
+        value = value_at('digital_out', t)
+        check(value == expected, f'digital_out is {value} at {t} s')
+    for t, expected in [(1.25, 0.0), (1.625, 0.5), (2.0, 1.0)]:
+        value = value_at('analog_out', t)
+        check(abs(value - expected) < 0.01, f'analog_out is {value:.4g} V at {t} s')
+
 markers = shot.markers
 check(len(markers) == 4, f'{len(markers)} markers: {sorted(markers)}')
 labels = {m['label'].decode() if isinstance(m['label'], bytes) else str(m['label'])
