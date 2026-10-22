@@ -42,6 +42,52 @@ acquisition, zmq poll and Python loop interrupted within 0.2 s of the call to
 and the existing heartbeat tests, including `test_subproc_survives_until_kill_lock_released`,
 which now exercises the `exit_when_released()` path.
 
+## 2026-10-22: Qt styles on Windows
+
+The Windows set of the Qt style screenshots, for comparison with the Linux set in the
+next section, taken with `tools/style-screenshots/` on Windows 11 Pro (build 26200) in a
+VirtualBox virtual machine, with Python 3.14.3 and the components at the same
+default-branch commits as the Linux set (labscript-utils c1aa2a3, blacs cac5198,
+runmanager 7e692f4, lyse c74fa4e, runviewer 38e5c0b, qtutils d330ae1). Three venvs:
+PySide6 6.12.0, PyQt6 6.11.0 (Qt 6.11.2) and PyQt5 5.15.11 (Qt 5.15.2). The light images
+were taken with Windows in light app mode and the dark images with Windows in dark app
+mode. Every one of the 48 combinations produced an image. The images, with their JSON
+and log files, are in `Z:\screenshots` on the virtual machine, a folder shared with the
+host, for the maintainer to copy to the Linux machine beside `screenshots/linux`.
+
+- The default style is `windows11` with PySide6 and PyQt6, and `windowsvista` with
+  PyQt5. The default-style and Fusion images differ throughout: window colour, frames,
+  check boxes, tabs and headers.
+- With Qt 6, `QStyleHints.setColorScheme` gives a light palette (window colour #f3f3f3
+  with windows11, #f0f0f0 with Fusion) and a dark one (#1e1e1e with both styles).
+- PyQt5 gives a dark palette through the `windows:darkmode=2` platform option when
+  Windows is in dark app mode: the window and base colours are #000000 with white
+  text, with both styles. With windowsvista, frames are drawn as white one-pixel lines
+  and the four applications are readable. With Fusion, frames and the borders of line
+  edits are not drawn, so the queue list and the hostname box of BLACS and the file
+  boxes of runmanager are not distinguishable from the window, and the alternate rows
+  of the lyse shots table keep the light Fusion colour (#e9e7e3) with black text on the
+  black base. With both styles, the black colour swatch of the shot in runviewer is
+  invisible on the black base. These are the combinations that look broken.
+- With windows11 in the light scheme, the empty part of the vertical header of the lyse
+  shots table is drawn mid-grey (#b3b3b3); Fusion and the PyQt5 images draw it in the
+  window colour (#f0f0f0). With Fusion in the dark scheme, the alternate rows of the
+  lyse shots table are dark blue (#001a68) on the #2d2d2d base; with windows11 they are
+  #393939.
+- In the dark scheme the runviewer plot area keeps a white background with every binding
+  and style, and the blue "outer" expansion icon in runmanager has low contrast with the
+  dark table, as on Linux.
+- PyQt5 uses a different default font from the Qt 6 bindings, so the PyQt5 images have
+  smaller text, as on Linux.
+- The lyse runs with PyQt6 log the `fontMetrics` AttributeError of DEFECTS.md D17
+  (lyse #154 is not merged), the lyse runs with PySide6 show the deprecation warning for
+  the same call in the output pane, and every runviewer run logs the missing
+  DummyIntermediateDevice parser of labscript-devices #157. None of these affects the
+  images.
+- The zlock and zlog servers that the suite starts with the harness profile's shared
+  secret are still running after `run_all.py` finishes. They have to be stopped before
+  a real profile is restored, since they refuse connections made with another secret.
+
 ## 2026-10-22: Qt styles on Linux
 
 Screenshots of BLACS, runmanager, lyse and runviewer for comparison of the default Qt
@@ -50,7 +96,7 @@ style with Fusion (`docs/RELEASE-PLAN.md` section 6), taken with
 the components at their default branches (labscript-utils c1aa2a3, blacs cac5198,
 runmanager 7e692f4, lyse c74fa4e, runviewer 38e5c0b, qtutils d330ae1). Three venvs: PySide6
 6.12.0, PyQt6 6.11.2 (Qt 6.11.2) and PyQt5 5.15.19. The images are in `screenshots/linux`,
-which git ignores; the Windows set is a task in `LOCAL-TASKS.md`.
+which git ignores; the Windows set is in the section above.
 
 - The default style is Fusion with every binding. Qt 6 runs on Wayland with the gtk3
   platform theme; PyQt5 runs on X11 through XWayland. The default-style and Fusion images
