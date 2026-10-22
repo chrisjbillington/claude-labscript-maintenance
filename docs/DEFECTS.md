@@ -24,7 +24,8 @@ fix is made, in which case the row names the pull request. Importance uses the s
 | D11 | 2026-10-21 | qtutils `icons/` (every icon is a 32×32 file since 244c556), runmanager `main.ui` (`label_non_default_folder` pixmap), blacs `analysis_submission.ui` (initial status pixmap) | An icon loaded as a raw pixmap, such as the `pixmap` property of a `QLabel` in a `.ui` file or a combo box popup entry, shows at 32×32 on a normal DPI display, twice its intended size; `QIcon` uses scale down and are unaffected | 2 | run | reported by the maintainer; fixed in [qtutils #39](https://github.com/philipstarkey/qtutils/pull/39) and, for the runmanager label so that it is also crisp on high DPI, [runmanager #141](https://github.com/labscript-suite/runmanager/pull/141), both open |
 | D12 | 2026-10-22 | labscript-utils `labscript_utils/connections.py:17`, blacs `blacs/device_base_class.py:31` and `blacs/front_panel_settings.py:18` | These library modules import `labscript_utils.excepthook`, which installs the Tk error window handler as `sys.excepthook` on import, so `import lyse`, or an experiment script run in a terminal that uses a device module importing `DeviceTab`, opens an error window for every uncaught exception | 3 | run | reported by the maintainer; fixed in [labscript-utils #136](https://github.com/labscript-suite/labscript-utils/pull/136), [blacs #133](https://github.com/labscript-suite/blacs/pull/133), [lyse #148](https://github.com/labscript-suite/lyse/pull/148), [runmanager #142](https://github.com/labscript-suite/runmanager/pull/142), [runviewer #79](https://github.com/labscript-suite/runviewer/pull/79) and [labscript-devices #156](https://github.com/labscript-suite/labscript-devices/pull/156), all open |
 | D13 | 2026-10-22 | lyse `lyse/filebox.py:1004`, `:1028` (`do_singleshot_analysis`, `do_multishot_analysis`), `:462` (`update_row`) | After an analysis routine, the analysis thread calls `update_row` once for each shot that the routine saved results to; each call is a separate request to the main thread, reads the whole row, goes through every model column and emits `layoutChanged`. After a multishot routine that saves results to every shot, no other analysis runs for 15 s with 1000 shots, growing faster than linearly; a user with 10,000 shots reported a long hang | 3 | run | reported by the maintainer from lyse 3.3.0; fix in [lyse #150](https://github.com/labscript-suite/lyse/pull/150), open |
-| D14 | 2026-10-22 | zprocess `zprocess/utils.py:46`, `:67`, `:83` (`Interruptor`), with lyse `lyse/routines.py:606` and runmanager `runmanager/__main__.py:1375` | `Interruptor.subscribe()` waits on its XPUB socket for the subscription message, but an XPUB socket passes on only the first subscription to a topic, so a second thread that subscribes while another thread is subscribed blocks forever. `ReadQueue.get()` and `ReadQueue.put()` use the same default interruptor under different locks, so `put()` blocks while another thread is in `get()`. Restarting or removing a lyse analysis routine while it is running hangs the lyse GUI: `check_child_exited` calls `from_worker.put()` while the analysis thread is in `from_worker.get()`. runmanager's Restart subprocess during a compilation calls `from_child.put()` in the same way | 4 | run (lyse, minimal `ReadQueue` case); read (runmanager) | reported by the maintainer; fix not yet made |
+| D14 | 2026-10-22 | zprocess `zprocess/utils.py:46`, `:67`, `:83` (`Interruptor`), with lyse `lyse/routines.py:606` and runmanager `runmanager/__main__.py:1375` | `Interruptor.subscribe()` waits on its XPUB socket for the subscription message, but an XPUB socket passes on only the first subscription to a topic, so a second thread that subscribes while another thread is subscribed blocks forever. `ReadQueue.get()` and `ReadQueue.put()` use the same default interruptor under different locks, so `put()` blocks while another thread is in `get()`. Restarting or removing a lyse analysis routine while it is running hangs the lyse GUI: `check_child_exited` calls `from_worker.put()` while the analysis thread is in `from_worker.get()`. runmanager's Restart subprocess during a compilation calls `from_child.put()` in the same way | 4 | run (lyse, minimal `ReadQueue` case); read (runmanager) | reported by the maintainer; fixed in [zprocess #34](https://github.com/chrisjbillington/zprocess/pull/34), open |
+| D15 | 2026-10-22 | lyse `lyse/analysis_subprocess.py:341` (`AnalysisWorker.mainloop`) | The worker holds the kill lock for the whole of each task, so SIGTERM is deferred until the routine finishes. On Linux and macOS a routine that is restarted or removed while it runs ignores lyse's SIGTERM and, if it is still running 2 s later, is ended with SIGKILL, which is not deferred for an open HDF5 file. `labscript_utils.h5_lock` already holds the kill lock while each HDF5 file is open | 3 | run | found while investigating D14; fixed in [lyse #151](https://github.com/labscript-suite/lyse/pull/151), open |
 
 ## Detail
 
@@ -247,3 +248,23 @@ Fix: `self._xpub.setsockopt(zmq.XPUB_VERBOSER, 1)` after the XPUB socket is crea
 that every subscription and unsubscription message reaches the XPUB socket. With this
 line, the minimal case returns and the lyse restart completes (`TESTING.md`,
 2026-10-22).
+
+### D15. The analysis worker holds the kill lock for the whole of a routine
+
+lyse 45181e9 (2012) wrapped each task in `AnalysisWorker.mainloop` in `with kill_lock:`
+so that the worker was not terminated while it wrote to HDF5 files. labscript-utils
+5295028 and a727c79 (2019) made `h5_lock.File` acquire the kill lock when a file opens
+and release it on close (`labscript_utils/h5_lock.py:47-48`, `:69-71`), and
+`hack_locks_onto_h5py()` replaces `h5py.File` with that class. The worker imports
+`labscript_utils.h5_lock` before `h5py` (`lyse/analysis_subprocess.py:17`), so every
+HDF5 file that a routine opens holds the kill lock while it is open, and the
+routine-wide lock does not add protection for the files.
+
+`AnalysisRoutine.end_child` sends SIGTERM 2 s after `quit` and SIGKILL 2 s after that.
+With the routine-wide lock, SIGTERM has no effect while the routine runs, so a routine
+that runs for more than another 2 s is ended with SIGKILL, also while a file is open. A
+worker killed while writing to an HDF5 file left a file that h5py could not open ("bad
+object header version number"). Without the routine-wide lock, SIGTERM ends the worker
+at once, or when its open HDF5 file is closed. On Windows `terminate()` ignores the kill
+lock in both cases. Fix: lyse #151 removes the routine-wide lock and the unused
+`kill_lock` global (`TESTING.md`, 2026-10-22).

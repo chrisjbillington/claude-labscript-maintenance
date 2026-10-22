@@ -5,6 +5,33 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-22: zprocess #34 and lyse #151 (DEFECTS.md D14 and D15)
+
+Branches `interruptor-concurrent-subscribe` on chrisjbillington/zprocess (head c407999,
+one commit on master 1de4c26) and `remove-routine-kill-lock` on labscript-suite/lyse
+(head 6c8312d, one commit on master c74fa4e). zprocess #34 sets `XPUB_VERBOSER` on the
+`Interruptor` XPUB socket and adds `ReadQueueTests.test_put_while_another_thread_gets`.
+lyse #151 removes the routine-wide `with kill_lock:` in `AnalysisWorker.mainloop`.
+
+**Local** (a venv with Python 3.14.8, PySide6, pyzmq 27.2.0, libzmq 4.3.5 and the other
+components at their master branches, offscreen Qt platform): the new zprocess test fails
+on master and passes on the branch, and the full zprocess test suite passes on the
+branch (74 tests). With both branches installed, an `AnalysisRoutine` restarted 2 s into
+a routine:
+
+| Routine | Result |
+|---|---|
+| sleeps for 10 s | the worker exits on SIGTERM (return code -15); "worker restarted" 1 s later |
+| writes to an open HDF5 file for 4 s, then sleeps | "SIGTERM ignored" printed; the worker exits with -15 when the file is closed, 1 s after SIGTERM; the file has all eight datasets |
+| writes to an open HDF5 file for 5 s | the file is still open when SIGKILL is sent; the worker exits with -9 and h5py cannot open the file ("bad object header version number") |
+
+With lyse master, SIGTERM has no effect in any of these cases while the routine runs.
+
+**Run 39713730391** (`zprocess=interruptor-concurrent-subscribe
+lyse=remove-routine-kill-lock`, all steps including the zprocess test suite): the 25 jobs
+for Python 3.11 to 3.14 passed every step, and the new test passed on Ubuntu and Windows
+(the six Python 3.15 jobs fail at install as always).
+
 ## 2026-10-22: lyse #149 (shots from the file dialog sorted by name)
 
 Branch `sort-loaded-shots` on labscript-suite/lyse (head 03e3c95, one commit on master
