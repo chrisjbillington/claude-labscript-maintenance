@@ -9,7 +9,9 @@ table.
 
 Local branches `excepthook-gui-only`: labscript-utils 2f41c08 and e5cd210, blacs d2e7675
 and 7719dee, lyse b956ecf, runmanager bf55903, runviewer c25afc2, labscript-devices
-33e20e7, each on the master of 2026-10-22; the other components at master. Not pushed.
+33e20e7, each on the master of 2026-10-22; the other components at master. Pull
+requests labscript-utils #136, blacs #133, lyse #148, runmanager #142, runviewer #79 and
+labscript-devices #156.
 
 **Local** (Python 3.14.8, PySide6, a new harness venv installed from those commits, in a
 user, mount and network namespace, with `LABSCRIPT_DISABLE_GRAPHICAL_EXCEPTHOOK=1`):
@@ -25,6 +27,13 @@ before. With the branches, each in a fresh interpreter:
   patch `Thread.run` again; with the variable set, an exception in a thread and a direct
   call of the handler print the traceback and start no window process;
 - with the variable unset or `0`, the handler would show windows.
+
+**GitHub Actions:** run
+[39707074062](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39707074062)
+of `test.yml` with the six branches as `name=labscript-suite/name@excepthook-gui-only`
+passed every step in the 25 jobs on Ubuntu and Windows for Python 3.11 to 3.14 with
+PySide6, PyQt6 and PyQt5 and the NumPy 2.4 job; the six Python 3.15 jobs failed at
+"Install the components" as before.
 
 ## 2026-10-21: qtutils #41 (auto scroll to end after hiding, runmanager #32)
 

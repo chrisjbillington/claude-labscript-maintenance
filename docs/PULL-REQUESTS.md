@@ -7,10 +7,16 @@ updates or sees one merged or closed updates the row. Links go to GitHub.
 
 ### Can be merged now
 
-Based on `master`, with no dependency on another pull request or release step.
+Based on `master`, with no dependency on a release step. A row that says "merge after" another pull request depends on it.
 
 | Opened | Pull request | Change | Addresses |
 |---|---|---|---|
+| 2026-10-22 | [labscript-utils #136](https://github.com/labscript-suite/labscript-utils/pull/136) | `labscript_utils.connections` no longer imports `labscript_utils.excepthook`; `excepthook.install()`, idempotent, still called on import with a TODO to remove the call; `LABSCRIPT_DISABLE_GRAPHICAL_EXCEPTHOOK` prints exceptions instead of opening windows (head e5cd210, run 39707074062) | DEFECTS.md D12 |
+| 2026-10-22 | [blacs #133](https://github.com/labscript-suite/blacs/pull/133) | `device_base_class.py` and `front_panel_settings.py` no longer import `labscript_utils.excepthook`; `__main__.py` and `Worker.run` call `install()`; merge after labscript-utils #136 (head 7719dee, run 39707074062) | DEFECTS.md D12 |
+| 2026-10-22 | [lyse #148](https://github.com/labscript-suite/lyse/pull/148) | `__main__.py` and `analysis_subprocess.py` call `labscript_utils.excepthook.install()`; merge after labscript-utils #136 (head b956ecf, run 39707074062) | DEFECTS.md D12 |
+| 2026-10-22 | [runmanager #142](https://github.com/labscript-suite/runmanager/pull/142) | `__main__.py` calls `labscript_utils.excepthook.install()`; merge after labscript-utils #136 (head bf55903, run 39707074062) | DEFECTS.md D12 |
+| 2026-10-22 | [runviewer #79](https://github.com/labscript-suite/runviewer/pull/79) | `__main__.py` calls `labscript_utils.excepthook.install()`; merge after labscript-utils #136 (head c25afc2, run 39707074062) | DEFECTS.md D12 |
+| 2026-10-22 | [labscript-devices #156](https://github.com/labscript-suite/labscript-devices/pull/156) | the `sys.excepthook` reset in `NI_DAQmx/testing/test_NI_DAQmx_labscript.py` is removed (head 33e20e7, run 39707074062) | DEFECTS.md D12 |
 | 2026-10-21 | [runmanager #141](https://github.com/labscript-suite/runmanager/pull/141) | The non-default output folder marker is rendered from a `QIcon` at the small icon size instead of the `pixmap` property in `main.ui`, so it is 16 logical pixels on any display and the 2× image on high DPI (head 9912fd0) | DEFECTS.md D11 |
 | 2026-10-21 | [runviewer #78](https://github.com/labscript-suite/runviewer/pull/78) | The invalid-shot-file warning box calls `exec()` instead of `exec_()`, which PyQt6 lacks and PySide6 deprecates (head 6feafc1) | qtutils #31 (closed) |
 | 2026-10-21 | [qtutils #41](https://github.com/philipstarkey/qtutils/pull/41) | `set_auto_scroll_to_end` records whether the scrollbar is at the end only while its scroll area is visible, and scrolls to the end after a show event if it was at the end before; an `OutputBox` that the user clicked in no longer scrolls up to the text cursor when output arrives while it is hidden (head 2ee0c86, runs 39569702167 and 39570652352) | runmanager #32 |
