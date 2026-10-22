@@ -24,6 +24,7 @@ fix is made, in which case the row names the pull request. Importance uses the s
 | D11 | 2026-10-21 | qtutils `icons/` (every icon is a 32×32 file since 244c556), runmanager `main.ui` (`label_non_default_folder` pixmap), blacs `analysis_submission.ui` (initial status pixmap) | An icon loaded as a raw pixmap, such as the `pixmap` property of a `QLabel` in a `.ui` file or a combo box popup entry, shows at 32×32 on a normal DPI display, twice its intended size; `QIcon` uses scale down and are unaffected | 2 | run | reported by the maintainer; fixed in [qtutils #39](https://github.com/philipstarkey/qtutils/pull/39) and, for the runmanager label so that it is also crisp on high DPI, [runmanager #141](https://github.com/labscript-suite/runmanager/pull/141), both open |
 | D12 | 2026-10-22 | labscript-utils `labscript_utils/connections.py:17`, blacs `blacs/device_base_class.py:31` and `blacs/front_panel_settings.py:18` | These library modules import `labscript_utils.excepthook`, which installs the Tk error window handler as `sys.excepthook` on import, so `import lyse`, or an experiment script run in a terminal that uses a device module importing `DeviceTab`, opens an error window for every uncaught exception | 3 | run | reported by the maintainer; fixed in [labscript-utils #136](https://github.com/labscript-suite/labscript-utils/pull/136), [blacs #133](https://github.com/labscript-suite/blacs/pull/133), [lyse #148](https://github.com/labscript-suite/lyse/pull/148), [runmanager #142](https://github.com/labscript-suite/runmanager/pull/142), [runviewer #79](https://github.com/labscript-suite/runviewer/pull/79) and [labscript-devices #156](https://github.com/labscript-suite/labscript-devices/pull/156), all open |
 | D13 | 2026-10-22 | lyse `lyse/filebox.py:1004`, `:1028` (`do_singleshot_analysis`, `do_multishot_analysis`), `:462` (`update_row`) | After an analysis routine, the analysis thread calls `update_row` once for each shot that the routine saved results to; each call is a separate request to the main thread, reads the whole row, goes through every model column and emits `layoutChanged`. After a multishot routine that saves results to every shot, no other analysis runs for 15 s with 1000 shots, growing faster than linearly; a user with 10,000 shots reported a long hang | 3 | run | reported by the maintainer from lyse 3.3.0; fix on branch `batch-dataframe-updates` (1f6da15 or later), awaiting a test on the lab computer |
+| D14 | 2026-10-22 | zprocess `zprocess/utils.py:46`, `:67`, `:83` (`Interruptor`), with lyse `lyse/routines.py:606` and runmanager `runmanager/__main__.py:1375` | `Interruptor.subscribe()` waits on its XPUB socket for the subscription message, but an XPUB socket passes on only the first subscription to a topic, so a second thread that subscribes while another thread is subscribed blocks forever. `ReadQueue.get()` and `ReadQueue.put()` use the same default interruptor under different locks, so `put()` blocks while another thread is in `get()`. Restarting or removing a lyse analysis routine while it is running hangs the lyse GUI: `check_child_exited` calls `from_worker.put()` while the analysis thread is in `from_worker.get()`. runmanager's Restart subprocess during a compilation calls `from_child.put()` in the same way | 4 | run (lyse, minimal `ReadQueue` case); read (runmanager) | reported by the maintainer; fix not yet made |
 
 ## Detail
 
@@ -214,3 +215,35 @@ results to every shot, 6.7 s after the routine finished for 500 shots and 15.3 s
 1000 shots. Fix: `DataFrameModel.update_rows`, which applies all of a routine's results
 in one main-thread call, setting each column for all of its rows at once; 0.3 s and
 0.4 s in the same lyse runs (`TESTING.md`, 2026-10-22).
+
+### D14. A second thread that subscribes to an `Interruptor` blocks forever
+
+`Interruptor.subscribe()` subscribes the calling thread's SUB socket to the empty topic
+and then calls `self._xpub.recv()` to wait until the XPUB socket has the subscription.
+An XPUB socket passes on a subscription message only for the first subscriber to a
+topic, and an unsubscription message only for the last, so `subscribe()` in a second
+thread does not return while a first thread is subscribed. The second thread holds
+`Interruptor._lock`, so `unsubscribe()` in the first thread then blocks too. The code is
+the same in zprocess 2.26.0, 2.27.1 and master 1de4c26.
+
+`ReadQueue.get()` holds `self.lock` and `ReadQueue.put()` holds `self.to_self_lock`, and
+both subscribe to `self.interruptor` when no interruptor is given. A `put()` from one
+thread while another thread is in `get()` therefore never returns, although the class
+docstring gives this as the purpose of `put()`.
+
+In lyse, `AnalysisRoutine.end_child` sends `quit`, waits 2 s, sends SIGTERM, waits 2 s
+and sends SIGKILL, then `check_child_exited` calls `self.from_worker.put(('error', {}))`
+to end the analysis thread's `from_worker.get()`. If the routine was running, the main
+thread blocks in that `put()` and the lyse GUI stops responding. The worker is killed,
+but no new worker is started. The message "SIGTERM ignored: will be handled when kill
+lock released." is printed by the worker because the analysis holds the kill lock; it is
+expected, and SIGKILL ends the worker 2 s later. On Windows `terminate()` ends the worker
+at once, but the same `put()` follows, so the hang is expected there too (read).
+runmanager's `on_restart_subprocess_clicked` calls `self.from_child.put(['done', False])`
+while `compile_loop` can be in `self.from_child.get()` (`__main__.py:2781`), which is the
+same case (read).
+
+Fix: `self._xpub.setsockopt(zmq.XPUB_VERBOSER, 1)` after the XPUB socket is created, so
+that every subscription and unsubscription message reaches the XPUB socket. With this
+line, the minimal case returns and the lyse restart completes (`TESTING.md`,
+2026-10-22).

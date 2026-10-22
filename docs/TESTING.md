@@ -5,6 +5,29 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-22: lyse routine restart during analysis hangs the GUI (DEFECTS.md D14)
+
+A venv with Python 3.14.8, PySide6, pyzmq 27.2.0 and libzmq 4.3.5, with zprocess
+1de4c26, qtutils d330ae1, labscript-utils c1aa2a3 and lyse c74fa4e (the master branches),
+offscreen Qt platform.
+
+**lyse.** A script that creates `lyse.routines.AnalysisRoutine` for a routine that sleeps
+for 10 s, starts `do_analysis` in a thread as the routine box does, and calls
+`restart()` 2 s later. The worker prints "SIGTERM ignored: will be handled when kill lock
+released." when it gets SIGTERM, and lyse reports "worker killed" 2 s after that. The
+main thread then blocks in `ReadQueue.put` at `Interruptor.subscribe`
+(`zprocess/utils.py:67`), called from `lyse/routines.py:606`; the analysis thread is in
+`ReadQueue.get`. No Qt timer fires after that point, and no new worker is started.
+
+**zprocess.** A `ReadQueue` on an inproc PAIR socket, with one thread in `get()`: `put()`
+from a second thread does not return within 3 s.
+
+**Fix.** With `self._xpub.setsockopt(zmq.XPUB_VERBOSER, 1)` added to
+`Interruptor.__init__` in the installed zprocess, the `put()` returns at once and
+`get()` returns the object. In the lyse case the analysis thread receives
+`(False, {})` when the worker is killed, lyse reports "worker restarted" 1 s later and
+the main thread keeps running.
+
 ## 2026-10-22: lyse dataframe update after an analysis routine (DEFECTS.md D13)
 
 Branch `batch-dataframe-updates` on labscript-suite/lyse (head 1f6da15, one commit on
