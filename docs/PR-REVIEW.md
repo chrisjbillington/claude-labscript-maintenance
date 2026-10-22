@@ -1062,6 +1062,8 @@ Conventions checked against master for every PR:
   connection names by building widgets from the connection table's children (AnalogOut
   → AO widget, DigitalOut → DO widget), keep `BLACS_connection`, and move the device to
   a subpackage with `register_classes.py`.
+- **Update 2026-10-22**: labscript-devices #157 adds a runviewer parser for this device
+  on its own, with no change to the device class or the `OUTPUTS` format.
 
 ---
 

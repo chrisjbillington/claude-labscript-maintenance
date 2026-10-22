@@ -5,6 +5,31 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-22: labscript-devices #157 (DummyIntermediateDevice runviewer parser)
+
+Branch `dummy-intermediate-runviewer-parser` on labscript-suite/labscript-devices (head
+bcc6b40, one commit on master b6ea556). Before the change, the `runviewer` step passed
+but runviewer logged "Failed to load device intermediate_device" with a `ValueError`
+traceback for every job, because `DummyIntermediateDevice` has no runviewer parser; the
+example shot showed only the clock line trace. The `runviewer` step now checks the
+`digital_out` and `analog_out` values of the example shot at 0.5 s, 1.25 s, 1.625 s
+and 2 s when the parser is present, and reports the parser as KNOWN for
+labscript-devices #157 when it is not (harness commits 21aa43d and 04bace8).
+
+**Local** (Python 3.14.8, PySide6, in the user namespace of `harness/README.md`, the
+other components at master): with the branch, `intermediate_device` loads without
+error and gives three traces; `digital_out` is 0, 1 and 0 at 0.5 s, 1.25 s and 2 s, and
+`analog_out` is 0 V, 0.502 V and 1 V at 1.25 s, 1.625 s and 2 s. With labscript-devices
+master, the step reports the parser as KNOWN and passes.
+
+Run [39721228849](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39721228849)
+with `labscript-devices=labscript-suite/labscript-devices@dummy-intermediate-runviewer-parser`
+and run [39722600814](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39722600814)
+with `labscript-devices=pr/157`: the 25 jobs for Ubuntu and Windows, Python 3.11 to 3.14
+with PySide6, PyQt6 and PyQt5, and Ubuntu Python 3.14 with `numpy<2.5`, passed every
+step, each with the parser check reported as FIXED and the value checks passing. The six
+Python 3.15 jobs fail at install as always.
+
 ## 2026-10-22: lyse #153 (Abort button) and the `lyse-gui` harness step
 
 Branch `abort-analysis` on labscript-suite/lyse (head 5e698ae, on the head of lyse #151,
