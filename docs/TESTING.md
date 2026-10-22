@@ -5,6 +5,27 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-22: graphical excepthook only in the applications (DEFECTS.md D12)
+
+Local branches `excepthook-gui-only`: labscript-utils 2f41c08 and e5cd210, blacs d2e7675
+and 7719dee, lyse b956ecf, runmanager bf55903, runviewer c25afc2, labscript-devices
+33e20e7, each on the master of 2026-10-22; the other components at master. Not pushed.
+
+**Local** (Python 3.14.8, PySide6, a new harness venv installed from those commits, in a
+user, mount and network namespace, with `LABSCRIPT_DISABLE_GRAPHICAL_EXCEPTHOOK=1`):
+every harness step passed, with the three `runmanager-api` checks marked known as
+before. With the branches, each in a fresh interpreter:
+
+- after importing `lyse`, `labscript_utils.connections`, `blacs.device_base_class`,
+  `blacs.front_panel_settings`, `labscript_devices.PulseBlaster` and `labscript`,
+  `sys.excepthook` is the default hook and `Thread.run` is not patched; on master each
+  of those imports installed the handler;
+- `import lyse; 1/0` prints the traceback;
+- `import labscript_utils.excepthook` installs the handler; a second `install()` does not
+  patch `Thread.run` again; with the variable set, an exception in a thread and a direct
+  call of the handler print the traceback and start no window process;
+- with the variable unset or `0`, the handler would show windows.
+
 ## 2026-10-21: qtutils #41 (auto scroll to end after hiding, runmanager #32)
 
 Branch `auto-scroll-after-show` on philipstarkey/qtutils (head 2ee0c86, one commit on

@@ -263,6 +263,7 @@ class StepResult:
 def step_env(info, work):
     env = dict(os.environ)
     env['QT_QPA_PLATFORM'] = 'offscreen'
+    env['LABSCRIPT_DISABLE_GRAPHICAL_EXCEPTHOOK'] = '1'
     env['QT_ENV'] = info['qt']
     env['HARNESS_WORK'] = str(work)
     env['HARNESS_REPOS'] = info['repos_dir']

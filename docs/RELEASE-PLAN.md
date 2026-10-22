@@ -472,6 +472,11 @@ version nor a release candidate. The rc1 form is kept in the final release: pip 
 not select a release candidate once a final release exists, so the looser pin changes
 nothing for users, and one commit can carry both the rc and the final tag.
 
+The `excepthook-gui-only` branches (DEFECTS.md D12) make blacs, lyse, runmanager and
+runviewer call `labscript_utils.excepthook.install()`, which is new in labscript-utils
+3.5.0. If they are merged, the `labscript_utils` pins of those four and of
+labscript-devices are raised to `>=3.5.0rc1` at their steps, in the same way.
+
 No tag is pushed until the whole release set is ready (maintainer's decision,
 2026-10-18); the sequence above is the order of the tags on that day, and only zprocess
 has release candidates on PyPI. Until then, testing uses two things that need no tag:

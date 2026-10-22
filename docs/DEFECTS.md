@@ -22,6 +22,7 @@ fix is made, in which case the row names the pull request. Importance uses the s
 | D8 | 2026-10-17 | lyse `lyse/__init__.py:76` | `lyse.spinning_top` raises `AttributeError` and `from lyse import *` does not provide it since 3.3.0: the lazy loader serves only `path` after the variable moved to `lyse.utils.worker` | 4 | run | fixed in [lyse #144](https://github.com/labscript-suite/lyse/pull/144), merged 2026-10-18, which replaced #142 after GitHub closed it |
 | D10 | 2026-10-21 | runmanager `runmanager/evaluator.py:125-135`, `runmanager/__main__.py:2855-2865` | A global with the `outer` expansion that is edited to a non-iterable value keeps the `outer` expansion and shows `'int' object is not iterable` for as long as another global refers to it; the referring global shows `NameError`. Without the referring global the expansion is reset to blank, as intended | 3 | run | reported by the maintainer from runmanager 3.3.0, reproduced on master 73199cb; fixed in [runmanager #138](https://github.com/labscript-suite/runmanager/pull/138), merged 2026-10-21 (3e1de29) |
 | D11 | 2026-10-21 | qtutils `icons/` (every icon is a 32×32 file since 244c556), runmanager `main.ui` (`label_non_default_folder` pixmap), blacs `analysis_submission.ui` (initial status pixmap) | An icon loaded as a raw pixmap, such as the `pixmap` property of a `QLabel` in a `.ui` file or a combo box popup entry, shows at 32×32 on a normal DPI display, twice its intended size; `QIcon` uses scale down and are unaffected | 2 | run | reported by the maintainer; fixed in [qtutils #39](https://github.com/philipstarkey/qtutils/pull/39) and, for the runmanager label so that it is also crisp on high DPI, [runmanager #141](https://github.com/labscript-suite/runmanager/pull/141), both open |
+| D12 | 2026-10-22 | labscript-utils `labscript_utils/connections.py:17`, blacs `blacs/device_base_class.py:31` and `blacs/front_panel_settings.py:18` | These library modules import `labscript_utils.excepthook`, which installs the Tk error window handler as `sys.excepthook` on import, so `import lyse`, or an experiment script run in a terminal that uses a device module importing `DeviceTab`, opens an error window for every uncaught exception | 3 | run | reported by the maintainer; fixed on local branches `excepthook-gui-only` of labscript-utils, blacs, lyse, runmanager, runviewer and labscript-devices, not pushed |
 
 ## Detail
 
@@ -178,3 +179,19 @@ variant, so runmanager #141 renders that label from a `QIcon` at the small icon 
 which is 16 logical pixels on any display and the 2× image on high DPI. The explicit 16 px
 pixmaps that blacs and labscript-devices render from a `QIcon` are the correct API and are
 unchanged.
+
+### D12. Importing a library module installs the graphical excepthook
+
+`labscript_utils/excepthook/__init__.py` sets `sys.excepthook` and patches
+`threading.Thread.run` when it is imported. `labscript_utils.connections`,
+`blacs.device_base_class` and `blacs.front_panel_settings` import it at module level.
+`lyse.dataframe_utilities` imports `labscript_utils.connections`, so `import lyse; 1/0`
+in a terminal opens an error window. Eleven single-file labscript-devices modules, including
+`PulseBlaster.py` and `NovaTechDDS9M.py`, import `DeviceTab` at module level, so an
+experiment script that uses them gets the handler when it is run in a terminal or
+compiled by runmanager. `NI_DAQmx/testing/test_NI_DAQmx_labscript.py:20` resets
+`sys.excepthook` to work around this. Fix: the three imports are removed, the module gets
+an `install()` function that the applications, the lyse analysis subprocess and the BLACS
+workers call, and `LABSCRIPT_DISABLE_GRAPHICAL_EXCEPTHOOK` turns off the windows for
+automated testing. Importing the module still calls `install()`, with a TODO to remove
+the call in a future release.

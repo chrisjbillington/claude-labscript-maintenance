@@ -45,6 +45,10 @@ per step to `harness/work-py<version>/` (`--work` to change). A step that anothe
 depends on is skipped when the dependency failed. The exit status is nonzero if any step
 failed. Set `GITHUB_STEP_SUMMARY` and the report is appended to it.
 
+Every step runs with `LABSCRIPT_DISABLE_GRAPHICAL_EXCEPTHOOK=1`, so that the
+applications and their subprocesses print exceptions to stderr instead of opening an
+error window. labscript-utils releases before 3.5.0 ignore the variable.
+
 ## Steps
 
 | Step | What it checks |
