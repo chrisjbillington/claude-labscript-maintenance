@@ -74,6 +74,11 @@ multishot routine until `get dataframe` returns all of its results, polled every
 
 No tracebacks in the lyse output of any run.
 
+**GitHub Actions:** run
+[39712395251](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39712395251)
+of `test.yml` with `lyse=labscript-suite/lyse@batch-dataframe-updates` passed every step
+in all 25 jobs (the six Python 3.15 jobs fail at install as always).
+
 ## 2026-10-22: graphical excepthook only in the applications (DEFECTS.md D12)
 
 Local branches `excepthook-gui-only`: labscript-utils 2f41c08 and e5cd210, blacs d2e7675
