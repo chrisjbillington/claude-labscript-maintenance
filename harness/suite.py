@@ -18,6 +18,8 @@ describes the steps and the ref specs.
 import argparse
 import json
 import os
+import signal
+import threading
 import shutil
 import subprocess
 import sys
@@ -273,6 +275,18 @@ def step_env(info, work):
     return env
 
 
+def kill_tree(proc):
+    """End the process and the processes that it started."""
+    if sys.platform == 'win32':
+        subprocess.run(['taskkill', '/F', '/T', '/PID', str(proc.pid)], capture_output=True)
+    else:
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+    proc.wait()
+
+
 def run_step(name, py, env, work, timeout):
     script = CHECKS_DIR / ('check_' + name.replace('-', '_') + '.py')
     logfile = work / 'logs' / f'{name}.log'
@@ -280,20 +294,32 @@ def run_step(name, py, env, work, timeout):
     t0 = time.time()
     log(f'\n===== {name}')
     with open(logfile, 'w', encoding='utf8', errors='replace') as f:
-        try:
-            proc = subprocess.Popen([str(py), '-X', 'utf8', str(script)], cwd=work, env=env,
-                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        # The check is the leader of its own process group, so that the processes it
+        # starts can be ended with it. On Windows, taskkill ends the tree instead.
+        kwargs = {} if sys.platform == 'win32' else {'start_new_session': True}
+        proc = subprocess.Popen([str(py), '-X', 'utf8', str(script)], cwd=work, env=env,
+                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, **kwargs)
+
+        def relay():
             for line in proc.stdout:
                 text = line.decode('utf8', errors='replace')
                 f.write(text)
                 sys.stdout.write(text)
-            try:
-                code = proc.wait(timeout=timeout)
-            except subprocess.TimeoutExpired:
-                proc.kill()
-                code = None
-        finally:
-            sys.stdout.flush()
+                sys.stdout.flush()
+
+        # Output is relayed in a thread so that a check that hangs without exiting
+        # is still subject to the timeout.
+        reader = threading.Thread(target=relay, daemon=True)
+        reader.start()
+        try:
+            code = proc.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            kill_tree(proc)
+            code = None
+        # Processes that the check started and that are still running keep the pipe
+        # open; wait briefly for the rest of the output and go on without it.
+        reader.join(timeout=5)
+        sys.stdout.flush()
     result.seconds = time.time() - t0
     if code == 0:
         result.status = 'passed'

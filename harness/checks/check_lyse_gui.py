@@ -14,10 +14,12 @@ from _common import WORK, check, finish, load_state
 state = load_state()
 shot = state['example_shot']
 
+# Importing the lyse entry module creates the QApplication and shows the splash, as
+# starting lyse does; the application itself is created below.
+import lyse.__main__ as lyse_main
 from qtutils.qt import QtCore, QtWidgets
 
-qapplication = QtWidgets.QApplication(sys.argv)
-import lyse.__main__ as lyse_main
+qapplication = QtWidgets.QApplication.instance()
 
 ABORT_FEATURE = 'lyse abort-analysis branch'
 routines_dir = WORK / 'routines'
@@ -26,6 +28,8 @@ loop_script = routines_dir / 'loop_routine.py'
 loop_marker = routines_dir / 'loop_routine.running'
 sleep_script = routines_dir / 'sleep_routine.py'
 sleep_marker = routines_dir / 'sleep_routine.running'
+loop_marker.unlink(missing_ok=True)
+sleep_marker.unlink(missing_ok=True)
 loop_script.write_text(
     'import time\n'
     'from pathlib import Path\n'
