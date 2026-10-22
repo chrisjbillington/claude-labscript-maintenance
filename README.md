@@ -59,6 +59,10 @@ and the file:line evidence.
   kill the process, and `zprocess.start_daemon` forks twice (D21). zprocess #37 makes
   `start_daemon` start daemons from a fresh Python process, and labscript-utils #137
   starts the zlog and zlock servers without `start_daemon`; either one fixes D21.
+  zprocess #38 fixes a race in which BLACS created several event brokers and heartbeat
+  servers and called appnope concurrently (D22). zprocess #39 stops zprocess creating a
+  default `ProcessTree` on import, for zprocess 3; labscript-utils #138 uses the new
+  `set_default_process_tree()` and waits for that release (`RELEASE-PLAN.md` 4.8).
 
 ## State as of 2026-10-19
 

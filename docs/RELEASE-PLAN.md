@@ -448,6 +448,34 @@ this list.
 - BLACS queue error handling and window geometry (blacs #128, #129), which were run with
   simulated device tabs only, and a real shot in at least one lab (section 4.5).
 
+### 4.8 zprocess 3
+
+The maintainer plans a zprocess 3 release. These zprocess pull requests are intended for
+it:
+
+- zprocess #39: no default `ProcessTree` is created on import. `Event`, `Process` and
+  `subprocess_with_queues()` without a tree raise `RuntimeError` until
+  `set_default_process_tree()` is called. Code outside the suite that uses them in a
+  top-level process without setting a default breaks, so this goes in the release notes.
+- zprocess #37: `start_daemon` raises `CalledProcessError` if the command cannot be
+  started, instead of returning silently.
+- zprocess #38: on macOS, App Nap is disabled in every process that creates a
+  `ProcessTree`.
+
+A review of zprocess and the suite for other changes that belong in zprocess 3 is to
+follow.
+
+When zprocess 3 is released, the labscript suite's dependency on zprocess must be raised
+to it:
+
+- labscript-utils #138 calls `zprocess.set_default_process_tree()`, which only zprocess 3
+  has. Amend it to raise `zprocess>=2.18.0` in `pyproject.toml` to zprocess 3, then
+  merge it.
+- The other components pin zprocess at `>=2.14.1` (blacs), `>=2.2.2` (lyse),
+  `>=2.18.0` (labscript-devices), or not at all (runviewer). They work with zprocess 3
+  through labscript-utils, so their pins do not need to change, but they can be raised
+  with labscript-utils to keep the pins consistent.
+
 ## 5. Release sequence
 
 Dependency order. Each is tagged on a `maintenance/x.y.x` branch per the release flow

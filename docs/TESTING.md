@@ -5,6 +5,37 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-23: zprocess #38, zprocess #39 and labscript-utils #138
+
+zprocess #38 (4bece28, on master 1de4c26) creates a `ProcessTree`'s broker and heartbeat
+server under a lock and calls `appnope.nope()` in `ProcessTree.__init__` (DEFECTS.md
+D22). zprocess #39 (ea186ba, on master 1de4c26) creates no default `ProcessTree` on
+import and adds `set_default_process_tree()`. labscript-utils #138 (f9afe16, on master
+c1aa2a3) calls `set_default_process_tree()`.
+
+Locally on Arch Linux with Python 3.14.8, with eight threads each starting a child from
+one new `ProcessTree` at once, ten trials of master created 4 to 8 event brokers and 4 to
+7 heartbeat servers per tree; with #38 every trial created one of each. The new test
+`EventTests.test_events_from_processes_started_concurrently` failed with `TimeoutError`
+in 3 of 3 runs on master and passed with #38. The zprocess suite passed on each branch
+(74 tests).
+
+- Run 39844040672 (zprocess #38, Ubuntu and Windows, Python 3.11 to 3.14 with PySide6,
+  PyQt6 and PyQt5, and the `numpy<2.5` job, with the zprocess tests): all 25 jobs passed
+  every step.
+- Run 39844046729 (macOS, the throwaway branch `test/appnope-once-macos`: zprocess #36,
+  #37 and #38, same matrix): all 12 macOS jobs passed every step, the first macOS run of
+  the full matrix with no failure. No appnope traceback appeared.
+- Run 39852927929 (zprocess #39 with labscript-utils master, which assigns
+  `_default_process_tree` directly, Ubuntu and Windows): all 25 jobs passed every step.
+- Run 39852934051 (zprocess #39 with labscript-utils #138, Ubuntu and Windows): all 25
+  jobs passed every step.
+- Run 39853002957 (macOS, the throwaway branch `test/v3-macos`: zprocess #36, #37, #38
+  and #39, with labscript-utils #138): all 12 macOS jobs passed every step.
+
+The Python 3.15 jobs failed at install as always. Both throwaway branches have been
+deleted.
+
 ## 2026-10-23: zprocess #37 and labscript-utils #137 (DEFECTS.md D21)
 
 zprocess #37 (366f8f3, on master 1de4c26) replaces the branch `start-daemon-single-fork`
