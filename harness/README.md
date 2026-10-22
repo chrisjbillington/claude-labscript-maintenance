@@ -61,6 +61,7 @@ error window. labscript-utils releases before 3.5.0 ignore the variable.
 | `runviewer` | `runviewer.__main__.Shot` loads the shot, which runs the runviewer parser of every device that has one; the traces and markers are checked |
 | `runmanager-api` | The library API on the `runmanager_test` fixture: globals file CRUD, evaluation, expansion, diff, run files, single-shot and multishot compilation with the compiler output streamed to a PULL socket |
 | `apps` | runmanager, runviewer, lyse and BLACS start under `QT_QPA_PLATFORM=offscreen`, listen on their labconfig ports and run for five seconds; the runmanager remote API is exercised; the output of each is checked for tracebacks |
+| `lyse-gui` | The lyse GUI in this process under `QT_QPA_PLATFORM=offscreen`: a routine that loops in Python is interrupted by the Abort button and its worker survives, a routine blocked in a long sleep has its worker restarted, analysis is paused in both cases, and the interrupted worker then runs a routine to completion |
 | `zprocess-tests` | The zprocess test suite with pytest. Skipped unless `--all` or `--step zprocess-tests` is given; it takes two minutes |
 
 A check for a known open bug is marked `KNOWN` in the log and does not fail the step.

@@ -62,6 +62,7 @@ STEPS = [
     ('runviewer', ['compile']),
     ('runmanager-api', ['profile']),
     ('apps', ['compile']),
+    ('lyse-gui', ['compile']),
     ('zprocess-tests', []),
 ]
 DEFAULT_SKIP = ['zprocess-tests']
