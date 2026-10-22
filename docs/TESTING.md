@@ -5,6 +5,15 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-22: lyse #149 (shots from the file dialog sorted by name)
+
+Branch `sort-loaded-shots` on labscript-suite/lyse (head 03e3c95, one commit on master
+c74fa4e). In the harness venv (Python 3.14.8, PySide6, offscreen Qt platform), with
+`QFileDialog.getOpenFileNames` stubbed to return `s_10.h5, s_02.h5, s_01.h5, s_11.h5`,
+`FileBox.on_add_shot_files_clicked` puts `s_01.h5, s_02.h5, s_10.h5, s_11.h5` on the
+incoming queue. Run 39712368939 with `lyse=sort-loaded-shots`: the 25 jobs for Python
+3.11 to 3.14 passed every step (the six Python 3.15 jobs fail at install as always).
+
 ## 2026-10-22: lyse routine restart during analysis hangs the GUI (DEFECTS.md D14)
 
 A venv with Python 3.14.8, PySide6, pyzmq 27.2.0 and libzmq 4.3.5, with zprocess
