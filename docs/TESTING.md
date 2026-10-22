@@ -95,6 +95,13 @@ jobs of run 39743290230; it is a race in the test's scripted heartbeat server, w
 closed its socket under its polling thread (`DEFECTS.md` D20, fixed by the third
 commit of the branch). The Python 3.15 job fails at install as always.
 
+Runs 39747320066 (macOS) and 39747331413 (Ubuntu and Windows) at cd76607, the head of
+zprocess #36: the zprocess test suite passes on every macOS job (73 tests on Python
+3.11 to 3.14, no crash), the harness passes every step on macOS with Python 3.11 and
+3.14, the 3.12 and 3.13 jobs fail only the three application steps for the zlog reason
+(D21), and the 25 Ubuntu and Windows jobs for Python 3.11 to 3.14 pass every step. The
+Python 3.15 jobs fail at install as always.
+
 ## 2026-10-22: Qt styles on Windows
 
 The Windows set of the Qt style screenshots, for comparison with the Linux set in the
