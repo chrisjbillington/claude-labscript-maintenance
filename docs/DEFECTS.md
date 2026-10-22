@@ -31,7 +31,7 @@ fix is made, in which case the row names the pull request. Importance uses the s
 | D18 | 2026-10-22 | zprocess `zprocess/process_tree.py:230` (`HeartbeatClient.mainloop`), `:1139` (`Process.terminate`); lyse `lyse/routines.py:591`; runmanager `runmanager/__main__.py:1388` | The kill lock has no effect on Windows: `Popen.terminate()` and `os.kill(pid, SIGTERM)` are `TerminateProcess`, so no handler runs, and a worker that is writing to an HDF5 file is ended at once by a heartbeat failure, by lyse's and runmanager's SIGTERM stage and by BLACS's `finalise_close_tab`. On Linux and macOS the SIGTERM handler runs only when the main thread next executes Python code, so a worker inside a long C call is not ended either | 3 | read | the heartbeat path is fixed in [zprocess #35](https://github.com/chrisjbillington/zprocess/pull/35) (`exit_when_released()`, `SUBPROCESS-INTERRUPTION.md`), open; the `terminate()` stages are replaced by the design there |
 | D19 | 2026-10-22 | zprocess `zprocess/utils.py:272` (`get_venv_executable_and_env`) | In a venv made from a python.org framework build on macOS, every zprocess subprocess (BLACS workers, the runmanager compiler, lyse analysis workers) starts with the base interpreter's packages and fails at its first import of a venv package. The function starts the child from `sys._base_executable` with `__PYVENV_LAUNCHER__` set, to skip the launcher process of a Windows venv; on macOS `sys._base_executable` is the framework's `bin/python3.x` stub, which overwrites the variable with its own path before it execs the interpreter | 3 | run (macOS GitHub Actions runner, Python 3.11 to 3.14) | fixed in [zprocess #36](https://github.com/chrisjbillington/zprocess/pull/36), open, which skips the launcher on Windows only. desktop-app `desktop_app/environment.py:250` has a copy of the function, which its entry point launcher uses, so an application started from its entry point script on macOS fails the same way; fixed in [desktop-app #35](https://github.com/chrisjbillington/desktop-app/pull/35), open |
 | D20 | 2026-10-22 | zprocess `tests/test_zprocess.py:331` (`ScriptedHeartbeatServer.close`) | The test's scripted heartbeat server closes its ROUTER socket from the test thread while its mainloop thread may be polling the socket; a zmq socket is not thread-safe. On macOS the zprocess test process ended with a segmentation fault in `HeartbeatTests` in five of twelve runs (Python 3.11 to 3.13; never on 3.14, Linux or Windows) | 2 | run (macOS GitHub Actions); read | fixed in [zprocess #36](https://github.com/chrisjbillington/zprocess/pull/36): the thread is stopped and joined before the socket is closed |
-| D21 | 2026-10-22 | labscript-utils `labscript_utils/ls_zprocess.py:361` (`ensure_connected_to_zlog`) with zprocess `zprocess/utils.py:117` (`start_daemon`) on macOS | On the macOS GitHub Actions runner with Python 3.12 and 3.13, the zlog server that `ensure_connected_to_zlog` starts with `start_daemon` never answers the 15 s ping that follows, so runmanager, runviewer, lyse and BLACS all fail in `setup_logging` at start-up. The zlock server, started the same way, works, and Python 3.11 and 3.14 pass; the daemon's output is discarded, so the cause is not known | 3 | run (macOS GitHub Actions, four runs) | open; not understood |
+| D21 | 2026-10-22 | zprocess `zprocess/utils.py:117` (`start_daemon`) with labscript-utils `labscript_utils/excepthook/__init__.py:101` on macOS | With the Tcl/Tk 8.6.16 and 8.6.18 that the python.org installers of Python 3.12 and 3.13 bundle, a process that imports tkinter and forks gets a child that is killed with SIGKILL if it calls `fork()` again. `start_daemon` forks and then starts the daemon with `subprocess.Popen`, which forks a second time, so the daemon is never started. The four applications import `labscript_utils.excepthook`, which imports tkinter, before `setup_logging` starts the zlog server, so on the macOS runner with Python 3.12 and 3.13 they all fail at start-up. The zlock server is started from processes that do not import tkinter and is not affected; Python 3.11 (Tcl/Tk 8.6.13) and 3.14 (Tcl/Tk 9.0.4) are not affected | 3 | run (macOS GitHub Actions, reproduced without the suite) | open; cause found, not fixed |
 
 ## Detail
 
@@ -368,12 +368,42 @@ socket.
 
 `ensure_connected_to_zlog` (`labscript_utils/ls_zprocess.py:361`) pings the zlog server
 with a 50 ms timeout and, when that fails, starts `labscript_utils.zlog --daemon` with
-`zprocess.start_daemon` (fork, `setsid`, `Popen` with its output discarded) and pings
-again with a 15 s timeout. On `macos-latest` with Python 3.12.10 and 3.13.16 the second
-ping also fails in every run (39743170120, 39743290230, 39744288024), so every
-application fails at `setup_logging`, which the harness `runviewer`, `apps` and
-`lyse-gui` steps report. `connect_to_zlock_server` starts the zlock server in the same
-way on the same jobs and it works (the `compile` and `runmanager-api` steps pass), and
-the Python 3.11.9 and 3.14.8 jobs pass every step. The daemon's output is discarded, so
-whether it fails to start, crashes or binds elsewhere is not known. To find out, run the
-zlog server in the foreground on such a job, or capture its output.
+`zprocess.start_daemon` and pings again with a 15 s timeout. `start_daemon`
+(`zprocess/utils.py:117`) forks, calls `setsid` in the child and starts the command
+from the child with `subprocess.Popen(..., close_fds=True, cwd=...)`. On macOS with
+those arguments `Popen` does not use `posix_spawn`, so it forks a second time from the
+forked child. On `macos-latest` with Python 3.12.10 and 3.13.16 every application fails
+at `setup_logging` because the second ping also fails (runs 39743170120, 39743290230,
+39744288024 and 39747320066).
+
+The cause, found with a diagnostic workflow on a throwaway branch (runs 39757012414 to
+39763681340, branch since deleted):
+
+- The zlog server works on those jobs. Started from a shell, in the foreground or as a
+  daemon, it binds port 7340 and answers pings.
+- With `start_daemon` patched to trace each stage, every zlog start from an application
+  ends with the forked child killed by signal 9 inside `Popen`, before the server
+  process exists. The zlock start in the same job completes.
+- A script that imports tkinter and then forks reproduces it without the suite: the
+  child runs, but is killed with SIGKILL when it calls `fork()` itself. In that child
+  `execv`, `posix_spawn` and `Popen` with `close_fds=False` and no `cwd` (which uses
+  `posix_spawn`) work, and `Popen` as `start_daemon` calls it does not. Creating a Tk
+  root window has the same effect as the import. A QApplication, the splash screen and
+  `import desktop_app` do not have this effect, and neither do the harness's way of
+  running a check, a new session, a pipe, the environment or the working directory.
+- It depends on the bundled Tcl/Tk: Python 3.11.9 (Tcl/Tk 8.6.13) and 3.14.8 (9.0.4)
+  are not affected, 3.12.10 (8.6.16) and 3.13.16 (8.6.18) are. The macOS notifier
+  source, which installs the `pthread_atfork` handlers, is the same in Tcl 8.6.13 and
+  8.6.16, so the change that causes it is elsewhere in Tcl or Tk; it was not located.
+  No crash report is written.
+- On labscript-utils master `labscript_utils/excepthook/__init__.py:101` imports
+  tkinter when the module is imported, and runviewer, runmanager, lyse and BLACS import
+  that module before `setup_logging`. The zlock server is started by
+  `connect_to_zlock_server` from processes that have not imported it.
+
+A fix in `start_daemon` would avoid the second fork, for example by starting the daemon
+from the parent with `Popen(..., start_new_session=True)`, or by calling `execv` in the
+forked child after redirecting its standard streams and changing directory. This also
+covers user code that imports tkinter. Importing tkinter only when an error window is
+shown, as the labscript-utils branch `excepthook-gui-only` does, avoids it for the
+applications only.

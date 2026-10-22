@@ -5,6 +5,39 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-22: macOS, tkinter and a second fork (DEFECTS.md D21)
+
+A diagnostic workflow on a throwaway branch (runs 39757012414, 39757563800,
+39758623928, 39759157133, 39763180270 and 39763681340; branch since deleted) installed
+the suite as the harness does, with zprocess at `macos-venv-launcher` (cd76607) and
+PySide6 6.12.0, on `macos-latest` (macOS 26.6.2, arm64) with the python.org builds of
+Python 3.11.9, 3.12.10, 3.13.16 and 3.14.8, and pyzmq 27.2.0 with libzmq 4.3.5.
+
+- `labscript_utils.zlog --daemon` started from a shell gives a zlog server that answers
+  pings on every version.
+- In a harness run with `zprocess.start_daemon` traced, on Python 3.12 the forked child
+  of every zlog start from runviewer, runmanager, lyse and BLACS was killed by signal 9
+  inside `subprocess.Popen`. The zlock start in the same run completed. On 3.11 every
+  start completed.
+- A script that sets up a given state, forks, and in the child starts a process: after
+  `import tkinter`, after creating a Tk root window, or after `import
+  labscript_utils.excepthook`, the child was killed by signal 9 when it called `fork()`
+  (directly or through `Popen` with `close_fds=True`) on Python 3.12 and 3.13, and
+  completed on 3.11 and 3.14. `execv` and `posix_spawn` in the child completed on every
+  version. With no tkinter import, or with only a QApplication, the splash screen or
+  `import desktop_app`, every method completed.
+
+| Python | Tcl/Tk | Second fork after `import tkinter` |
+|---|---|---|
+| 3.11.9 | 8.6.13 | completes |
+| 3.12.10 | 8.6.16 | killed by signal 9 |
+| 3.13.16 | 8.6.18 | killed by signal 9 |
+| 3.14.8 | 9.0.4 | completes |
+
+On Python 3.12 with labscript-utils master, `import runviewer.__main__` in a plain shell
+failed in the same way; the error window process that the excepthook then started kept
+the shell's pipe open, and the job was cancelled at its time limit.
+
 ## 2026-10-22: desktop-app #35 (the entry point launcher on macOS, DEFECTS.md D19)
 
 desktop-app's `get_venv_executable_and_env` is a copy of the zprocess function of D19,
@@ -117,7 +150,7 @@ jobs failed the `runviewer`, `apps` and `lyse-gui` steps because no zlog server 
 be reached: `ensure_connected_to_zlog` starts `labscript_utils.zlog --daemon` after
 the first ping fails and the second ping, with a 15 s timeout, also fails, so every
 application fails in `setup_logging`. The zlock server, started the same way, works on
-those jobs, and the 3.11 and 3.14 jobs pass; not understood yet (`DEFECTS.md` D21).
+those jobs, and the 3.11 and 3.14 jobs pass (`DEFECTS.md` D21; the cause is in the section "macOS, tkinter and a second fork").
 Run 39744288024 (the branch at fd5b647, with the `test_no_access` change): the Python
 3.11 and 3.14 jobs passed every step and all 73 zprocess tests, the first full pass of
 the harness on macOS; the 3.12 and 3.13 jobs failed the same three steps for the zlog
