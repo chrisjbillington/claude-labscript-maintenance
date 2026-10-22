@@ -5,6 +5,43 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-22: interrupting the main thread of a subprocess (zprocess branch `interrupt-main-thread`)
+
+Measurements behind `SUBPROCESS-INTERRUPTION.md`, on Arch Linux with Python 3.14.8,
+NumPy 2.5.4, h5py 3.16.0, pyzmq 27.2.0 and libzmq 4.3.5.
+
+**Interrupt latency.** A script puts the main thread into each blocking state below and a
+timer thread acts 0.5 s later, either with `_thread.interrupt_main()` (lyse #153's
+method) or with `zprocess.interrupt_main_thread()` from the branch, which on POSIX is
+`signal.pthread_kill(main_thread, SIGINT)`. The table gives the time from the start of
+the state to the `KeyboardInterrupt` in the main thread.
+
+| Main thread in | `_thread.interrupt_main()` | `interrupt_main_thread()` |
+|---|---|---|
+| `time.sleep(6)` | 6.00 s, after the sleep ended | 0.50 s |
+| `Lock.acquire(timeout=6)` | 6.00 s, after the timeout | 0.50 s |
+| zmq `poll(6000)` | 6.01 s, after the poll ended | 0.50 s |
+| Python `while` loop | 0.51 s | 0.51 s |
+| `np.linalg.inv` on a 6000×6000 array (4.64 s alone) | 4.50 s, when the call returned | 3.82 s, when the call returned |
+| h5py write loop that returns at 0.1 s | 0.61 s, after the loop returned | 0.50 s, after the loop returned |
+
+**HDF5 files after an interrupt.** A subprocess writes to an HDF5 file in a loop
+(`create_dataset`, an attribute write and `flush()` per iteration) and gets SIGINT from a
+timer thread after 0.3 s:
+
+| How the file was open | Result |
+|---|---|
+| `with h5py.File(...)`, closed as the exception propagates | reopens; 1392 datasets, attribute 1390 |
+| `h5py.File(...)` left open, closed by interpreter shutdown | reopens; 1115 datasets, attribute 1114 |
+| the same loop ended with SIGKILL after 0.5 s | reopens in this run; 1531 datasets (the 2026-10-22 lyse #151 test below records a file that did not reopen after SIGKILL) |
+
+**zprocess test suite.** With the branch installed in a venv (editable, Python 3.14.8),
+`pytest -o addopts= tests` passes: the new `InterruptMainThreadTests` (sleep, lock
+acquisition, zmq poll and Python loop interrupted within 0.2 s of the call to
+`interrupt_main_thread()`; `RuntimeError` with SIGINT ignored), the new `KillLockTests`
+and the existing heartbeat tests, including `test_subproc_survives_until_kill_lock_released`,
+which now exercises the `exit_when_released()` path.
+
 ## 2026-10-22: Qt styles on Linux
 
 Screenshots of BLACS, runmanager, lyse and runviewer for comparison of the default Qt

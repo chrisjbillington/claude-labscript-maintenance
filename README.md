@@ -30,6 +30,7 @@ backward compatibility.
 | `.github/workflows/test.yml` | Runs the harness on Ubuntu and Windows for Python 3.11 to 3.15 with PySide6, PyQt6 and PyQt5: on pushes that change the harness, weekly, and on demand with chosen component refs |
 | `docs/TESTING.md` | Results of the harness runs, with dates and versions |
 | `docs/DEFECTS.md` | Defects found by testing that no GitHub issue or review document records, with importance and status |
+| `docs/SUBPROCESS-INTERRUPTION.md` | How to interrupt and end the suite's subprocesses without corrupting HDF5 files: the facts about the kill lock, signals and C code, measurements, and the two-stage design (interrupt, then confirmed kill) with its status per component (2026-10-22) |
 | `docs/LOCAL-TASKS.md` | Tasks that a cloud session could not do, for a local session to do under supervision |
 | `tools/` | Scripts used to produce the documents: GitHub page scrapers |
 
@@ -37,6 +38,18 @@ Read `docs/RELEASE-PLAN.md` first for what needs doing. `docs/MAINTENANCE.md` sa
 been fixed already. The ranked tables at the top of `docs/ISSUE-TRIAGE.md` and
 `docs/PR-REVIEW.md` give the per-item actions; the rest of those files is the reasoning
 and the file:line evidence.
+
+## State as of 2026-10-22
+
+- lyse #151 and #153 (kill lock not held for a whole routine; Abort button) showed that
+  the suite has no safe way to end a busy subprocess: the kill lock has no effect on
+  Windows, SIGTERM reaches only a worker that is executing Python, and Restart and
+  Remove end in `Popen.kill()`. `docs/SUBPROCESS-INTERRUPTION.md` records the facts and
+  the design: interrupt the task with a real SIGINT to the main thread, and kill only
+  after the user confirms or the worker reports that no HDF5 file is open. The zprocess
+  part (`interrupt_main_thread()`, `KillLock.is_held()`, `exit_when_released()`, and a
+  heartbeat failure that waits for the lock instead of sending SIGTERM) is on the branch
+  `interrupt-main-thread`; the lyse, runmanager and BLACS parts are not started.
 
 ## State as of 2026-10-19
 

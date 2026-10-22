@@ -327,6 +327,11 @@ which give file:line and the reasoning.
   labscript-utils #133; blacs #49, #32, #7 and #72 in blacs #129; labscript-suite #5 in
   labscript-utils #134 and labscript-suite #109; labscript-suite #59 in labscript-suite
   #109. The issues are closed.
+- Ending a busy subprocess safely (lyse Restart and Remove, runmanager Restart
+  subprocess, BLACS tab close): the kill lock has no effect on Windows and the
+  SIGTERM stage is useless on every platform (`DEFECTS.md` D18). The design and status
+  are in `SUBPROCESS-INTERRUPTION.md`; the zprocess part goes into 2.28.0, the lyse part
+  follows lyse #151 and #153.
 - labscript #41: there are no tests in labscript or labscript-utils. The harness in
   this repository (`harness/`, results in `TESTING.md`) runs install, import, compile,
   lyse, runviewer-parser, runmanager-API and application start-up checks on Ubuntu and

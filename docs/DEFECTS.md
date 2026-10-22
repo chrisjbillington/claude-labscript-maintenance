@@ -28,6 +28,7 @@ fix is made, in which case the row names the pull request. Importance uses the s
 | D15 | 2026-10-22 | lyse `lyse/analysis_subprocess.py:341` (`AnalysisWorker.mainloop`) | The worker holds the kill lock for the whole of each task, so SIGTERM is deferred until the routine finishes. On Linux and macOS a routine that is restarted or removed while it runs ignores lyse's SIGTERM and, if it is still running 2 s later, is ended with SIGKILL, which is not deferred for an open HDF5 file. `labscript_utils.h5_lock` already holds the kill lock while each HDF5 file is open | 3 | run | found while investigating D14; fixed in [lyse #151](https://github.com/labscript-suite/lyse/pull/151), open |
 | D16 | 2026-10-22 | lyse `lyse/filebox.py:338-353` (`DataFrameModel.remove_selection`), `:652-656` (`renumber_rows`), `lyse/widgets.py:20-26` (`UneditableModel.flags`) | Removing many selected shots takes minutes: 61 s for 3990 of 4000 shots with 200 data columns, increasing with the square of the number of shots. `UneditableModel` overrides `flags()` in Python, and `selectedRows()` calls it for every cell of every selected row; rows are removed from the Qt model one at a time from the top, so each removal moves every row below it; with integer indexing, `renumber_rows` looks up three dataframe columns for every row | 3 | run | reported by the maintainer; fixed in [lyse #152](https://github.com/labscript-suite/lyse/pull/152), open |
 | D17 | 2026-10-22 | lyse `lyse/widgets.py:76` (`ItemDelegate.paint`) | Painting the status column of the shots table calls `QApplication.fontMetrics()`, which PyQt6 does not provide, so with PyQt6 every paint of a shot whose analysis is not complete raises `AttributeError: 'QApplication' object has no attribute 'fontMetrics'` through the excepthook and the progress bar is not drawn. PySide6 and PyQt5 provide the method | 4 | run | found by the `lyse-gui` harness step with PyQt6 6.11.0 on Ubuntu and locally; fixed in [lyse #154](https://github.com/labscript-suite/lyse/pull/154), open |
+| D18 | 2026-10-22 | zprocess `zprocess/process_tree.py:230` (`HeartbeatClient.mainloop`), `:1139` (`Process.terminate`); lyse `lyse/routines.py:591`; runmanager `runmanager/__main__.py:1388` | The kill lock has no effect on Windows: `Popen.terminate()` and `os.kill(pid, SIGTERM)` are `TerminateProcess`, so no handler runs, and a worker that is writing to an HDF5 file is ended at once by a heartbeat failure, by lyse's and runmanager's SIGTERM stage and by BLACS's `finalise_close_tab`. On Linux and macOS the SIGTERM handler runs only when the main thread next executes Python code, so a worker inside a long C call is not ended either | 3 | read | the heartbeat path is fixed on the zprocess branch `interrupt-main-thread` (`exit_when_released()`, `SUBPROCESS-INTERRUPTION.md`); the `terminate()` stages are replaced by the design there |
 
 ## Detail
 
@@ -306,3 +307,19 @@ of such a cell opens the error window. PySide6 and PyQt5 provide the method. See
 `lyse-gui` harness step (run 39716288975, Ubuntu, PyQt6 6.11.0, 24 tracebacks in one
 run of the check) and locally with PyQt6 6.11.0. `QtGui.QFontMetrics(qapplication.font())`
 gives the same metrics on every binding. Fix: lyse #154 uses it.
+
+### D18. The kill lock does nothing on Windows
+
+`KillLock` is a Python SIGTERM handler (`zprocess/process_tree.py:42-150`). Windows has no
+way to send SIGTERM to another process: `Popen.terminate()` and `os.kill(pid, SIGTERM)`
+both call `TerminateProcess`, which ends the process without running any handler. So on
+Windows the lock protects nothing: not against `Process.terminate()`
+(`process_tree.py:1139`), the SIGTERM stage of lyse's `check_child_exited`
+(`lyse/routines.py:591`) and runmanager's (`runmanager/__main__.py:1388`), BLACS's
+`finalise_close_tab` (`blacs/tab_base_classes.py:631`), or the heartbeat failure path
+(`process_tree.py:230`), which sent the process its own SIGTERM. On Linux and macOS the
+handler runs only when the main thread next executes Python bytecode, so a worker inside
+a long C call does not act on SIGTERM either. `SUBPROCESS-INTERRUPTION.md` has the
+facts and the design that replaces the SIGTERM stages. The heartbeat path is fixed on the
+zprocess branch `interrupt-main-thread`: the heartbeat thread waits for the lock to be
+released and then exits, on every platform.
