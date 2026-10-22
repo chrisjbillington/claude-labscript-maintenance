@@ -42,6 +42,59 @@ acquisition, zmq poll and Python loop interrupted within 0.2 s of the call to
 and the existing heartbeat tests, including `test_subproc_survives_until_kill_lock_released`,
 which now exercises the `exit_when_released()` path.
 
+**GitHub Actions.** Run 39739704191 (`zprocess=chrisjbillington/zprocess@interrupt-main-thread`
+at 89b72d2, all steps including the zprocess test suite): the 21 Ubuntu and Windows jobs
+for Python 3.11, 3.12 and 3.14 and the Ubuntu Python 3.13 PySide6 and PyQt5 jobs
+passed every step. The three Windows Python 3.13.16 jobs failed the new
+`test_lock_acquire`: the `KeyboardInterrupt` arrived 4.0 s after the call, when the
+lock wait timed out, so a lock wait in the main thread is woken by the SIGINT event on
+Windows from Python 3.14 (where the three Windows jobs passed) and not on 3.13 as the
+test and the helper's docstring had assumed; the test now expects the late interrupt
+before 3.14 (commit b05a273, which replaced 89b72d2). The Ubuntu Python 3.13 PyQt6 job
+failed the pre-existing zlock test `OtherTests.test_bind_to_port` with "Address already
+in use" for the random port it chose; unrelated to the change. Run 39741071991 with the
+same refs at b05a273: the 25 jobs for Python 3.11 to 3.14 with PySide6, PyQt6 and PyQt5,
+and Ubuntu Python 3.14 with `numpy<2.5`, passed every step, the zprocess test suite
+included (80 tests, 2 skipped on Windows as always). The six Python 3.15 jobs fail at
+install as always.
+
+**macOS.** The harness had not been run on macOS before. Run 39739717279
+(`macos-latest`, Python 3.11 to 3.15 with PySide6, the branch at 89b72d2, all steps):
+the new `InterruptMainThreadTests` and `KillLockTests` passed on Python 3.11 to 3.14,
+but on every job the `compile`, `runmanager-api`, `apps` and `lyse-gui` steps failed
+with `ModuleNotFoundError: No module named 'labscript_utils'` in each subprocess that
+zprocess started, and the 28 zprocess tests that start a subprocess failed the same
+way. Run 39742429966 (zprocess master, Python 3.14) fails identically, so the cause
+predates the branch: `DEFECTS.md` D19, zprocess starts a child on macOS from the
+framework's `bin/python3.x` stub, which discards the venv. A diagnostic workflow on a
+throwaway branch (run 39742696067, since deleted) started a child both ways from a uv
+venv of Python 3.14.8 on the runner: from `sys._base_executable` with
+`__PYVENV_LAUNCHER__` set the child reported the framework prefix and could not import
+pyzmq; from `sys.executable` it reported the venv prefix and imported it.
+
+With the D19 fix (zprocess branch `macos-venv-launcher`): run 39743170120 (the fix
+alone, Python 3.11 to 3.14, PySide6) passed every harness step on Python 3.11 and 3.14,
+and the zprocess suite on every job except `ZLogServerTests.test_no_access`, which
+expects "Permission denied" for `/test.log` where macOS reports "Read-only file
+system" (the second commit of the branch, fd5b647, accepts either). Run 39743290230
+(the fix plus the interrupt branch, on the throwaway branch
+`test/interrupt-main-thread-macos`, since deleted): the whole zprocess suite passed on
+Python 3.14 apart from `test_no_access`, including the subprocess and heartbeat tests
+and the new tests, and the same on 3.11 to 3.13. In both runs the Python 3.12 and 3.13
+jobs failed the `runviewer`, `apps` and `lyse-gui` steps because no zlog server could
+be reached: `ensure_connected_to_zlog` starts `labscript_utils.zlog --daemon` after
+the first ping fails and the second ping, with a 15 s timeout, also fails, so every
+application fails in `setup_logging`. The zlock server, started the same way, works on
+those jobs, and the 3.11 and 3.14 jobs pass; not understood yet (`DEFECTS.md` D21).
+Run 39744288024 (the branch at fd5b647, with the `test_no_access` change): the Python
+3.11 and 3.14 jobs passed every step and all 73 zprocess tests, the first full pass of
+the harness on macOS; the 3.12 and 3.13 jobs failed the same three steps for the zlog
+reason, and their zprocess test process ended with "Fatal Python error: Segmentation
+fault" during the heartbeat tests. The same crash had ended the 3.11, 3.12 and 3.13
+jobs of run 39743290230; it is a race in the test's scripted heartbeat server, which
+closed its socket under its polling thread (`DEFECTS.md` D20, fixed by the third
+commit of the branch). The Python 3.15 job fails at install as always.
+
 ## 2026-10-22: Qt styles on Windows
 
 The Windows set of the Qt style screenshots, for comparison with the Linux set in the
@@ -87,6 +140,7 @@ host, for the maintainer to copy to the Linux machine beside `screenshots/linux`
 - The zlock and zlog servers that the suite starts with the harness profile's shared
   secret are still running after `run_all.py` finishes. They have to be stopped before
   a real profile is restored, since they refuse connections made with another secret.
+
 
 ## 2026-10-22: Qt styles on Linux
 

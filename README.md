@@ -48,8 +48,13 @@ and the file:line evidence.
   the design: interrupt the task with a real SIGINT to the main thread, and kill only
   after the user confirms or the worker reports that no HDF5 file is open. The zprocess
   part (`interrupt_main_thread()`, `KillLock.is_held()`, `exit_when_released()`, and a
-  heartbeat failure that waits for the lock instead of sending SIGTERM) is on the branch
-  `interrupt-main-thread`; the lyse, runmanager and BLACS parts are not started.
+  heartbeat failure that waits for the lock instead of sending SIGTERM) is zprocess #35;
+  the lyse, runmanager and BLACS parts are not started.
+- The harness ran on macOS for the first time and found that zprocess subprocesses in
+  a python.org venv on macOS do not see the venv (`docs/DEFECTS.md` D19); zprocess #36
+  fixes it, and with it the harness passes every step on macOS with Python 3.11 and
+  3.14. desktop-app has a copy of the same function. On macOS with Python 3.12 and 3.13
+  the applications cannot reach a zlog server (D21, not understood).
 
 ## State as of 2026-10-19
 

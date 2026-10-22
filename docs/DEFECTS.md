@@ -28,7 +28,10 @@ fix is made, in which case the row names the pull request. Importance uses the s
 | D15 | 2026-10-22 | lyse `lyse/analysis_subprocess.py:341` (`AnalysisWorker.mainloop`) | The worker holds the kill lock for the whole of each task, so SIGTERM is deferred until the routine finishes. On Linux and macOS a routine that is restarted or removed while it runs ignores lyse's SIGTERM and, if it is still running 2 s later, is ended with SIGKILL, which is not deferred for an open HDF5 file. `labscript_utils.h5_lock` already holds the kill lock while each HDF5 file is open | 3 | run | found while investigating D14; fixed in [lyse #151](https://github.com/labscript-suite/lyse/pull/151), open |
 | D16 | 2026-10-22 | lyse `lyse/filebox.py:338-353` (`DataFrameModel.remove_selection`), `:652-656` (`renumber_rows`), `lyse/widgets.py:20-26` (`UneditableModel.flags`) | Removing many selected shots takes minutes: 61 s for 3990 of 4000 shots with 200 data columns, increasing with the square of the number of shots. `UneditableModel` overrides `flags()` in Python, and `selectedRows()` calls it for every cell of every selected row; rows are removed from the Qt model one at a time from the top, so each removal moves every row below it; with integer indexing, `renumber_rows` looks up three dataframe columns for every row | 3 | run | reported by the maintainer; fixed in [lyse #152](https://github.com/labscript-suite/lyse/pull/152), open |
 | D17 | 2026-10-22 | lyse `lyse/widgets.py:76` (`ItemDelegate.paint`) | Painting the status column of the shots table calls `QApplication.fontMetrics()`, which PyQt6 does not provide, so with PyQt6 every paint of a shot whose analysis is not complete raises `AttributeError: 'QApplication' object has no attribute 'fontMetrics'` through the excepthook and the progress bar is not drawn. PySide6 and PyQt5 provide the method | 4 | run | found by the `lyse-gui` harness step with PyQt6 6.11.0 on Ubuntu and locally; fixed in [lyse #154](https://github.com/labscript-suite/lyse/pull/154), open |
-| D18 | 2026-10-22 | zprocess `zprocess/process_tree.py:230` (`HeartbeatClient.mainloop`), `:1139` (`Process.terminate`); lyse `lyse/routines.py:591`; runmanager `runmanager/__main__.py:1388` | The kill lock has no effect on Windows: `Popen.terminate()` and `os.kill(pid, SIGTERM)` are `TerminateProcess`, so no handler runs, and a worker that is writing to an HDF5 file is ended at once by a heartbeat failure, by lyse's and runmanager's SIGTERM stage and by BLACS's `finalise_close_tab`. On Linux and macOS the SIGTERM handler runs only when the main thread next executes Python code, so a worker inside a long C call is not ended either | 3 | read | the heartbeat path is fixed on the zprocess branch `interrupt-main-thread` (`exit_when_released()`, `SUBPROCESS-INTERRUPTION.md`); the `terminate()` stages are replaced by the design there |
+| D18 | 2026-10-22 | zprocess `zprocess/process_tree.py:230` (`HeartbeatClient.mainloop`), `:1139` (`Process.terminate`); lyse `lyse/routines.py:591`; runmanager `runmanager/__main__.py:1388` | The kill lock has no effect on Windows: `Popen.terminate()` and `os.kill(pid, SIGTERM)` are `TerminateProcess`, so no handler runs, and a worker that is writing to an HDF5 file is ended at once by a heartbeat failure, by lyse's and runmanager's SIGTERM stage and by BLACS's `finalise_close_tab`. On Linux and macOS the SIGTERM handler runs only when the main thread next executes Python code, so a worker inside a long C call is not ended either | 3 | read | the heartbeat path is fixed in [zprocess #35](https://github.com/chrisjbillington/zprocess/pull/35) (`exit_when_released()`, `SUBPROCESS-INTERRUPTION.md`), open; the `terminate()` stages are replaced by the design there |
+| D19 | 2026-10-22 | zprocess `zprocess/utils.py:272` (`get_venv_executable_and_env`) | In a venv made from a python.org framework build on macOS, every zprocess subprocess (BLACS workers, the runmanager compiler, lyse analysis workers) starts with the base interpreter's packages and fails at its first import of a venv package. The function starts the child from `sys._base_executable` with `__PYVENV_LAUNCHER__` set, to skip the launcher process of a Windows venv; on macOS `sys._base_executable` is the framework's `bin/python3.x` stub, which overwrites the variable with its own path before it execs the interpreter | 3 | run (macOS GitHub Actions runner, Python 3.11 to 3.14) | fixed in [zprocess #36](https://github.com/chrisjbillington/zprocess/pull/36), open, which skips the launcher on Windows only |
+| D20 | 2026-10-22 | zprocess `tests/test_zprocess.py:331` (`ScriptedHeartbeatServer.close`) | The test's scripted heartbeat server closes its ROUTER socket from the test thread while its mainloop thread may be polling the socket; a zmq socket is not thread-safe. On macOS the zprocess test process ended with a segmentation fault in `HeartbeatTests` in five of twelve runs (Python 3.11 to 3.13; never on 3.14, Linux or Windows) | 2 | run (macOS GitHub Actions); read | fixed in [zprocess #36](https://github.com/chrisjbillington/zprocess/pull/36): the thread is stopped and joined before the socket is closed |
+| D21 | 2026-10-22 | labscript-utils `labscript_utils/ls_zprocess.py:361` (`ensure_connected_to_zlog`) with zprocess `zprocess/utils.py:117` (`start_daemon`) on macOS | On the macOS GitHub Actions runner with Python 3.12 and 3.13, the zlog server that `ensure_connected_to_zlog` starts with `start_daemon` never answers the 15 s ping that follows, so runmanager, runviewer, lyse and BLACS all fail in `setup_logging` at start-up. The zlock server, started the same way, works, and Python 3.11 and 3.14 pass; the daemon's output is discarded, so the cause is not known | 3 | run (macOS GitHub Actions, four runs) | open; not understood |
 
 ## Detail
 
@@ -322,4 +325,48 @@ handler runs only when the main thread next executes Python bytecode, so a worke
 a long C call does not act on SIGTERM either. `SUBPROCESS-INTERRUPTION.md` has the
 facts and the design that replaces the SIGTERM stages. The heartbeat path is fixed on the
 zprocess branch `interrupt-main-thread`: the heartbeat thread waits for the lock to be
-released and then exits, on every platform.
+released and then exits, on every platform (zprocess #35).
+
+### D19. zprocess subprocesses do not see the venv on macOS
+
+`get_venv_executable_and_env` (`zprocess/utils.py:272`, from 4d7a5d3 for zprocess #13)
+starts a subprocess from `sys._base_executable` with `__PYVENV_LAUNCHER__` set to the
+venv's Python whenever the two differ, so that on Windows the venv's `python.exe`
+launcher, which runs the base interpreter as a child process, is skipped. On macOS with a
+python.org framework build, `sys._base_executable` is the framework's `bin/python3.x`
+stub (CPython `Mac/Tools/pythonw.c`), which sets `__PYVENV_LAUNCHER__` to its own path
+and execs the interpreter, so the child configures itself for the base installation:
+its `sys.prefix` is the framework and its `sys.path` has no venv `site-packages`. On
+Linux the variable is honoured and the venv is found, and on conda there is no venv, so
+only macOS venvs are affected. Seen first in the harness on `macos-latest` (run
+39739717279, `TESTING.md`), where every step that starts a subprocess failed with
+`ModuleNotFoundError: No module named 'labscript_utils'` and 28 zprocess tests failed;
+confirmed with a diagnostic workflow that started a child both ways from a uv venv of
+Python 3.14.8 and printed its prefix and path. Fix: zprocess #36 skips the launcher on Windows only, as `multiprocessing` does.
+
+### D20. The scripted heartbeat server closes its socket under its own thread
+
+`ScriptedHeartbeatServer` in `tests/test_zprocess.py` runs a mainloop thread that polls
+its ROUTER socket in 100 ms steps. `close()` set `_running` to false, closed the socket
+and then joined the thread, so the socket could be closed while the thread was inside
+`poll()`. libzmq sockets are not thread-safe, and on the macOS runner the test process
+ended with "Fatal Python error: Segmentation fault" at the start of
+`test_subproc_survives_malformed_heartbeats_below_budget` or
+`test_subproc_survives_missing_heartbeats_below_budget` in five of the twelve macOS
+jobs of runs 39743170120, 39743290230 and 39744288024 (`TESTING.md`), with every thread
+in the dump inside `zmq` `poll`. Fix: zprocess #36 joins the thread before closing the
+socket.
+
+### D21. No zlog server on the macOS runner with Python 3.12 and 3.13
+
+`ensure_connected_to_zlog` (`labscript_utils/ls_zprocess.py:361`) pings the zlog server
+with a 50 ms timeout and, when that fails, starts `labscript_utils.zlog --daemon` with
+`zprocess.start_daemon` (fork, `setsid`, `Popen` with its output discarded) and pings
+again with a 15 s timeout. On `macos-latest` with Python 3.12.10 and 3.13.16 the second
+ping also fails in every run (39743170120, 39743290230, 39744288024), so every
+application fails at `setup_logging`, which the harness `runviewer`, `apps` and
+`lyse-gui` steps report. `connect_to_zlock_server` starts the zlock server in the same
+way on the same jobs and it works (the `compile` and `runmanager-api` steps pass), and
+the Python 3.11.9 and 3.14.8 jobs pass every step. The daemon's output is discarded, so
+whether it fails to start, crashes or binds elsewhere is not known. To find out, run the
+zlog server in the foreground on such a job, or capture its output.

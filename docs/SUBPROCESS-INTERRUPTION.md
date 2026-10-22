@@ -28,8 +28,7 @@ subprocess imports `h5_lock` before `h5py`, so an open shot file always holds th
   `TerminateProcess`, and so is `os.kill(pid, SIGTERM)`; no handler runs. This covers
   `Process.terminate()` (`process_tree.py:1139-1151`), the SIGTERM stage of lyse's
   `check_child_exited` (`lyse/routines.py:583-604`) and runmanager's
-  (`runmanager/__main__.py:1381-1399`), and, before the zprocess change of section
-  3.1, the heartbeat failure path (`process_tree.py:230`).
+  (`runmanager/__main__.py:1381-1399`), and, before zprocess #35, the heartbeat failure path (`process_tree.py:230`).
 - **(run, Linux)** On POSIX the handler runs only when the main thread next executes
   Python bytecode. A worker inside a C call that does not return (a BLAS routine, a
   driver call with no timeout, an HDF5 write of a large dataset) does not act on
@@ -53,7 +52,7 @@ subprocess imports `h5_lock` before `h5py`, so an open shot file always holds th
   wait with its outputs frozen. The hold was carried into labscript-devices in 2014
   (682efdb) and into the unified `NI_DAQmx` worker in 2018 (3788039, 70851c7). The
   heartbeat failure path is the only path that the hold has ever affected, and only on
-  Linux and macOS. With the zprocess change of section 3.1 it works on Windows too: an
+  Linux and macOS. With zprocess #35 it works on Windows too: an
   orphaned NI_DAQmx worker runs the shot's waits to the end before it exits. A shot
   that never completes
   (no resume pulse arrives after the trigger) leaves such an orphan waiting
@@ -95,7 +94,7 @@ Read from the CPython 3.14 source and measured on Linux (section 1.4).
   `PyErr_CheckSignals()` before retrying (PEP 475). `time.sleep`, lock acquisition,
   sockets and pyzmq (`zmq/backend/cython/_zmq.py:179-183`) all work this way. On Windows
   there is no `EINTR`; in the main thread, `time.sleep` (`timemodule.c:2345-2380`) and,
-  from Python 3.13, lock acquisition (`parking_lot.c:119-131`) wait on the SIGINT event
+  from Python 3.14, lock acquisition (`parking_lot.c:119-131`) wait on the SIGINT event
   as well as their own timer. Other blocking calls, a zmq poll among them, are not woken
   on Windows.
 - A compute loop in an extension is interruptible only if the extension calls
@@ -161,7 +160,7 @@ Two stages for every subprocess in the suite:
 
 There is no SIGTERM stage.
 
-### 3.1 zprocess
+### 3.1 zprocess (zprocess #35)
 
 - `zprocess.interrupt_main_thread()`: on POSIX `signal.pthread_kill(main_thread, SIGINT)`,
   on Windows `signal.raise_signal(SIGINT)`, which runs Python's C handler in the calling
@@ -226,14 +225,15 @@ For Abort, Restart, Remove and application quit:
 - A `KeyboardInterrupt` cannot stop a long single C call, so the timeout path stays.
 - A routine or script with a bare `except:` swallows the interrupt. The same timeout
   covers it.
-- On Windows with Python 3.11 and 3.12 a main thread in a lock wait is not woken; one in
-  `time.sleep` is. A zmq poll is not woken on Windows on any version.
+- On Windows before Python 3.14 a main thread in a lock wait is not woken (measured on
+  3.13.16: the `KeyboardInterrupt` arrives when the wait times out); one in `time.sleep`
+  is on every version. A zmq poll is not woken on Windows on any version.
 
 ## 4. Status
 
 | Item | Status |
 |---|---|
-| zprocess: `interrupt_main_thread()`, `KillLock.is_held()`, `exit_when_released()`, heartbeat path | branch `interrupt-main-thread` on chrisjbillington/zprocess, 2026-10-22; pull request to follow the test runs on Ubuntu, Windows and macOS (`TESTING.md`) |
+| zprocess: `interrupt_main_thread()`, `KillLock.is_held()`, `exit_when_released()`, heartbeat path | [zprocess #35](https://github.com/chrisjbillington/zprocess/pull/35), opened 2026-10-22 after test runs on Ubuntu, Windows and macOS (`TESTING.md`); open |
 | lyse: helper, no SIGTERM stage, status query, dialog, Restart and Remove through abort | not started; on top of lyse #151 and #153 |
 | runmanager | not started |
 | BLACS | not started |
