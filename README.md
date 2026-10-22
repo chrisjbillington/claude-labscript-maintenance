@@ -56,8 +56,9 @@ and the file:line evidence.
   3.14. desktop-app #35 makes the same change to the copy of the function that its entry
   point launcher uses. On macOS with Python 3.12 and 3.13 the applications cannot start
   a zlog server, because after a tkinter import the bundled Tcl/Tk makes a second fork
-  kill the process, and `zprocess.start_daemon` forks twice (D21). The zprocess branch
-  `start-daemon-single-fork` fixes it on every OS; its design is not settled yet.
+  kill the process, and `zprocess.start_daemon` forks twice (D21). zprocess #37 makes
+  `start_daemon` start daemons from a fresh Python process, and labscript-utils #137
+  starts the zlog and zlock servers without `start_daemon`; either one fixes D21.
 
 ## State as of 2026-10-19
 

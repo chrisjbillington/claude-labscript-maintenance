@@ -5,6 +5,33 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-23: zprocess #37 and labscript-utils #137 (DEFECTS.md D21)
+
+zprocess #37 (366f8f3, on master 1de4c26) replaces the branch `start-daemon-single-fork`
+of the section below: on Unix `start_daemon` runs a fresh Python process that starts
+the command with `start_new_session=True`, with no thread. labscript-utils #137 (081c736,
+on master c1aa2a3) starts the zlog and zlock `--daemon` scripts with `subprocess.run`.
+Locally on Arch Linux with Python 3.14.8 the zprocess test file passed (34 tests), a
+daemon that exits before its caller is not left as a zombie child of the caller, and a
+command that does not exist raises `CalledProcessError`.
+
+- Run 39793122431 (zprocess #37, Ubuntu and Windows, Python 3.11 to 3.14 with PySide6,
+  PyQt6 and PyQt5, and the `numpy<2.5` job, with the zprocess tests): all 25 jobs passed
+  every step. The Python 3.15 jobs failed at install as always.
+- Run 39793127711 (macOS, the throwaway branch `test/start-daemon-macos`, 6143e79, which
+  is zprocess #36 with the #37 commit on top, same matrix): `StartDaemonTests` passed in
+  all twelve jobs and every application started on Python 3.11 to 3.14 with all three
+  bindings. Python 3.12 with PySide6 failed the `apps` step on the appnope race (D22).
+- Run 39793274699 (labscript-utils #137, Ubuntu and Windows, same matrix): all 25 jobs
+  passed every step.
+- Run 39793279995 (macOS, labscript-utils #137 with zprocess #36, which has the old
+  `start_daemon`, PySide6, Python 3.11 to 3.14): every application started and connected
+  to zlog on every version, including 3.12 and 3.13. Python 3.13 failed the `apps` step
+  on the appnope race (D22).
+
+The throwaway branches `test/start-daemon-macos` and `test/start-daemon-macos-control`
+have been deleted.
+
 ## 2026-10-22: zprocess branch `start-daemon-single-fork` (DEFECTS.md D21)
 
 The branch (f1ed197, on zprocess master 1de4c26) starts daemons with one `Popen` call
