@@ -23,6 +23,7 @@ fix is made, in which case the row names the pull request. Importance uses the s
 | D10 | 2026-10-21 | runmanager `runmanager/evaluator.py:125-135`, `runmanager/__main__.py:2855-2865` | A global with the `outer` expansion that is edited to a non-iterable value keeps the `outer` expansion and shows `'int' object is not iterable` for as long as another global refers to it; the referring global shows `NameError`. Without the referring global the expansion is reset to blank, as intended | 3 | run | reported by the maintainer from runmanager 3.3.0, reproduced on master 73199cb; fixed in [runmanager #138](https://github.com/labscript-suite/runmanager/pull/138), merged 2026-10-21 (3e1de29) |
 | D11 | 2026-10-21 | qtutils `icons/` (every icon is a 32×32 file since 244c556), runmanager `main.ui` (`label_non_default_folder` pixmap), blacs `analysis_submission.ui` (initial status pixmap) | An icon loaded as a raw pixmap, such as the `pixmap` property of a `QLabel` in a `.ui` file or a combo box popup entry, shows at 32×32 on a normal DPI display, twice its intended size; `QIcon` uses scale down and are unaffected | 2 | run | reported by the maintainer; fixed in [qtutils #39](https://github.com/philipstarkey/qtutils/pull/39) and, for the runmanager label so that it is also crisp on high DPI, [runmanager #141](https://github.com/labscript-suite/runmanager/pull/141), both open |
 | D12 | 2026-10-22 | labscript-utils `labscript_utils/connections.py:17`, blacs `blacs/device_base_class.py:31` and `blacs/front_panel_settings.py:18` | These library modules import `labscript_utils.excepthook`, which installs the Tk error window handler as `sys.excepthook` on import, so `import lyse`, or an experiment script run in a terminal that uses a device module importing `DeviceTab`, opens an error window for every uncaught exception | 3 | run | reported by the maintainer; fixed in [labscript-utils #136](https://github.com/labscript-suite/labscript-utils/pull/136), [blacs #133](https://github.com/labscript-suite/blacs/pull/133), [lyse #148](https://github.com/labscript-suite/lyse/pull/148), [runmanager #142](https://github.com/labscript-suite/runmanager/pull/142), [runviewer #79](https://github.com/labscript-suite/runviewer/pull/79) and [labscript-devices #156](https://github.com/labscript-suite/labscript-devices/pull/156), all open |
+| D13 | 2026-10-22 | lyse `lyse/filebox.py:1004`, `:1028` (`do_singleshot_analysis`, `do_multishot_analysis`), `:462` (`update_row`) | After an analysis routine, the analysis thread calls `update_row` once for each shot that the routine saved results to; each call is a separate request to the main thread, reads the whole row, goes through every model column and emits `layoutChanged`. After a multishot routine that saves results to every shot, no other analysis runs for 15 s with 1000 shots, growing faster than linearly; a user with 10,000 shots reported a long hang | 3 | run | reported by the maintainer from lyse 3.3.0; fix on branch `batch-dataframe-updates` (1f6da15 or later), awaiting a test on the lab computer |
 
 ## Detail
 
@@ -195,3 +196,21 @@ an `install()` function that the applications, the lyse analysis subprocess and 
 workers call, and `LABSCRIPT_DISABLE_GRAPHICAL_EXCEPTHOOK` turns off the windows for
 automated testing. Importing the module still calls `install()`, with a TODO to remove
 the call in a future release.
+
+### D13. Results of an analysis routine are applied to the dataframe one shot at a time
+
+`FileBox.do_singleshot_analysis` and `FileBox.do_multishot_analysis` call
+`DataFrameModel.update_row(file, updated_row_data=...)` for each shot in the results that
+a routine returns. `update_row` is an `inmain` call, so the analysis thread waits for the
+main thread once per shot. Each call reads the shot's full row with
+`self.dataframe.iloc[row_number].to_dict()`, checks every model column against the
+updated keys and emits `layoutChanged`. The GUI stays responsive between calls, but no
+single-shot or multishot analysis runs until the calls are done.
+
+Measured with the harness venv (Python 3.14, pandas 3.0.6, PySide6 6.12.0, offscreen
+platform): 2.3 ms per shot through `inmain` from a worker thread with 200 columns, and
+in a running lyse with a single-shot routine and a multishot routine that saves five
+results to every shot, 6.7 s after the routine finished for 500 shots and 15.3 s for
+1000 shots. Fix: `DataFrameModel.update_rows`, which applies all of a routine's results
+in one main-thread call, setting each column for all of its rows at once; 0.3 s and
+0.4 s in the same lyse runs (`TESTING.md`, 2026-10-22).

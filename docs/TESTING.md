@@ -5,6 +5,43 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-22: lyse dataframe update after an analysis routine (DEFECTS.md D13)
+
+Branch `batch-dataframe-updates` on labscript-suite/lyse (head 1f6da15, one commit on
+master c74fa4e). `DataFrameModel.update_rows` applies all of a routine's results in one
+main-thread call instead of one `update_row` call per shot.
+
+**Equivalence** (harness venv, Python 3.14.8, pandas 3.0.6, PySide6 6.12.0; and a
+Python 3.12 venv with pandas 2.3.3 and NumPy 1.26): 60 shots, three rounds of results of
+mixed types (floats, ints, bools, strings, multi-line strings, arrays, lists, nested
+dicts, None, all-None, int and str in one column, a float into an int column, a str into
+a float column, a column that is float and then str), some shots without results and one
+result for a shot that is not in lyse. The master `update_row` loop and `update_rows`
+give the same dataframe values and dtypes and the same model item text and tooltips;
+with pandas 2.3.3 both emit the same `FutureWarning` for the incompatible-dtype setting.
+
+**Timing, model only** (offscreen, `update_row` called through `inmain` from a worker
+thread as lyse does; 200 columns, five results per shot):
+
+| Shots | Result columns | master | branch |
+|---|---|---|---|
+| 1000 | new | 2.34 s | 0.14 s |
+| 1000 | existing | 2.18 s | 0.05 s |
+| 2000 | new | 5.00 s | 0.29 s |
+| 2000 | existing | 4.73 s | 0.08 s |
+
+**Timing, running lyse** (offscreen, scratch profile; shots with 100 globals submitted
+over the lyse port, a single-shot routine saving one result, a multishot routine that
+saves five results to every shot once all shots are analysed; time from the end of the
+multishot routine until `get dataframe` returns all of its results, polled every 0.5 s):
+
+| Shots | master | branch |
+|---|---|---|
+| 500 | 6.72 s | 0.30 s |
+| 1000 | 15.30 s | 0.36 s |
+
+No tracebacks in the lyse output of any run.
+
 ## 2026-10-22: graphical excepthook only in the applications (DEFECTS.md D12)
 
 Local branches `excepthook-gui-only`: labscript-utils 2f41c08 and e5cd210, blacs d2e7675
