@@ -5,6 +5,29 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-22: zprocess branch `start-daemon-single-fork` (DEFECTS.md D21)
+
+The branch (f1ed197, on zprocess master 1de4c26) starts daemons with one `Popen` call
+with `start_new_session=True` and adds `StartDaemonTests`, which starts a daemon from a
+process that has imported tkinter. Locally on Arch Linux with Python 3.14.8 the zprocess
+suite passed (74 tests).
+
+- Run 39772349063 (the branch, Ubuntu and Windows, Python 3.11 to 3.14 with PySide6,
+  PyQt6 and PyQt5, and the `numpy<2.5` job, with the zprocess tests): all 25 jobs passed
+  every step. The Python 3.15 jobs failed at install as always.
+- Run 39772363140 (macOS, the throwaway branch `test/start-daemon-macos`, which is the
+  D19 fix of zprocess #36 with this commit on top, same matrix): every application step
+  passed on Python 3.11 to 3.14 with all three bindings, including 3.12 and 3.13, which
+  failed before for D21, and `StartDaemonTests` passed in all twelve jobs. Three jobs
+  failed for other reasons: Python 3.11 with PyQt5 failed the `apps` step on a race in
+  appnope (D22), and Python 3.11 with PySide6 and Python 3.13 with PyQt6 failed one
+  heartbeat timing test each (D23).
+- Run 39772376767 (macOS, control: the throwaway branch `test/start-daemon-macos-control`,
+  which has the new test and the old `start_daemon`, PySide6): on Python 3.12 and 3.13
+  the application steps failed for D21 as before and `StartDaemonTests` failed with
+  "daemon did not run to completion"; on 3.11 and 3.14 every step passed. The test
+  therefore detects D21.
+
 ## 2026-10-22: macOS, tkinter and a second fork (DEFECTS.md D21)
 
 A diagnostic workflow on a throwaway branch (runs 39757012414, 39757563800,

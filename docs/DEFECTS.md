@@ -31,7 +31,9 @@ fix is made, in which case the row names the pull request. Importance uses the s
 | D18 | 2026-10-22 | zprocess `zprocess/process_tree.py:230` (`HeartbeatClient.mainloop`), `:1139` (`Process.terminate`); lyse `lyse/routines.py:591`; runmanager `runmanager/__main__.py:1388` | The kill lock has no effect on Windows: `Popen.terminate()` and `os.kill(pid, SIGTERM)` are `TerminateProcess`, so no handler runs, and a worker that is writing to an HDF5 file is ended at once by a heartbeat failure, by lyse's and runmanager's SIGTERM stage and by BLACS's `finalise_close_tab`. On Linux and macOS the SIGTERM handler runs only when the main thread next executes Python code, so a worker inside a long C call is not ended either | 3 | read | the heartbeat path is fixed in [zprocess #35](https://github.com/chrisjbillington/zprocess/pull/35) (`exit_when_released()`, `SUBPROCESS-INTERRUPTION.md`), open; the `terminate()` stages are replaced by the design there |
 | D19 | 2026-10-22 | zprocess `zprocess/utils.py:272` (`get_venv_executable_and_env`) | In a venv made from a python.org framework build on macOS, every zprocess subprocess (BLACS workers, the runmanager compiler, lyse analysis workers) starts with the base interpreter's packages and fails at its first import of a venv package. The function starts the child from `sys._base_executable` with `__PYVENV_LAUNCHER__` set, to skip the launcher process of a Windows venv; on macOS `sys._base_executable` is the framework's `bin/python3.x` stub, which overwrites the variable with its own path before it execs the interpreter | 3 | run (macOS GitHub Actions runner, Python 3.11 to 3.14) | fixed in [zprocess #36](https://github.com/chrisjbillington/zprocess/pull/36), open, which skips the launcher on Windows only. desktop-app `desktop_app/environment.py:250` has a copy of the function, which its entry point launcher uses, so an application started from its entry point script on macOS fails the same way; fixed in [desktop-app #35](https://github.com/chrisjbillington/desktop-app/pull/35), open |
 | D20 | 2026-10-22 | zprocess `tests/test_zprocess.py:331` (`ScriptedHeartbeatServer.close`) | The test's scripted heartbeat server closes its ROUTER socket from the test thread while its mainloop thread may be polling the socket; a zmq socket is not thread-safe. On macOS the zprocess test process ended with a segmentation fault in `HeartbeatTests` in five of twelve runs (Python 3.11 to 3.13; never on 3.14, Linux or Windows) | 2 | run (macOS GitHub Actions); read | fixed in [zprocess #36](https://github.com/chrisjbillington/zprocess/pull/36): the thread is stopped and joined before the socket is closed |
-| D21 | 2026-10-22 | zprocess `zprocess/utils.py:117` (`start_daemon`) with labscript-utils `labscript_utils/excepthook/__init__.py:101` on macOS | With the Tcl/Tk 8.6.16 and 8.6.18 that the python.org installers of Python 3.12 and 3.13 bundle, a process that imports tkinter and forks gets a child that is killed with SIGKILL if it calls `fork()` again. `start_daemon` forks and then starts the daemon with `subprocess.Popen`, which forks a second time, so the daemon is never started. The four applications import `labscript_utils.excepthook`, which imports tkinter, before `setup_logging` starts the zlog server, so on the macOS runner with Python 3.12 and 3.13 they all fail at start-up. The zlock server is started from processes that do not import tkinter and is not affected; Python 3.11 (Tcl/Tk 8.6.13) and 3.14 (Tcl/Tk 9.0.4) are not affected | 3 | run (macOS GitHub Actions, reproduced without the suite) | open; cause found, not fixed |
+| D21 | 2026-10-22 | zprocess `zprocess/utils.py:117` (`start_daemon`) with labscript-utils `labscript_utils/excepthook/__init__.py:101` on macOS | With the Tcl/Tk 8.6.16 and 8.6.18 that the python.org installers of Python 3.12 and 3.13 bundle, a process that imports tkinter and forks gets a child that is killed with SIGKILL if it calls `fork()` again. `start_daemon` forks and then starts the daemon with `subprocess.Popen`, which forks a second time, so the daemon is never started. The four applications import `labscript_utils.excepthook`, which imports tkinter, before `setup_logging` starts the zlog server, so on the macOS runner with Python 3.12 and 3.13 they all fail at start-up. The zlock server is started from processes that do not import tkinter and is not affected; Python 3.11 (Tcl/Tk 8.6.13) and 3.14 (Tcl/Tk 9.0.4) are not affected | 3 | run (macOS GitHub Actions, reproduced without the suite) | open; fix on zprocess branch `start-daemon-single-fork`, no pull request yet |
+| D22 | 2026-10-22 | zprocess `zprocess/process_tree.py:163` (`HeartbeatServer.__init__`) with appnope 1.0.0 `appnope/_nope.py:70` | On macOS every `HeartbeatServer` calls `appnope.nope()`, which sets `objc_msgSend.argtypes`, a global, before each call. BLACS starts the workers of its device tabs from several threads at once, so two threads can set different `argtypes` at the same time, and one call fails with `ctypes.ArgumentError: argument 3: TypeError: wrong type`. The device tab's worker is then not started | 3 | run (macOS GitHub Actions, 1 of 12 jobs of run 39772363140); cause read | open |
+| D23 | 2026-10-22 | zprocess `tests/test_zprocess.py:411` (`_assert_intervals_are_immediate_retries`) | The heartbeat tests that send malformed replies require every interval between heartbeat requests to be at most 1.5 s, with a heartbeat interval of 1 s. On the macOS runner intervals of 1.50 s to 1.53 s occur, so `test_subproc_survives_malformed_heartbeats_below_budget` or `test_successful_heartbeat_resets_miss_counter` fails in some jobs | 2 | run (macOS GitHub Actions, 2 of 12 jobs of run 39772363140) | open |
 
 ## Detail
 
@@ -401,9 +403,33 @@ The cause, found with a diagnostic workflow on a throwaway branch (runs 39757012
   that module before `setup_logging`. The zlock server is started by
   `connect_to_zlock_server` from processes that have not imported it.
 
-A fix in `start_daemon` would avoid the second fork, for example by starting the daemon
-from the parent with `Popen(..., start_new_session=True)`, or by calling `execv` in the
-forked child after redirecting its standard streams and changing directory. This also
-covers user code that imports tkinter. Importing tkinter only when an error window is
-shown, as the labscript-utils branch `excepthook-gui-only` does, avoids it for the
-applications only.
+The zprocess branch `start-daemon-single-fork` (f1ed197) starts the daemon with one
+`Popen` call with `start_new_session=True`, so that the only fork is in the calling
+process and the child execs at once, and a thread waits for the daemon. On the macOS
+runner with the venv fix of D19 it removes the failure on Python 3.12 and 3.13 (run
+39772363140, `TESTING.md`). Whether the daemon should be reaped by a thread is not
+settled with the maintainer, so no pull request is open. Importing tkinter only when an
+error window is shown, as the labscript-utils branch `excepthook-gui-only` does, would
+avoid the failure for the applications only.
+
+### D22. Concurrent `appnope.nope()` calls in BLACS on macOS
+
+`HeartbeatServer.__init__` (`zprocess/process_tree.py:163`) calls `appnope.nope()` on
+macOS. appnope 1.0.0 calls `objc_msgSend` through ctypes and sets
+`objc.objc_msgSend.argtypes` before each call (`appnope/_nope.py:70` to `74`), so the
+function is not thread-safe. BLACS starts the worker of each device tab from that tab's
+own thread, and each start creates a `HeartbeatServer`. In the job for macOS, Python
+3.11 and PyQt5 of run 39772363140 the worker of `intermediate_device` failed with
+`ctypes.ArgumentError: argument 3: TypeError: wrong type` while `pseudoclock` was
+starting, and the harness `apps` step reported the traceback. The other eleven macOS
+jobs did not hit it. Fix: call `appnope.nope()` once per process, under a lock. App Nap
+is a property of the process, so one call is enough.
+
+### D23. The heartbeat retry tests have a 0.5 s margin
+
+The heartbeat tests with malformed replies in `tests/test_zprocess.py` check, through
+`_assert_intervals_are_immediate_retries(1.5)` (`tests/test_zprocess.py:411`), that the
+child sends its next heartbeat within 1.5 s, when the heartbeat interval is 1 s. In run
+39772363140 the macOS jobs for Python 3.11 with PySide6 and Python 3.13 with PyQt6
+measured intervals of 1.505 s, 1.532 s and 1.538 s and failed. Fix: a larger bound, for
+example the midpoint between the heartbeat interval and the reply timeout.
