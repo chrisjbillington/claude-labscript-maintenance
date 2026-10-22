@@ -5,6 +5,38 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-22: desktop-app #35 (the entry point launcher on macOS, DEFECTS.md D19)
+
+desktop-app's `get_venv_executable_and_env` is a copy of the zprocess function of D19,
+and `desktop_app/launcher.py` uses it to start the application from its entry point
+script, so the `blacs`, `runmanager`, `lyse` and `runviewer` scripts of a macOS venv
+start the application under the base interpreter. The harness does not show this: it
+starts the applications with `python -m`.
+
+A diagnostic workflow on a throwaway branch (run 39753264955, since deleted) ran on
+`macos-latest` with Python 3.12.10 and 3.14.8 (framework builds from `setup-python`),
+in a venv made with `python -m venv` and in one made with `uv venv`, each with pyzmq
+installed. In each venv it installed desktop-app master and then the branch
+`macos-venv-launcher`, and ran the launcher with `sys.argv[0]` set to the name of a
+package in the working directory, so that the launcher started that package's
+`__main__.py`, which prints the child's `sys.executable` and `sys.prefix` and imports
+`zmq`. With master the launcher started the child from the framework's `python3.x`
+(the venv's `python` is a symlink to it with both tools), the child reported the
+framework prefix and `import zmq` failed. With the branch the child was started from
+the venv's `python`, reported the venv prefix and imported `zmq` from the venv. The
+same in all four venvs.
+
+Locally on Linux (Arch, Python 3.14.8, the harness venv) the same check with master and
+with the branch: both children report the venv prefix and import `zmq`; master starts
+`/usr/bin/python3.14` with `__PYVENV_LAUNCHER__` set and the branch starts the venv's
+`python`.
+
+Run 39753073309 (`desktop-app=chrisjbillington/desktop-app@macos-venv-launcher`,
+Ubuntu and Windows): the 25 jobs for Python 3.11 to 3.14 with PySide6, PyQt6 and PyQt5,
+and Ubuntu Python 3.14 with `numpy<2.5`, passed every step. Run 39754354241
+(`desktop-app=pr/35`, the pull request merged into master) gave the same result. In
+both runs the six Python 3.15 jobs fail at install as always.
+
 ## 2026-10-22: interrupting the main thread of a subprocess (zprocess branch `interrupt-main-thread`)
 
 Measurements behind `SUBPROCESS-INTERRUPTION.md`, on Arch Linux with Python 3.14.8,

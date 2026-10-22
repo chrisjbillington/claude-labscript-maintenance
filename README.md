@@ -53,8 +53,9 @@ and the file:line evidence.
 - The harness ran on macOS for the first time and found that zprocess subprocesses in
   a python.org venv on macOS do not see the venv (`docs/DEFECTS.md` D19); zprocess #36
   fixes it, and with it the harness passes every step on macOS with Python 3.11 and
-  3.14. desktop-app has a copy of the same function. On macOS with Python 3.12 and 3.13
-  the applications cannot reach a zlog server (D21, not understood).
+  3.14. desktop-app #35 makes the same change to the copy of the function that its entry
+  point launcher uses. On macOS with Python 3.12 and 3.13 the applications cannot reach
+  a zlog server (D21, not understood).
 
 ## State as of 2026-10-19
 
