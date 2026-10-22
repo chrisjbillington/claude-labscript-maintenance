@@ -49,3 +49,45 @@ profile (made beforehand with `labscript-profile-create` inside the namespace, w
 servers BLACS starts are its own, write into the scratch profile, and are killed
 afterwards. Without the network namespace a zlog server already running on the machine
 writes the benchmark's `BLACS.log` into the real profile.
+
+## Qt style screenshots
+
+`style-screenshots/` takes images of the main windows of BLACS, runmanager, lyse and
+runviewer for each Qt binding, with the platform's default Qt style and with Fusion, and
+with the light and dark colour schemes. It was written to compare the look of the
+applications across platforms before deciding whether to use Fusion everywhere
+(`docs/RELEASE-PLAN.md` section 6). `run_all.py --work WORK --out DIR --venv
+PySide6=PATH --venv PyQt6=PATH --venv PyQt5=PATH` runs `shoot.py` once per combination
+and writes `DIR/<app>-<binding>-<style>-<scheme>.png`. WORK is a harness work directory
+in which the `profile`, `compile` and `runmanager-api` steps have passed; the
+applications load the shots, the globals file and the experiment script from it, and
+two lyse routines that `run_all.py` writes. `shoot.py` replaces the binding's
+`QApplication` with a subclass that sets the style and the colour scheme, runs the
+application's entry module, loads the example data once the main window is shown,
+resizes the window to 1500 by 950 pixels, saves the image and a JSON file of the
+binding, the Qt version, the platform, the style and the resulting window colour, and
+then waits to be killed. `--app`, `--style` and `--scheme` restrict the combinations.
+
+The colour scheme is set with `QStyleHints.setColorScheme`, which Qt 5 does not have. On
+Windows, a dark PyQt5 image uses the `windows:darkmode=2` platform option, which gives a
+dark palette only when Windows itself is in dark mode. On Linux, `run_all.py` skips PyQt5
+with the dark scheme.
+
+On Linux the applications are run in namespaces, as the harness does on a machine with a
+real profile, but the D-Bus session bus refuses a client whose user ID is 0, so the
+command runs in a nested user namespace in which the user ID is that of the real user:
+
+```
+cat > ns.sh <<'END'
+#!/bin/sh
+ip link set lo up && mount --bind "$SCRATCH_HOME" /root || exit 1
+export HOME=/root LOGNAME=root USER=root
+exec unshare -U --map-user="$REAL_UID" --map-group="$REAL_GID" "$@"
+END
+SCRATCH_HOME=/tmp/fakeroot REAL_UID=$(id -u) REAL_GID=$(id -g) \
+    unshare -Urmnp --fork sh ns.sh python tools/style-screenshots/run_all.py ...
+```
+
+The harness steps that make WORK run the same way, with `harness/suite.py test` in place
+of `run_all.py`. The scratch home has no GNOME settings, so the GTK theme is the default
+Adwaita and not the desktop's theme.

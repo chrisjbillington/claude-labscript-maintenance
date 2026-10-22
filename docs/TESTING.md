@@ -5,6 +5,30 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-22: Qt styles on Linux
+
+Screenshots of BLACS, runmanager, lyse and runviewer for comparison of the default Qt
+style with Fusion (`docs/RELEASE-PLAN.md` section 6), taken with
+`tools/style-screenshots/` on Arch Linux under GNOME on Wayland, with Python 3.14.8 and
+the components at their default branches (labscript-utils c1aa2a3, blacs cac5198,
+runmanager 7e692f4, lyse c74fa4e, runviewer 38e5c0b, qtutils d330ae1). Three venvs: PySide6
+6.12.0, PyQt6 6.11.2 (Qt 6.11.2) and PyQt5 5.15.19. The images are in `screenshots/linux`,
+which git ignores; the Windows set is a task in `LOCAL-TASKS.md`.
+
+- The default style is Fusion with every binding. Qt 6 runs on Wayland with the gtk3
+  platform theme; PyQt5 runs on X11 through XWayland. The default-style and Fusion images
+  of runviewer are identical pixel for pixel. Those of the other applications differ only
+  in content that changes between runs: the BLACS status text, the lyse output and
+  progress, and whether runmanager had finished parsing the globals.
+- With Qt 6, `QStyleHints.setColorScheme` switches between a light palette (window colour
+  #fcfcfc) and a dark one (#323232). PyQt5 has no colour scheme API and its palette is
+  light (#efefef); there is no dark PyQt5 image.
+- In the dark scheme, the runviewer plot area keeps a white background, and the blue
+  "outer" expansion icon in runmanager has low contrast with the dark table background.
+  The other widgets in the four applications follow the palette.
+- PyQt5 uses a different default font from the Qt 6 bindings, so the PyQt5 images have
+  smaller text.
+
 ## 2026-10-22: lyse #154 (status column with PyQt6, DEFECTS.md D17)
 
 Branch `pyqt6-font-metrics` on labscript-suite/lyse (head feb7540, one commit on master
