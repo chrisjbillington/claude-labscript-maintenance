@@ -5,6 +5,24 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-22: lyse #154 (status column with PyQt6, DEFECTS.md D17)
+
+Branch `pyqt6-font-metrics` on labscript-suite/lyse (head feb7540, one commit on master
+c74fa4e). A script loads `lyse/widgets.py`, sets an `ItemDelegate` on a `QTableView`
+with one shot at 50 % in the status column, shows and grabs the view under the
+offscreen platform and collects the exceptions that reach the excepthook. Python 3.14.8,
+PyQt6 6.11.0, PySide6 6.12.0 and PyQt5 5.15.11:
+
+| Code | PyQt6 | PySide6 | PyQt5 |
+|---|---|---|---|
+| master c74fa4e | `AttributeError: 'QApplication' object has no attribute 'fontMetrics'`, twice | no exception | no exception |
+| feb7540 | no exception | no exception | no exception |
+
+Run 39723562432 with `lyse=pyqt6-font-metrics`: the 25 jobs for Python 3.11 to 3.14
+passed every step. The Ubuntu Python 3.14 PyQt6 job first failed in `apt-get update`
+(403 from packages.microsoft.com) and passed when rerun. The PyQt6 job logs have no
+`fontMetrics` traceback. The Python 3.15 jobs fail at install as always.
+
 ## 2026-10-22: labscript-devices #157 (DummyIntermediateDevice runviewer parser)
 
 Branch `dummy-intermediate-runviewer-parser` on labscript-suite/labscript-devices (head
