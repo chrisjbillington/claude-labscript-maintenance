@@ -5,6 +5,30 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-24: camera image reply times and zprocess encryption on loopback
+
+labscript-devices branch `camera-image-ack` (c3d8f5c, on master 5a5892c) makes
+`IMAQdxCamera.blacs_tabs.ImageReceiver` reply to the worker from the server thread
+once the previous image has been displayed, instead of from the main thread. Locally,
+Python 3.14.8, PySide6, offscreen, with the sender in a separate process and the
+suite's encrypted sockets, 30 images of 2x224x260 uint16 (the size of the diginuc
+`motcam` images), each 0.5 s after the last; medians, two runs of each:
+
+| `ImageReceiver` | idle main thread | main thread blocked 50 ms of every 60 ms |
+|---|---|---|
+| master | 11.9, 11.3 ms | 57.4, 57.5 ms |
+| `camera-image-ack` | 11.7, 11.4 ms | 11.2, 10.8 ms |
+
+Continuous sending of 100x100 images reaches 1160 to 1280 frames/s with an idle main
+thread and 19 frames/s with the blocked main thread, on both, so the display rate still
+limits the sender. In sequence 0028 on diginuc, `_send_image_to_parent` in the
+camera's `transition_to_manual` took 36 ms (median, 13 to 102 ms).
+
+A REQ/REP round trip of one 6.2 MB message (2x1080x1440 uint16) on 127.0.0.1 takes
+2.4 ms with plain zmq and 75 ms with a `labscript_utils.ls_zprocess.Context` socket,
+which uses CurveZMQ when a shared secret is configured; for 0.23 MB it is 0.1 ms and
+3.1 ms (libzmq 4.3.5, pyzmq 27.2.0).
+
 ## 2026-10-24: shots run through BLACS; labscript-devices #160 and blacs #137
 
 The new harness step `blacs-shot` starts lyse and BLACS, submits a copy of the example
