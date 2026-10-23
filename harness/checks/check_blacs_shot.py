@@ -1,7 +1,6 @@
 """Run shots through BLACS with the profile's dummy devices. Start lyse and BLACS, submit
 a copy of the example shot to BLACS as runmanager does, and check that BLACS runs it and
-sends it to lyse. The first shot is submitted as soon as BLACS listens on its port, and again while BLACS
-replies that it is starting. Submit the same file again, which BLACS runs as a repeat in
+sends it to lyse. The first shot is submitted as soon as BLACS listens on its port. Submit the same file again, which BLACS runs as a repeat in
 a new file.
 Check the output of both applications for tracebacks, and BLACS.log for errors."""
 
@@ -72,28 +71,19 @@ def wait_for_blacs(count_before):
     return False, time.time() - t0
 
 
-def submit_while_starting(path, started_before):
-    """Submit the shot, and submit it again while BLACS replies that it is starting.
-    Return the first other response."""
+def submit_first(path, started_before):
+    """Submit the shot as soon as BLACS listens on its port."""
     global d36
-    starting_replies = 0
-    t0 = time.time()
-    while time.time() - t0 < APP_STARTUP_TIMEOUT:
-        try:
-            response = submit(path)
-        except NameError as e:
-            # A BLACS without the fix for D36 raises this before it has started.
-            d36 = True
-            check(False, f'BLACS replies to a shot submitted while it is starting: {str(e).strip().splitlines()[-1]}', known='D36')
-            up, seconds = wait_for_blacs(started_before)
-            check(up, f'BLACS logged {BLACS_STARTED!r} after a further {seconds:.0f} s')
-            return submit(path)
-        if 'BLACS is starting' not in response:
-            print(f'BLACS replied that it is starting {starting_replies} times')
-            return response
-        starting_replies += 1
-        time.sleep(0.2)
-    return response
+    try:
+        return submit(path)
+    except NameError as e:
+        # A BLACS without the fix for D36 listens before it has started, and raises this.
+        d36 = True
+        check(False, f'BLACS queues a shot submitted as soon as it listens: {str(e).strip().splitlines()[-1]}',
+              known='D36')
+    up, seconds = wait_for_blacs(started_before)
+    check(up, f'BLACS logged {BLACS_STARTED!r} after a further {seconds:.0f} s')
+    return submit(path)
 
 
 def check_run(path):
@@ -116,7 +106,7 @@ def run_shots():
         if not up:
             return
 
-    response = submit_while_starting(shot, started_before)
+    response = submit_first(shot, started_before)
     check('added successfully' in response, f'BLACS accepted the shot: {response.strip()!r}')
     received, seconds = wait_for_lyse(shot)
     check(received, f'BLACS ran the shot and lyse received it after {seconds:.0f} s')
