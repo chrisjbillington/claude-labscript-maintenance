@@ -1101,6 +1101,21 @@ variable unset or set to an empty string.
 the 25 jobs for Python 3.11 to 3.14 passed every step, and the 6 Python 3.15 jobs failed
 at "Install the components" on the h5py build, as on the masters.
 
+## 2026-10-23: qtutils #38 revised (a value of "0" does not enforce)
+
+Branch `qtlock-enforce-opt-in` on philipstarkey/qtutils (head 44e2f3e, one commit on
+master 114a6ec): `qtlock.enforce()` runs on import only when `QTUTILS_ENFORCE_QTLOCK` is
+set to a value other than `""` or `"0"`.
+
+**Local** (harness venv, Python 3.14): importing qtutils from the branch installs the
+`threading` profile hook with the variable set to `1` or `yes`, and does not install it
+with the variable unset, empty or `0`.
+
+**GitHub Actions:** dispatch of `test.yml` with `qtutils=pr/38`, run
+[39954916546](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39954916546):
+the 25 jobs for Python 3.11 to 3.14 passed every step, and the 6 Python 3.15 jobs failed
+at "Install the components", as on the masters.
+
 ## 2026-10-21: qtutils #39 (16×16 icons with @2x variants)
 
 Branch `icons-16px-base` on philipstarkey/qtutils (head 1e853c6, one commit on master
