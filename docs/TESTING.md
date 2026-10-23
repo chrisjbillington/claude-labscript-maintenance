@@ -47,6 +47,35 @@ Run
 with D36 reported as KNOWN by `blacs-shot`; the six Python 3.15 jobs failed at "Install
 the components", as before.
 
+## 2026-10-24: labscript-devices `camera-image-ack` on diginuc
+
+Sequences 0000 to 0003 of `drop_mot` on diginuc, 2026-10-24 01:29 to 01:38, 100 shots
+each of the saved runmanager scan, with the `test-batch` branches of 2026-10-23 (blacs
+`queue-main-thread`) on Python 3.14.8 and PyQt5. lyse ran its saved routines and
+analysed every shot. labscript-devices was at `test-batch` without the branch (07f0045)
+for 0000 and 0002 and with it (b2310d0) for 0001 and 0003; BLACS was restarted for each
+sequence. Phase times from the BLACS log, shots 20 to 99; medians in ms, and the mean
+cycle with its standard error.
+
+| Seq | `ImageReceiver` | Cycle (mean) | Cycle | Run | To manual | To buffered | motcam `transition_to_manual` job | `_send_image_to_parent` (median, 10th to 90th percentile) |
+|---|---|---|---|---|---|---|---|---|
+| 0000 | master | 526 ± 6 | 513 | 306 | 92 | 107 | 68 | 22.3 (14.0 to 41.9) |
+| 0001 | branch | 525 ± 5 | 518 | 304 | 93 | 102 | 60 | 19.4 (12.8 to 33.5) |
+| 0002 | master | 523 ± 5 | 509 | 304 | 96 | 102 | 70 | 21.6 (12.8 to 40.4) |
+| 0003 | branch | 528 ± 5 | 519 | 307 | 100 | 106 | 66 | 20.5 (12.9 to 31.1) |
+
+- The branch shortens `_send_image_to_parent` by about 2 ms (median) and its 90th
+  percentile by about 8 ms. The cycle and the transition to manual do not change
+  measurably.
+- The cycle was 0.07 s shorter than in sequence 0028 of 2026-10-23 with the same
+  software, and `_send_image_to_parent` took 36 ms (median) then.
+- A bare `labscript_utils.ls_zprocess.ZMQServer` that replies at once, on the
+  maintainer's laptop, replies to a 0.23 MB image in 3.2 ms when images are sent
+  back to back and in 11.4 ms when each is sent 0.5 s after the last. A plain zmq
+  REQ/REP pair takes 0.1 and 1.5 ms, and the same pair with CurveZMQ 3.0 and 9.0 ms. So
+  most of the remaining time on diginuc is the encryption of the image, which
+  takes longer after an idle period, and not the wait for the main thread.
+
 ## 2026-10-24: camera image reply times and zprocess encryption on loopback
 
 labscript-devices branch `camera-image-ack` (c3d8f5c, on master 5a5892c) makes
