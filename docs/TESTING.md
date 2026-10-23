@@ -5,6 +5,24 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-24: blacs #138 (D36, experiment server started last)
+
+Locally (Python 3.14.8, PySide6, in a namespace with a scratch profile), with blacs
+`submit-during-startup` (00587bb): the `blacs-shot` step submitted the first shot as soon
+as the BLACS port accepted connections, and BLACS queued and ran it, in two runs out of
+two; on master the same submission raised `NameError: name 'app' is not defined`. A shot
+submitted 0.9 s after BLACS was launched, before the port accepted connections, waited
+for the server and was queued when it started.
+
+`test.yml` run
+[39970164876](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39970164876)
+with blacs `submit-during-startup`: the 25 jobs for Python 3.11 to 3.14 passed every step.
+Run
+[39970155698](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39970155698)
+(push of the harness change, the masters): the 25 jobs for Python 3.11 to 3.14 passed,
+with D36 reported as KNOWN by `blacs-shot`; the six Python 3.15 jobs failed at "Install
+the components", as before.
+
 ## 2026-10-24: camera image reply times and zprocess encryption on loopback
 
 labscript-devices branch `camera-image-ack` (c3d8f5c, on master 5a5892c) makes
