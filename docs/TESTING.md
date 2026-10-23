@@ -98,8 +98,26 @@ wheel built from the branch, with the same measurements as above:
 | GitHub `macos-14` (arm64), Python 3.13, universal2 wheel | 58 MB/s, CURVE 288 ms | 351 MB/s, CURVE 46 ms |
 | GitHub `windows-2022`, Python 3.13 | CURVE 24.5 ms (plain 5.4 ms); not affected | not changed by the branch |
 
-The branch's Linux libraries are smaller: libsodium 0.65 MB instead of 1.35 MB, libzmq
-0.67 MB instead of 0.95 MB. Plain zmq round trips of 100 B messages on the laptop: 21.8
+Wheel and library sizes (2026-10-24), from the wheels of the fork run 39982600069 and of
+upstream run 37984958991 on main 1cbf63a, which has the same set of wheels apart from
+three macOS PyPy arm64 wheels that only the fork run built. Wheel sizes are the mean per
+wheel; library sizes are uncompressed, from the cp310 wheel.
+
+| Platform | wheels | wheel, main | wheel, branch | libsodium, main → branch | libzmq, main → branch |
+|---|---|---|---|---|---|
+| manylinux x86_64 | 9 | 887 kB | 785 kB (−11 to −13%) | 1482 → 650 kB | 940 → 675 kB |
+| manylinux i686 | 9 | 983 kB | 878 kB (−10 to −12%) | 1792 → 850 kB | 909 → 769 kB |
+| musllinux x86_64 | 6 | 1960 kB | 1856 kB (−5%) | 1482 → 650 kB | 963 → 695 kB |
+| musllinux i686 | 6 | 2109 kB | 2027 kB (−4%) | 1682 → 789 kB | 905 → 731 kB |
+| manylinux aarch64 | 9 | 681 kB | 707 kB (+4%) | 884 → 622 kB | 1124 → 859 kB |
+| musllinux aarch64 | 6 | 1707 kB | 1732 kB (+1.5%) | 884 → 556 kB | 1123 → 793 kB |
+| manylinux riscv64 | 1 | 742 kB | 768 kB (+3.6%) | 683 → 437 kB | 963 → 556 kB |
+| macOS universal2 | 6 | 1469 kB | 1249 kB (−15%) | 1262 → 1038 kB | 3329 → 1314 kB |
+| macOS x86_64 (PyPy) | 3 | 911 kB | 684 kB (−25%) | 1369 → 664 kB | 1621 → 639 kB |
+| Android, Windows | 33 | | within 0.3% | not affected | not affected |
+
+The libraries are smaller on every affected platform. The aarch64 and riscv64 wheels are
+larger because the optimised libraries compress less well. Plain zmq round trips of 100 B messages on the laptop: 21.8
 µs with the PyPI wheel, 18.7 µs with the branch wheel.
 
 ## 2026-10-24: labscript-devices `camera-image-ack` on diginuc
