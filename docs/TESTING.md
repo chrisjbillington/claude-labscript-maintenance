@@ -88,6 +88,26 @@ The `-g1` build matches the wheel apart from the vlen string reads, which depend
 HDF5 version. Calls with little data take 1.4 to 1.7 times as long as with an optimised
 build; bulk reads are not affected. No h5py issue reports this.
 
+A fix, branch `optimise-linux-extensions` of chrisjbillington/h5py (one commit on h5py
+master a372eab), sets `CFLAGS = "-g1 -O3 -DNDEBUG -fno-strict-overflow"`. The fork's
+wheel workflow, run 40031561687, built every wheel except Windows ARM64, which fails in
+HDF5's CMake configuration in the same way on master (fork run 40031544316 and the h5py
+run at the same commit). The branch's Linux extension modules record `-O3` in their
+compiler options. Mean size per wheel (7 wheels per platform) from the two fork runs,
+and the uncompressed size of the extension modules:
+
+| Platform | wheel, master | wheel, branch | change | extensions, master → branch |
+|---|---|---|---|---|
+| manylinux x86_64 | 5495 kB | 6114 kB | +9 to +18% | 10206 → 10893 kB |
+| manylinux aarch64 | 5304 kB | 6006 kB | +11 to +21% | 15120 → 15975 kB |
+| musllinux x86_64 | 5512 kB | 6068 kB | +8 to +17% | 10100 → 9649 kB |
+| musllinux aarch64 | 5282 kB | 5938 kB | +10 to +20% | 11270 → 11021 kB |
+| macOS arm64, macOS x86_64, Windows AMD64 | | | unchanged | |
+
+On the laptop, h5py 3.16.0 built with `-O2` in place of `-O3` has the same benchmark
+times (within 5%); its extension modules are 3.35 MB gzipped, compared with 3.62 MB for
+`-O3` and 2.99 MB for `-g1` alone.
+
 ## 2026-10-24: pyzmq Linux wheels build libsodium without optimisation
 
 The libsodium in the pyzmq Linux wheels is compiled without `-O`. pyzmq's cibuildwheel
