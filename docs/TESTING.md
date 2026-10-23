@@ -5,6 +5,21 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-23: globals files written by runmanager #140, read by runmanager 3.3.0
+
+Locally (harness venv, Python 3.14.8). The library of the #140 branch (db18f83) wrote a
+globals file with four globals: an array `a`, `b = 2*a` zipped with it automatically, a
+list `c` with a custom `outer` setting and a scalar `d`. The group has the subgroups
+`units`, `expansion` and `expansion_custom`, and the `expansion` attributes hold the same
+values (`''`, `outer` or a zip group name) that 3.3.0 writes. runmanager 3.3.0 read the
+file, evaluated and expanded it to 6 shots with `a` and `b` zipped and `c` outer, and
+ignored `expansion_custom`. Edits made with 3.3.0 do not update `expansion_custom`: after
+a rename of `b` to `bb`, the flag stayed under `b` and `bb` had none, and a changed
+expansion setting kept the flag that it had before. The #140 GUI gives a global without a
+flag a custom setting if its stored setting differs from the automatic one, and replaces
+the stored setting of a global flagged as automatic with the automatic setting. runmanager
+master (7e692f4) writes the same file structure as 3.3.0.
+
 ## 2026-10-23: evaluation of zipped globals that depend on other axes (DEFECTS.md D27, D28)
 
 A colleague's globals file, with `yellow_pulse_time` derived from
