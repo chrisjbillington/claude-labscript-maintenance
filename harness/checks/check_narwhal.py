@@ -22,11 +22,17 @@ app = QtWidgets.QApplication([])
 
 import runviewer.__main__ as rv  # noqa: E402
 
+try:
+    from labscript_devices.NarwhalPulseGenerator.driver import CYCLE
+except ImportError:
+    CYCLE = None
+if not check(CYCLE is not None, 'the installed labscript-devices has the NarwhalPulseGenerator package',
+             known='labscript-devices narwhal-pulsegen branch'):
+    finish()
+
 FIX = FIXTURES / 'narwhal'
 sys.path.insert(0, str(FIX))
 from narwhal_sim import POWERLINE_WAIT, SimulatedWorker  # noqa: E402
-
-from labscript_devices.NarwhalPulseGenerator.driver import CYCLE  # noqa: E402
 
 logging.basicConfig(level=logging.INFO)
 config = labconfig()

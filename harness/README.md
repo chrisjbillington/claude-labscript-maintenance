@@ -74,7 +74,10 @@ checks of that API run only when it is present, and "zipped global referring to 
 global holds an error" is marked as known for runmanager #143. The `runviewer` check
 "DummyIntermediateDevice has a runviewer parser" is marked as known for
 labscript-devices #157, with the checks of the
-`analog_out` and `digital_out` trace values run only when the parser is present.
+`analog_out` and `digital_out` trace values run only when the parser is present. The
+`narwhal` check "the installed labscript-devices has the NarwhalPulseGenerator package"
+is marked as known for the labscript-devices `narwhal-pulsegen` branch, and the rest of
+the step runs only when the package is present.
 
 ## The profile
 
