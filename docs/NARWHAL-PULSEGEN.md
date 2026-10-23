@@ -604,3 +604,10 @@ the PrawnBlaster in labscript-devices, as the vendor's driver does.
 
 Before the pull request is opened, Rory Speirs must confirm that the MIT licence is
 acceptable for all of this derived work (section 11, step 4).
+
+On 2026-10-24 Rory Speirs told the maintainer to assume the most permissive licence.
+Narwhal-Devices/userlib#2 (from the fork chrisjbillington/narwhal-pulsegen-userlib,
+branch `mit-license`) adds an MIT `LICENSE` with copyright Rory Speirs 2020, covering
+the repository except `help_resources_not_an_actual_part_of_userlib` and files that
+state their own licence. Once it is merged, the labscript-devices files that derive
+from the vendor's code need the MIT notice of `ndpulsegen` and of userlib.

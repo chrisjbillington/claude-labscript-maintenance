@@ -78,7 +78,8 @@ and the file:line evidence.
   (`docs/LOCAL-TASKS.md`) before a pull request is opened. Before the pull request is
   opened, Rory Speirs (Narwhal Devices) must confirm that the MIT licence is acceptable
   for the work that is derived from the vendor's code (`docs/NARWHAL-PULSEGEN.md`
-  section 14).
+  section 14). He agreed to the most permissive licence on 2026-10-24;
+  Narwhal-Devices/userlib#2 adds the MIT licence to the vendor's driver repository.
 - lyse #151 and #153 (kill lock not held for a whole routine; Abort button) showed that
   the suite has no safe way to end a busy subprocess: the kill lock has no effect on
   Windows, SIGTERM reaches only a worker that is executing Python, and Restart and
