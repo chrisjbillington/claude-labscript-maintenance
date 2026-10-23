@@ -5,6 +5,19 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-23: labscript-devices #158 and blacs #134 (`clicked` argument, DEFECTS.md D30 to D33)
+
+labscript-devices #158 at 422f2a3 and blacs #134 at 9fa23e7, both on master (b6ea556 and
+cac5198).
+
+- Locally with Python 3.14.8 and PySide6 6.12, and Python 3.13 and PyQt5: before the
+  fixes, Snap and the example tab's `bar` and `baz_unpickleable` raised `TypeError` under
+  PySide6, and the three QuickSyn handlers raised `TypeError` under PyQt5. After them none
+  raised with either binding. The Garbage collect menu item collected generation 0 under
+  PyQt5 before and generation 2 after.
+- Run [39914034278](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39914034278) with both branches: every step passed in all 25 jobs on Ubuntu and Windows
+  for Python 3.11 to 3.14 (the six Python 3.15 jobs fail at install as always).
+
 ## 2026-10-23: the 34 mergeable pull requests merged together
 
 The 34 pull requests listed as mergeable now in `PULL-REQUESTS.md` were merged, in

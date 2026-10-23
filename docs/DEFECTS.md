@@ -40,6 +40,10 @@ fix is made, in which case the row names the pull request. Importance uses the s
 | D27 | 2026-10-23 | runmanager `runmanager/__init__.py:548` (3.3.0), `runmanager/expander.py:45` (master) | Without an axis order (`expansion_config`), `expand_globals` puts the zip group axes in the order of a `set` of their names, which depends on the string hash seed, so the shot order changes from one Python process to the next. On a globals file with two zip groups, half of the hash seeds tried iterated one group fastest and half the other, on 3.3.0 and on master 7e692f4. The GUI passes the order from the Axes tab and is not affected; `make_run_file_from_globals_files` and other library calls are | 2 | run | open |
 | D28 | 2026-10-23 | runmanager `runmanager/__init__.py:399` (`evaluate_globals`, 3.3.0), `runmanager/evaluator.py:56` (master) | A global in a zip group that depends on globals on other axes of the outer product evaluates without an error and has wrong values in some shots. Each global is evaluated once for the whole sequence with the full lists of the globals that it refers to, so `a and b` or `x if flag else y` on lists tests the truth of the lists, not of each shot's values. A lab's globals file with `pulse_time = duration / 2 if (pulse_1 and pulse_2) else duration`, `pulse_1` and `pulse_2` in one zip group and `pulse_time` zipped with `duration` (as the GUI zips it automatically) gave `duration / 2` in all 100 shots, including those with one pulse | 3 | run (3.3.0, master 7e692f4, #139 and #140) | reported by the maintainer from a colleague's globals file; fixed in [runmanager #143](https://github.com/labscript-suite/runmanager/pull/143), open, which reports such a global as an error |
 | D29 | 2026-10-23 | lyse `lyse/filebox.py:897` (`FileBox.incoming_buffer_loop`), `:677` (`add_files`) | A shot file added before BLACS has run it (from the file dialog while a sequence runs) is loaded with a run time of NaT. When BLACS submits the shot after running it, `add_files` ignores it as a duplicate, so the row keeps NaT and no results from the run. On the lab machine three shots of a running sequence were loaded this way, and a multishot drift fit in run time failed with `SVD did not converge` on every run | 3 | run (lab machine, lyse 3.3.0 backport: rows with NaT, files with `run time`, lyse log showing the folder added before BLACS submitted the shots) | fixed in [lyse #155](https://github.com/labscript-suite/lyse/pull/155), open; applied on the lab machine |
+| D30 | 2026-10-23 | labscript-devices `labscript_devices/IMAQdxCamera/blacs_tabs.py:398` (`on_snap_clicked`) | With PySide6, clicking Snap in any camera tab based on the IMAQdxCamera tab raises `TypeError: IMAQdxCameraTab.on_snap_clicked() missing 1 required positional argument: 'button'`. PySide6 calls the `define_state` wrapper, which takes `*args`, with no arguments for `clicked`; PyQt5 and PyQt6 pass `checked` | 4 | run (reported by the maintainer from diginuc; reproduced with PySide6 6.12) | fixed in [labscript-devices #158](https://github.com/labscript-suite/labscript-devices/pull/158), open |
+| D31 | 2026-10-23 | labscript-devices `labscript_devices/PhaseMatrixQuickSyn.py:185`, `:191`, `:196` | With PyQt5 or PyQt6, the reference out, blanking and lock recovery buttons raise `TypeError: ... takes 1 positional argument but 2 were given`: PyQt passes `checked` through the `define_state` wrapper to handlers that take no argument. PySide6 works | 2 | run (PyQt5 5.15) | fixed in [labscript-devices #158](https://github.com/labscript-suite/labscript-devices/pull/158), open |
+| D32 | 2026-10-23 | blacs `blacs/tab_base_classes.py:1125`, `:1146` (example `MyTab.bar`, `baz_unpickleable`) | With PySide6, the example tab's bar and threading.Lock buttons raise `TypeError: missing 1 required positional argument: 'button'`, as in D30 | 1 | run (PySide6 6.12) | fixed in [blacs #134](https://github.com/labscript-suite/blacs/pull/134), open |
+| D33 | 2026-10-23 | blacs `blacs/plugins/memory/__init__.py:71` | The memory plugin's Garbage collect menu item is connected directly to `gc.collect`, so with PyQt5 or PyQt6 `triggered` passes `False` as the generation and only generation 0 is collected | 1 | run (PyQt5 5.15) | fixed in [blacs #134](https://github.com/labscript-suite/blacs/pull/134), open |
 
 ## Detail
 
@@ -510,3 +514,23 @@ yellow_pulse_2, total_yellow_pulse_duration / 2, total_yellow_pulse_duration))`.
 gives 100 shots with `yellow_pulse_time` equal to the duration in each (run, library
 only), and the #143 check does not report it. The alternative is to compute the pulse
 time in the experiment script.
+
+### D30 to D33. The checked argument of `clicked` and `triggered`
+
+`QAbstractButton.clicked` and `QAction.triggered` have an optional `checked` argument.
+For a slot that accepts `*args`, PyQt5 and PyQt6 pass it and PySide6 does not: PySide6
+passes as many arguments as the slot's code object has named positional parameters.
+Setting `__signature__` or using `functools.wraps` on the wrapper does not change this.
+`define_state` (`blacs/tab_base_classes.py:202`) wraps a handler in `f(self, *args,
+**kwargs)`, so a decorated handler connected to `clicked` gets no argument under PySide6
+and `checked` under PyQt. A handler must therefore take an optional argument, as the
+PulseBlaster and CiceroOpalKellyXEM3001 handlers do. A scan of every `clicked` and
+`triggered` connection in the component repositories found D30 to D33; lambdas with no
+parameters, undecorated methods and handlers with an optional argument or `*args` work
+with all three bindings.
+
+Verified by connecting the real handlers to a `QPushButton` through `define_state`,
+clicking it and calling the queued function as the state machine does, with PySide6
+6.12 and PyQt5 5.15, before and after the fixes. A prototype `define_state` that
+generates a wrapper with the handler's own parameter list made every labscript-devices
+handler work under both bindings without the call-site fixes; it was not adopted.
