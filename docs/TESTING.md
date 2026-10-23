@@ -102,6 +102,38 @@ and checks the size again once it holds it; with it:
   failed to install, because h5py 3.16.0 has no wheels for Python 3.15. The pull request
   is [runmanager #144](https://github.com/labscript-suite/runmanager/pull/144).
 
+## 2026-10-24: lyse #157 (per-shot time outside the routines)
+
+lyse branch `shot-overhead`, four commits on master 3edf99c, measured as in the entry
+below (100 shots of diginuc sequence 0029 submitted at once, the lab's `gaussian_fit`,
+Python 3.14.8, PySide6, offscreen). Medians of three runs at each commit, in ms per shot;
+"other" is the time per shot minus the routine body, which was 35 ms throughout:
+
+| Commit | Change | Other, idle | Other, 16 busy processes on 16 cores |
+|---|---|---|---|
+| 3edf99c | master | 38.8 | 160, 192 |
+| e839eb8 | `.at` for up to 20 rows (D35) | 27.7 | |
+| 72f858f | `dataChanged`; no empty `update_rows` or repeated `set_status_percent` | 14.5 | 72, 79 |
+| 79e7ed3 | two main-thread calls per routine instead of seven | 13.7 | 57, 58 |
+| a00f06f | compile the routine only when its source changes | 12.4 | 58, 70 |
+
+Compiling a routine takes 0.57 ms for `gaussian_fit` (127 lines) and 2.1 ms for
+`yellow_spectroscopy` (532 lines) locally, 0.78 ms and 3.0 ms on diginuc; reading the
+file takes 6 to 24 µs. On a 1000-row dataframe, setting 28 columns takes 0.29 ms with
+`.at` and 7.7 ms with the per-column `.loc` for one row; for 100 rows, 29 ms and 9.3 ms.
+
+The `lyse-gui` harness step now runs routines that save results (`harness/README.md`).
+Locally it passed on master and on the branch, and with the branch merged with #153
+(one conflict, in `analysis_subprocess.py`), where the Abort checks also passed. One
+local run crashed in `EditColumns.populate_model` (`DEFECTS.md` D39). `test.yml` run
+[39970007241](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39970007241)
+(`lyse=labscript-suite/lyse@shot-overhead`): the 25 jobs for Python 3.11 to 3.14 passed
+every step; the six Python 3.15 jobs failed at "Install the components", as on the
+masters. In run
+[39969987453](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39969987453)
+(push of the new check, masters), the `lyse-gui` process on Ubuntu, Python 3.11, PySide6
+ended with a segmentation fault while the second routine ran (D39).
+
 ## 2026-10-24: lyse per-shot time with the lab's single-shot routine
 
 **On diginuc.** The maintainer loaded the 100 shots of sequence 0029 into lyse
