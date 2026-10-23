@@ -5,6 +5,18 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-23: labscript #131 (`load_globals` cleanup)
+
+`test.yml` run
+[39946972764](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39946972764)
+with labscript at `load-globals-cleanup` (bb54fca) and the other components at their
+masters: the 25 jobs for Python 3.11 to 3.14 passed every step, including the compile of
+the example experiment through runmanager; the six Python 3.15 jobs failed at "Install
+the components", as on the masters. Locally (Python 3.14.8), on a diginuc shot file with
+None and bool globals added, `labscript_init` puts the same globals into builtins as
+`get_shot_globals` returns, with the same types, `labscript_cleanup` removes them, and a
+global named `stop` raises `LabscriptError`.
+
 ## 2026-10-23: labscript-devices #159 (FunctionRunner opens the shot file once)
 
 `test.yml` run
