@@ -5,6 +5,34 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-24: shots run through BLACS; labscript-devices #160 and blacs #137
+
+The new harness step `blacs-shot` starts lyse and BLACS, submits a copy of the example
+shot to BLACS as runmanager does, and checks that BLACS runs it with the dummy devices
+and sends it to lyse, that the same file submitted again runs as a repeat in a new file,
+and that neither application prints a traceback and BLACS.log has no errors. Before
+this step, the harness only started BLACS for five seconds. Locally (Python 3.14.8,
+PySide6, in a namespace with a scratch profile) the step passed in 11 s. Submitted as
+soon as the BLACS port accepted connections, the first shot was refused with a
+`NameError` (`DEFECTS.md` D36), so the step waits for BLACS to log that it has started.
+
+`test.yml` run
+[39964671583](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39964671583)
+(push of the step, the masters): the 25 jobs for Python 3.11 to 3.14 passed every step,
+including `blacs-shot`; the six Python 3.15 jobs failed at "Install the components", as
+before.
+
+`test.yml` run [39964678257](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39964678257) with labscript-devices `zprocess3-compat` (fa855e7, #160) and blacs
+`remove-zprocess-locking-import` (251b8c6, #137): the 25 jobs for Python 3.11 to 3.14
+passed every step, including `blacs-shot`. An earlier run,
+[39962730807](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39962730807),
+of the same branches without the step also passed. The NI DAQmx, PrawnBlaster and
+CiceroOpalKellyXEM3001 workers are not run by the harness and have not been run with
+hardware. For D24, the NI DAQmx module was imported locally with PyDAQmx replaced by
+empty modules, and the wait monitor was run with a counter read that raises: on master
+`stop_tasks` raised `TypeError: _reraise() takes 1 positional argument but 3 were
+given`, and on #160 it raised the counter read's exception.
+
 ## 2026-10-24: lyse per-shot time with the lab's single-shot routine
 
 **On diginuc.** The maintainer loaded the 100 shots of sequence 0029 into lyse
