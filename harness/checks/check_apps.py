@@ -2,15 +2,12 @@
 to accept connections, exercise the runmanager remote API, and stop it."""
 
 import os
-import socket
-import subprocess
-import sys
 import time
 
-from _common import WORK, attempt, check, finish, load_state, port
+from _common import (WORK, app_output, attempt, check, finish, listening, load_state, port,
+                     start_app, stop_app, wait_for_port, wait_for_port_release)
 
 state = load_state()
-STARTUP_TIMEOUT = 120
 HOLD = 5
 
 # Each app with the labconfig port that it serves.
@@ -20,41 +17,6 @@ APPS = [
     ('lyse', 'lyse'),
     ('blacs', 'BLACS'),
 ]
-
-
-def listening(p):
-    try:
-        with socket.create_connection(('127.0.0.1', p), timeout=1):
-            return True
-    except OSError:
-        return False
-
-
-def start(app):
-    log = open(WORK / 'logs' / f'app-{app}.log', 'w', encoding='utf8', errors='replace')
-    proc = subprocess.Popen([sys.executable, '-X', 'utf8', '-m', app], stdout=log, stderr=subprocess.STDOUT)
-    return proc, log
-
-
-def stop(proc):
-    if proc.poll() is None:
-        proc.terminate()
-        try:
-            proc.wait(timeout=30)
-        except subprocess.TimeoutExpired:
-            proc.kill()
-            proc.wait()
-
-
-def wait_for(proc, p):
-    t0 = time.time()
-    while time.time() - t0 < STARTUP_TIMEOUT:
-        if proc.poll() is not None:
-            return False, time.time() - t0
-        if listening(p):
-            return True, time.time() - t0
-        time.sleep(0.5)
-    return False, time.time() - t0
 
 
 def runmanager_remote():
@@ -96,9 +58,9 @@ for app, port_name in APPS:
     if listening(p):
         check(False, f'port {p} is already in use before starting {app}')
         continue
-    proc, log = start(app)
+    proc, log = start_app(app)
     try:
-        up, seconds = wait_for(proc, p)
+        up, seconds = wait_for_port(proc, p)
         check(up, f'{app} started and is listening on port {p} after {seconds:.0f} s')
         if up:
             if app == 'runmanager':
@@ -106,19 +68,15 @@ for app, port_name in APPS:
             time.sleep(HOLD)
             check(proc.poll() is None, f'{app} still running {HOLD} s after start')
     finally:
-        stop(proc)
+        stop_app(proc)
         log.close()
-    output = (WORK / 'logs' / f'app-{app}.log').read_text(encoding='utf8', errors='replace')
+    output = app_output(app)
     tracebacks = output.count('Traceback (most recent call last)')
     check(tracebacks == 0, f'no traceback in the {app} output ({tracebacks} found)')
     tail = output.strip().splitlines()[-15:]
     if tail:
         print(f'last lines of {app} output:')
         print('    ' + '\n    '.join(tail))
-    # Give the port time to be released before the next app or a re-run.
-    for _ in range(20):
-        if not listening(p):
-            break
-        time.sleep(0.5)
+    wait_for_port_release(p)
 
 finish()

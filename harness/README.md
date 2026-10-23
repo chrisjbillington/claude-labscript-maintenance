@@ -4,9 +4,10 @@ End-to-end tests of the labscript suite through its public entry points. The har
 installs the component repositories into a virtual environment and checks that every
 module imports, that a profile can be created, that the example experiment compiles,
 that the shot can be read in lyse and by the runviewer parsers, that the runmanager
-library API works and that the four applications start. It uses pip and uv only. Conda
-is not used: conda installs on Windows runners are slow, and conda-specific checks are
-left until a release is close.
+library API works, that the four applications start and that BLACS runs shots with dummy
+devices and sends them to lyse. It uses pip and uv only. Conda is not used: conda
+installs on Windows runners are slow, and conda-specific checks are left until a release
+is close.
 
 The GitHub Actions workflow `.github/workflows/test.yml` runs the harness on Ubuntu and
 Windows for Python 3.11 to 3.15 with PySide6, PyQt6 and PyQt5 on every push that changes
@@ -63,6 +64,7 @@ error window. labscript-utils releases before 3.5.0 ignore the variable.
 | `runmanager-api` | The library API on the `runmanager_test` fixture: globals file CRUD, evaluation, expansion, diff, run files, single-shot and multishot compilation with the compiler output streamed to a PULL socket |
 | `apps` | runmanager, runviewer, lyse and BLACS start under `QT_QPA_PLATFORM=offscreen`, listen on their labconfig ports and run for five seconds; the runmanager remote API is exercised; the output of each is checked for tracebacks |
 | `lyse-gui` | The lyse GUI in this process under `QT_QPA_PLATFORM=offscreen`: a shot file that has not been run is not loaded; a routine that loops in Python is interrupted by the Abort button and its worker survives, a routine blocked in a long sleep has its worker restarted, analysis is paused in both cases, and the interrupted worker then runs a routine to completion |
+| `blacs-shot` | lyse and BLACS start; a copy of the example shot is submitted to BLACS as runmanager submits it, and BLACS runs it with the dummy devices of the profile's connection table and sends it to lyse; the same file submitted again runs as a repeat in a new file; both shot files have a run time and a `data` group; the output of both applications has no tracebacks and BLACS.log has no errors |
 | `zprocess-tests` | The zprocess test suite with pytest. Skipped unless `--all` or `--step zprocess-tests` is given; it takes two minutes |
 
 A check for a known open bug is marked `KNOWN` in the log and does not fail the step.
@@ -84,7 +86,8 @@ secret is carried over from the previous harness profile so that a zlock or zlog
 left running by an earlier run still accepts connections.
 
 The applications use the ports in the labconfig (42517 to 42523 and 7339 to 7341), so
-the `apps` step fails if a suite application is already running on the machine.
+the `apps` and `blacs-shot` steps fail if a suite application is already running on the
+machine.
 
 On a Linux machine that has a real profile and running suite servers, the harness can run
 in a user, mount and network namespace instead, with a scratch directory as the home of

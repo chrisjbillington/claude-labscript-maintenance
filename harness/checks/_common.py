@@ -3,7 +3,10 @@ working directory set to the work directory."""
 
 import json
 import os
+import socket
+import subprocess
 import sys
+import time
 import traceback
 from pathlib import Path
 
@@ -79,3 +82,57 @@ def labconfig():
 
 def port(name):
     return int(labconfig().get('ports', name))
+
+
+APP_STARTUP_TIMEOUT = 120
+
+
+def listening(p):
+    try:
+        with socket.create_connection(('127.0.0.1', p), timeout=1):
+            return True
+    except OSError:
+        return False
+
+
+def start_app(app):
+    """Start a suite application with its output in logs/app-<app>.log. Return the
+    process and the open log file."""
+    log = open(WORK / 'logs' / f'app-{app}.log', 'w', encoding='utf8', errors='replace')
+    proc = subprocess.Popen([sys.executable, '-X', 'utf8', '-m', app], stdout=log, stderr=subprocess.STDOUT)
+    return proc, log
+
+
+def stop_app(proc):
+    if proc.poll() is None:
+        proc.terminate()
+        try:
+            proc.wait(timeout=30)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.wait()
+
+
+def app_output(app):
+    return (WORK / 'logs' / f'app-{app}.log').read_text(encoding='utf8', errors='replace')
+
+
+def wait_for_port(proc, p):
+    """Wait for the process to listen on port p. Return whether it does, and the time
+    taken."""
+    t0 = time.time()
+    while time.time() - t0 < APP_STARTUP_TIMEOUT:
+        if proc.poll() is not None:
+            return False, time.time() - t0
+        if listening(p):
+            return True, time.time() - t0
+        time.sleep(0.5)
+    return False, time.time() - t0
+
+
+def wait_for_port_release(p):
+    """Give a port time to be released before an application uses it again."""
+    for _ in range(20):
+        if not listening(p):
+            break
+        time.sleep(0.5)

@@ -46,6 +46,7 @@ fix is made, in which case the row names the pull request. Importance uses the s
 | D33 | 2026-10-23 | blacs `blacs/plugins/memory/__init__.py:71` | The memory plugin's Garbage collect menu item is connected directly to `gc.collect`, so with PyQt5 or PyQt6 `triggered` passes `False` as the generation and only generation 0 is collected | 1 | run (PyQt5 5.15) | fixed in [blacs #134](https://github.com/labscript-suite/blacs/pull/134) (merged 2026-10-23) |
 | D34 | 2026-10-23 | lyse `lyse/__init__.py:981` (`Run.get_globals`), `:206` and `:1120` (`globals_diff`) | `Run.get_globals(group)` returns the attributes of `globals/<group>`, which in a shot file are the unevaluated expression strings, not the values that the docstring describes; `globals_diff(..., group)` compares those strings. The commit message of 8af660f (lyse #147) says that `get_globals('g')` returns the same types and values as `get_shot_globals`, which holds only for a file with values in the group attributes | 2 | run (lab shot file) | fixed in [lyse #156](https://github.com/labscript-suite/lyse/pull/156) by removing the argument (merged 2026-10-23) |
 | D35 | 2026-10-24 | lyse `lyse/filebox.py` `DataFrameModel._set_dataframe_values` (from lyse #150, 79f9db9) | After each single-shot routine, the results are written to the dataframe with one `.loc[rows, column] = Series` assignment per column. For one row this is about 25 times slower than the `.at` assignment that it replaced: 6.8 ms against 0.27 ms for the 28 results of the lab's `gaussian_fit` on a 100-row dataframe (pandas 3.0.6), and 11 ms of the 70 ms per shot in lyse. It runs in the main thread | 3 | run (timed in lyse with the lab's shots and routine) | open |
+| D36 | 2026-10-24 | blacs `blacs/__main__.py:813` (`ExperimentServer`) | BLACS starts its experiment server before it creates the `BLACS` window object, and the server handles a request in the main thread through `inmain`. A shot submitted after the port accepts connections but before start-up has finished is handled while `app` is undefined, and the client gets `NameError: name 'app' is not defined` instead of the shot being queued; runmanager reports that it could not submit the shot | 2 | run (a shot submitted as soon as the BLACS port accepted connections, Python 3.14.8, PySide6) | open |
 
 ## Detail
 
@@ -536,3 +537,18 @@ clicking it and calling the queued function as the state machine does, with PySi
 6.12 and PyQt5 5.15, before and after the fixes. A prototype `define_state` that
 generates a wrapper with the handler's own parameter list made every labscript-devices
 handler work under both bindings without the call-site fixes; it was not adopted.
+
+### D36. A shot submitted while BLACS is starting is not queued
+
+`blacs/__main__.py` creates the `ExperimentServer` at line 813, then loads the connection
+table and creates the `BLACS` object, `app`, at line 829. The server's handler calls
+`app.queue.process_request` in the main thread, and the main thread processes events
+during start-up (each `splash.update_text` does), so a request that arrives in that
+interval runs before `app` exists. The harness step `blacs-shot`, which submitted a shot
+as soon as the BLACS port accepted connections, got `NameError: The server had an
+unhandled exception whilst processing the request: NameError: name 'app' is not
+defined`. This can happen when runmanager submits shots to a BLACS that is restarting,
+for example after a connection table recompile. The step now waits for the line
+`BLACS instantiated` in `BLACS.log` before it submits.
+Fix: start the experiment server after `app` is created, or have the handler reply that
+BLACS is starting until it is.
