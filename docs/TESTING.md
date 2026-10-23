@@ -17,6 +17,32 @@ None and bool globals added, `labscript_init` puts the same globals into builtin
 `get_shot_globals` returns, with the same types, `labscript_cleanup` removes them, and a
 global named `stop` raises `LabscriptError`.
 
+## 2026-10-23: time taken by `get_shot_globals`
+
+Shot files of diginuc sequence 0029 (58 globals: 32 float, 9 int, 15 bool, 2 string),
+with h5py 3.16.0, HDF5 2.0.0, NumPy 2.5.4 and Python 3.14.8, locally and on diginuc (load
+average 1.7). Medians of repeated calls in a warm process.
+
+| Step | Local | diginuc |
+|---|---|---|
+| `get_shot_globals(path)` | 1.5 ms | |
+| `get_shot_globals(f)` with the file already open | 1.4 ms | 2.2 ms |
+| opening and closing the file | 0.07 ms | 0.11 ms |
+| `f['globals'].attrs[name]`, per attribute | 20 to 27 µs | 38 to 70 µs |
+| the same attributes read through the HDF5 C library (`H5Aiterate2`, `H5Aopen`, `H5Aget_space`, `H5Aget_type`, `H5Aread`), per attribute | 1.1 µs | |
+
+- Nearly all of the time is spent in h5py's `AttributeManager.__getitem__`. For each
+  attribute it makes five calls into h5py's low-level API (`h5a.open`, `.shape`,
+  `.dtype`, `h5t.py_create`, `read`), each of which takes 2 to 9 µs locally, mostly in
+  creating and registering h5py object IDs. The conversions in `get_shot_globals` and
+  the file open take under 5% of the total. The HDF5 library takes about 5%.
+- Reading scalar numeric attributes through the low-level API with the memory type
+  cached per dtype, and falling back to `attrs[name]` for other attributes, gives the
+  same dict and takes 1.0 ms locally and 1.6 to 1.7 ms on diginuc, a saving of about
+  0.5 ms per shot on diginuc.
+- In sequence 0025 the FunctionRunner worker job took 76 ms (median), so reading the
+  globals is about 3% of the job.
+
 ## 2026-10-23: labscript-devices #159 (FunctionRunner opens the shot file once)
 
 `test.yml` run
