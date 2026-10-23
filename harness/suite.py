@@ -62,6 +62,7 @@ STEPS = [
     ('compile', ['profile']),
     ('lyse', ['compile']),
     ('runviewer', ['compile']),
+    ('narwhal', ['profile']),
     ('runmanager-api', ['profile']),
     ('apps', ['compile']),
     ('lyse-gui', ['compile']),
