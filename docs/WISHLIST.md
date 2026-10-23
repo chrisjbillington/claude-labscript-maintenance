@@ -44,6 +44,12 @@ faster.
 
 Look for performance gains in the way BLACS handles the shot queue.
 
+## BLACS: profile shot cycle time under load
+
+Profile BLACS while the system is under load and find the sources of the extra delay in
+the shot cycle time that the load causes. Some of the delay is unavoidable, but general
+performance improvements may reduce the delay under load substantially.
+
 ## runmanager: group and output status shown on the tabs
 
 The tab of each globals group shows the status of the group, for example an icon or bold
