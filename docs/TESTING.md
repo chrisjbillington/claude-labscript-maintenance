@@ -54,17 +54,23 @@ settings (`runmanager/__main__.py:2938`). The remote server thread reads them. E
 takes the zlock of the file through `labscript_utils.h5_lock`, which is a reentrant
 readers-writer lock with one client per thread.
 
-Branch `repack-globals-files` (500297b), same venv:
+Branch `repack-globals-files`, same venv. The first version (500297b) held the write
+zlock from each write until the repack check, so that every write acquired the zlock
+twice: 2008 zlock acquisitions for 1000 writes, against 1000 on master, and 1.4 ms
+instead of 1.0 ms per write. The second version (4c876e7) takes the zlock only to repack,
+and checks the size again once it holds it; with it:
 
+- 1000 writes made 1012 zlock acquisitions, the extra 12 for the four repacks.
 - The same 2000 iterations: the file reached at most 1.06 MB and was repacked 15 times;
   the globals read back unchanged and no temporary files were left.
 - Three threads writing 500 values each to one file: every final value was written.
 - The 16.5 MB file from master was repacked to 15 kB on its first edit.
-- A write takes 1.4 ms instead of 1.0 ms without repacks, of which 0.4 ms is the extra
-  zlock acquisition. A repack of a file with 500 globals takes 0.12 s, of which 0.10 s
-  is reading the attributes of both files for the comparison.
+- A repack of a file with 500 globals takes 0.12 s, of which 0.10 s is reading the
+  attributes of both files for the comparison (timed with 500297b; the repack itself
+  is unchanged in 4c876e7).
 - The `runmanager-api` step, in a scratch profile, passed with the new check printing
   `FIXED` (530 kB after 600 writes); on master the check is `KNOWN` at 2.6 MB.
+- GitHub Actions run 39966730779 of 500297b was cancelled when 4c876e7 replaced it.
 
 ## 2026-10-24: lyse per-shot time with the lab's single-shot routine
 
