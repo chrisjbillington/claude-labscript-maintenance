@@ -5,6 +5,20 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-23: the BLACS state machine in the main thread (blacs branch `statemachine-main-thread`)
+
+`test.yml` run
+[39919928868](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39919928868)
+with blacs at `statemachine-main-thread` (52b0383) and the other components at their
+masters: the 25 jobs for Python 3.11 to 3.14 (Ubuntu and Windows, PySide6, PyQt6 and
+PyQt5, plus the Ubuntu Python 3.14 PySide6 job with `numpy<2.5`) passed every step,
+including BLACS start-up in the `apps` step. The six Python 3.15 jobs failed at "Install
+the components", as on the masters. The behaviour checks in `tools/blacs-statemachine/`
+(23 checks, Python 3.14.8, PySide6, offscreen, local) pass on the branch and on master,
+and the shot cycle measurements with `tools/blacs-timing/` are in
+`BLACS-STATE-MACHINE.md` section 6: with 8 dummy tabs the cycle goes from 0.24 s to
+0.19 s.
+
 ## 2026-10-23: the Narwhal Devices Pulse Generator device (labscript-devices branch `narwhal-pulsegen`)
 
 Branch `narwhal-pulsegen` on labscript-suite/labscript-devices, commit bf5cbc5 on master

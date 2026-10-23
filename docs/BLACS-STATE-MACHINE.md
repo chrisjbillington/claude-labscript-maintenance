@@ -120,6 +120,10 @@ threading, not the size.
 the branch and on master (Python 3.14.8, PySide6, offscreen). On master it also logs
 "mainloop thread of tab1 did not stop" when the tabs are closed; the branch does not.
 
+**Harness (run).** `test.yml` run 39919928868 passed every step on Ubuntu and Windows
+for Python 3.11 to 3.14 with all three Qt bindings; Python 3.15 failed at install, as on
+the masters (`TESTING.md`, 2026-10-23).
+
 **Shot cycle (run).** `tools/blacs-timing/bench.py`, 50 shots of 0.1 s, a
 `DummyPseudoclock` and one or seven `DummyIntermediateDevice`s, Python 3.14.8, PySide6,
 offscreen, the maintainer's laptop (12th Gen Core i7-1270P), all other components at
@@ -155,12 +159,11 @@ shots, on the branch. The sampler slows BLACS a little (cycle 0.196 s).
 
 ## 7. Next steps
 
-1. Run the harness workflow on the branch and record it in `TESTING.md`.
-2. Measure the branch on the lab machine with its real devices.
-3. Log less from the state machine: one debug message per state with its timings,
+1. Measure the branch on the lab machine with its real devices.
+2. Log less from the state machine: one debug message per state with its timings,
    instead of nine, and change `tools/blacs-timing/analyse.py` to read it.
-4. The queue manager: the 24 ms before the first transition, the front panel save
+3. The queue manager: the 24 ms before the first transition, the front panel save
    between the end of the shot and the transitions to manual, and its `inmain` calls.
    This is a separate change to `experiment_queue.py`, and is the wishlist entry on the
    shot queue.
-5. Decide whether the branch replaces blacs #132, which it includes.
+4. Decide whether the branch replaces blacs #132, which it includes.
