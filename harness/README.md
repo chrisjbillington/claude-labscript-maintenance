@@ -63,7 +63,7 @@ error window. labscript-utils releases before 3.5.0 ignore the variable.
 | `narwhal` | Shots with Narwhal Devices Pulse Generators from `fixtures/narwhal/`: the instruction tables (odd-cycle clock periods, a wait after a ramp, a powerline wait, a wait at t=0), the runviewer parser, and the BLACS worker on a simulated device as master and secondary, with waits that are triggered, time out and synchronise to the powerline, an abort, and a secondary that is never triggered |
 | `runmanager-api` | The library API on the `runmanager_test` fixture: globals file CRUD, the size of a globals file after many writes, evaluation, expansion, diff, run files, single-shot and multishot compilation with the compiler output streamed to a PULL socket |
 | `apps` | runmanager, runviewer, lyse and BLACS start under `QT_QPA_PLATFORM=offscreen`, listen on their labconfig ports and run for five seconds; the runmanager remote API is exercised; the output of each is checked for tracebacks |
-| `lyse-gui` | The lyse GUI in this process under `QT_QPA_PLATFORM=offscreen`: a shot file that has not been run is not loaded; a routine that loops in Python is interrupted by the Abort button and its worker survives, a routine blocked in a long sleep has its worker restarted, analysis is paused in both cases, and the interrupted worker then runs a routine to completion |
+| `lyse-gui` | The lyse GUI in this process under `QT_QPA_PLATFORM=offscreen`: a shot file that has not been run is not loaded; the results of two enabled single-shot routines appear in the dataframe and the shots table and a disabled routine does not run; results saved when the shot is analysed again replace them; a routine error pauses analysis and keeps the results saved before it; a routine that loops in Python is interrupted by the Abort button and its worker survives, a routine blocked in a long sleep has its worker restarted, analysis is paused in both cases, and the interrupted worker then runs a routine to completion |
 | `blacs-shot` | lyse and BLACS start; a copy of the example shot is submitted to BLACS as runmanager submits it, and BLACS runs it with the dummy devices of the profile's connection table and sends it to lyse; the same file submitted again runs as a repeat in a new file; both shot files have a run time and a `data` group; the output of both applications has no tracebacks and BLACS.log has no errors |
 | `zprocess-tests` | The zprocess test suite with pytest. Skipped unless `--all` or `--step zprocess-tests` is given; it takes two minutes |
 
@@ -98,13 +98,13 @@ separate. The profile path comes from the user name, so `LOGNAME` and `USER` are
 
 ```
 mkdir -p /tmp/fakeroot
-unshare -Urmn sh -c 'ip link set lo up && mount --bind /tmp/fakeroot /root \
-    && export HOME=/root LOGNAME=root USER=root \
+env -u DISPLAY -u WAYLAND_DISPLAY unshare -Urmn sh -c 'ip link set lo up \
+    && mount --bind /tmp/fakeroot /root && export HOME=/root LOGNAME=root USER=root \
     && python harness/suite.py test --python 3.14 --work /tmp/harness-work'
 ```
 
-The X display is still reachable through its socket, so an application started this way
-appears on the desktop.
+The X display is still reachable through its socket, so without the `env -u` an
+application or error window started this way appears on the desktop.
 
 ## Requirements
 

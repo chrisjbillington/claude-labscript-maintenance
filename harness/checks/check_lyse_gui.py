@@ -1,5 +1,7 @@
 """Run the lyse GUI in this process under the offscreen platform. Check that a shot file
-that has not been run is not loaded, and exercise the Abort button: a routine that loops
+that has not been run is not loaded; that the results of single-shot routines appear in
+the dataframe and the shots table when the shot is analysed, analysed again, and analysed
+with a routine that fails after saving a result; and exercise the Abort button: a routine that loops
 in Python is interrupted and its worker survives, a routine that is blocked in a long
 sleep has its worker restarted, analysis is paused in both cases, and the interrupted
 worker then runs a routine to completion. The Abort checks are reported as KNOWN when
@@ -77,6 +79,10 @@ class LogCounter(logging.Handler):
 # more to do. Resuming before then is undone by the pause that the error causes.
 paused_log = LogCounter('analysis is paused')
 logging.getLogger('lyse.FileBox.analysis_loop').addHandler(paused_log)
+# The multishot routine box logs this after each pass, which the analysis thread starts
+# once it has finished with the last shot that needed analysis.
+multishot_log = LogCounter('completed analysis of None')
+logging.getLogger('lyse.RoutineBox.multishot').addHandler(multishot_log)
 
 
 def copy_shot(name, run):
@@ -119,8 +125,71 @@ try:
     check(wait_until(lambda: loaded(run_shot), 60), 'a shot file that has been run is loaded')
     check(not loaded(unrun_shot) and 'has not been run' in output_text(),
           'a shot file that has not been run is not loaded')
-    filebox.shots_model._view.selectAll()
-    filebox.shots_model.remove_selection(confirm=False)
+
+    shots_model = filebox.shots_model
+    results_scripts = {}
+    for name in ['results_a', 'results_b', 'results_c']:
+        results_scripts[name] = routines_dir / f'{name}.py'
+
+    def write_results_script(name, value, fail=False):
+        results_scripts[name].write_text(
+            'import lyse\n'
+            f'lyse.Run(lyse.path).save_result("value", {value!r})\n'
+            + ('raise RuntimeError("routine failed")\n' if fail else '')
+        )
+
+    def result(name):
+        column = (name, 'value') + ('',) * (shots_model.nlevels - 2)
+        row = shots_model.row_number_by_filepath[run_shot]
+        if column not in shots_model.dataframe.columns:
+            return None, None
+        item = shots_model._model.item(row, shots_model.column_indices[column])
+        return shots_model.dataframe.at[row, column], item.text() if item else None
+
+    def analyse(mark_not_done):
+        n_multishot = multishot_log.count
+        if mark_not_done:
+            shots_model._view.selectAll()
+            filebox.on_mark_selection_not_done_clicked()
+        resume()
+        return wait_until(lambda: multishot_log.count > n_multishot, 60)
+
+    write_results_script('results_a', 1.5)
+    write_results_script('results_b', 'x')
+    write_results_script('results_c', 3.5)
+    box.add_routines([(str(path), QtCore.Qt.Checked) for path in results_scripts.values()])
+    results_routines = dict(zip(results_scripts, box.routines))
+    set_enabled(box, results_routines['results_c'], False)
+    check(analyse(mark_not_done=False), 'the shot is analysed by two of three routines')
+    check(result('results_a') == (1.5, '1.5') and result('results_b') == ('x', 'x'),
+          'the results of both enabled routines are in the dataframe and the shots table: '
+          f'{result("results_a")}, {result("results_b")}')
+    check(result('results_c') == (None, None), 'the disabled routine did not run')
+    check(results_routines['results_a'].done and results_routines['results_b'].done
+          and not results_routines['results_c'].done, 'the routine statuses are done, done, clear')
+
+    write_results_script('results_a', 4.5)
+    write_results_script('results_b', 'y')
+    check(analyse(mark_not_done=True), 'the shot is analysed again')
+    check(result('results_a') == (4.5, '4.5') and result('results_b') == ('y', 'y'),
+          'the new results replace the old in the dataframe and the shots table: '
+          f'{result("results_a")}, {result("results_b")}')
+
+    write_results_script('results_a', 6.5)
+    write_results_script('results_b', 'z', fail=True)
+    n_paused = paused_log.count
+    analyse(mark_not_done=True)
+    check(wait_until(lambda: paused_log.count > n_paused, 60) and filebox.analysis_paused,
+          'analysis is paused after a routine error')
+    check(results_routines['results_b'].error, 'the failed routine has the error status')
+    check(result('results_a') == (6.5, '6.5') and result('results_b') == ('z', 'z'),
+          'the results saved before the error are in the dataframe and the shots table: '
+          f'{result("results_a")}, {result("results_b")}')
+
+    box.ui.treeView.selectAll()
+    box.remove_selection(confirm=False)
+    shots_model._view.selectAll()
+    shots_model.remove_selection(confirm=False)
 
     if not check(hasattr(filebox.ui, 'pushButton_abort'), 'the filebox has an Abort button',
                  known=ABORT_FEATURE):
