@@ -24,7 +24,11 @@ history is written as fixed-length attributes (`DEFECTS.md` D37 is the growth th
 variable-length strings cause).
 
 The harness steps `versions` to `apps` passed locally with the branch installed (Python
-3.14.8, PySide6). `test.yml` run
+3.14.8, PySide6). After the swap icon was changed to `arrow-circle-double` and screenshots were added to
+the docs (head 48684a4), `test.yml` run
+[39977851151](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39977851151)
+passed the same 25 jobs; the Python 3.15 jobs failed at install as before. Earlier,
+`test.yml` run
 [39970622133](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39970622133)
 with `runmanager=labscript-suite/runmanager@value-history`: the 25 jobs for Python 3.11
 to 3.14 passed every step; the six Python 3.15 jobs failed at "Install the components",

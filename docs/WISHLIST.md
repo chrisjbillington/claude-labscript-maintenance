@@ -23,14 +23,14 @@ Each global has a drop-down menu that lists the values recently used for that gl
 with the date on which each was last used. The list is sorted by "frecency", a
 combination of the frequency and the recency of use.
 
-Status: written on runmanager branch `value-history` (2e41aa5), with comments drawn in
+Status: [runmanager #145](https://github.com/labscript-suite/runmanager/pull/145) (head 48684a4), with comments drawn in
 grey in the value cells and the editor. A value is recorded when the first shot of a
 sequence compiles. The list shows the current value, then the most recently used other
 value, then pinned values, then the rest by a score that counts at most one use per hour
 and halves in a week; it keeps 20 values per global. Values that differ only in comments
 or whitespace are one entry. The history is a `history` subgroup of each globals group,
 with one fixed-length JSON attribute per global, which does not grow the file
-(`DEFECTS.md` D37). No pull request is open.
+(`DEFECTS.md` D37). The swap icon is `arrow-circle-double`.
 
 ## BLACS: close one worker process without closing BLACS
 

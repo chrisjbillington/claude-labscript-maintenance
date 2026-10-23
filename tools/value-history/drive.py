@@ -1,7 +1,7 @@
 """Run runmanager under the offscreen platform, exercise the value history and save
 screenshots.
 
-    python drive.py --out DIR --labscript-file FILE [--scheme light|dark]
+    python drive.py --out DIR --labscript-file FILE [--scheme light|dark] [--size WxH]
 """
 
 import argparse
@@ -16,6 +16,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--out', required=True)
 parser.add_argument('--labscript-file', required=True)
 parser.add_argument('--scheme', default='light')
+parser.add_argument('--size', default='1300x700', help='main window size in pixels')
 args = parser.parse_args()
 sys.argv = ['runmanager']
 out = Path(args.out)
@@ -82,7 +83,7 @@ def run():
     from runmanager import group_manager as gm
     window = main_window()
     window.showNormal()
-    window.resize(1300, 700)
+    window.resize(*(int(n) for n in args.size.split('x')))
     wait(1)
 
     globals_file = str(out / 'globals.h5')
@@ -190,6 +191,19 @@ def run():
     wait(1)
     save('table')
 
+    # Context menu
+    view.selectRow(tab.get_global_item_by_name('mot_detuning', tab.GLOBALS_COL_VALUE).row())
+    menu = QtWidgets.QMenu(tab.ui)
+    for action in [tab.action_globals_set_selected_true, tab.action_globals_set_selected_false,
+                   tab.action_globals_reset_expansion, tab.action_globals_previous_value,
+                   tab.action_globals_value_history, tab.action_globals_delete_selected]:
+        menu.addAction(action)
+    rect = view.visualRect(tab.get_global_item_by_name('mot_detuning', tab.GLOBALS_COL_NAME).index())
+    menu.popup(view.viewport().mapToGlobal(rect.center()))
+    wait(1)
+    save('context-menu', extra=menu)
+    menu.close()
+
     # Screenshot: the popup
     tab.show_value_history('mot_detuning')
     wait(1)
@@ -286,19 +300,6 @@ def run():
     tab.get_global_item_by_name('repump_power', tab.GLOBALS_COL_NAME).setText('repump_power_mW')
     wait(1)
     check(gm.get_history(globals_file, 'MOT', 'repump_power_mW'), 'history follows a renamed global')
-
-    # Context menu
-    view.selectRow(tab.get_global_item_by_name('mot_detuning', tab.GLOBALS_COL_VALUE).row())
-    menu = QtWidgets.QMenu(tab.ui)
-    for action in [tab.action_globals_set_selected_true, tab.action_globals_set_selected_false,
-                   tab.action_globals_reset_expansion, tab.action_globals_previous_value,
-                   tab.action_globals_value_history, tab.action_globals_delete_selected]:
-        menu.addAction(action)
-    rect = view.visualRect(tab.get_global_item_by_name('mot_detuning', tab.GLOBALS_COL_NAME).index())
-    menu.popup(view.viewport().mapToGlobal(rect.center()))
-    wait(1)
-    save('context-menu', extra=menu)
-    menu.close()
 
     n_fail = sum(1 for ok, _ in results if not ok)
     print(f'{len(results) - n_fail} passed, {n_fail} failed', flush=True)

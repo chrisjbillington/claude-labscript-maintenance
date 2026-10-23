@@ -134,7 +134,7 @@ Adwaita and not the desktop's theme.
 
 ## runmanager value history
 
-`value-history/drive.py --out DIR --labscript-file FILE [--scheme light|dark]` starts
+`value-history/drive.py --out DIR --labscript-file FILE [--scheme light|dark] [--size WxH]` starts
 runmanager under the offscreen Qt platform, makes a globals file in DIR with older uses
 recorded in its history, compiles FILE several times through Engage, and exercises the
 value history: the order of the list, filtering, choosing a value with the keyboard,
@@ -144,5 +144,8 @@ screenshots in DIR. FILE is the runmanager test experiment of a harness profile
 (`userlib/labscriptlib/runmanager_test/experiment.py`). It was run with the Python of a
 harness venv that has the runmanager branch installed, in the namespace of
 `blacs-timing/ns.sh`. With `--scheme dark` it sets a dark palette and tells runmanager
-that the colour scheme is dark, since the offscreen platform has no colour scheme.
+that the colour scheme is dark, since the offscreen platform has no colour scheme. The offscreen screen is 800 pixels
+wide, which moves the popup to the left; the screenshots in runmanager #145 were taken
+with `QT_QPA_PLATFORM=offscreen:configfile=value-history/offscreen.json`, a 1920 by 1080
+screen, and `--size 1250x600`.
 
