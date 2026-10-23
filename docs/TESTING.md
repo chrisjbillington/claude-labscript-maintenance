@@ -52,6 +52,13 @@ suite" is the labscript-suite 3.3.0 release on Python 3.10.12.
   cycle time is from the `run time` attributes of the shot files, which give the same
   means as the BLACS log for 0025 to 0028. Disabling logging shortens the cycle by
   0.049 ± 0.009 s.
+- FunctionRunner setup steps timed on diginuc in the Python 3.14 venv at a load average
+  of about 1.5 (medians of repeated calls on shot 60 of 0029, in a warm process):
+  `deserialise_function_table` for the two functions 0.64 ms (compile 0.35 and 0.21 ms,
+  JSON arguments and `exec` under 0.01 ms; 1.5 ms on the first call); opening the shot
+  file and reading `FUNCTION_TABLE` 2.1 ms; `get_shot_globals(path)` for 62 globals
+  5.0 ms, of which reading the attributes from an open file is 2.6 ms; a zlock read
+  lock acquire and release 0.85 ms.
 - CPU load from other processes changes the cycle by more than any of these software
   changes: in sequence 0013 (old suite, 15:26 to 15:58) the cycle went from 0.98 s to
   0.67 s at shot 1600 with no change of software, and lyse's `gaussian_fit` from 0.41 s
