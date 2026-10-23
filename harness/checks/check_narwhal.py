@@ -205,9 +205,12 @@ with h5py.File(run_file, 'r') as f:
 print(measured)
 check([w['label'].decode() for w in measured] == ['loaded', 'imaged', 'mains'], 'waits recorded in order')
 check(measured['timed_out'].tolist() == [False, True, False], f"timed_out {measured['timed_out'].tolist()}")
-check(0.02 <= measured['duration'][0] < 0.1, f"'loaded' lasted {measured['duration'][0]:.4f} s (trigger after 0.02 s)")
-check(0.05 <= measured['duration'][1] < 0.2, f"'imaged' lasted {measured['duration'][1]:.4f} s (timeout 0.05 s)")
-check(POWERLINE_WAIT <= measured['duration'][2] < 0.1, f"'mains' lasted {measured['duration'][2]:.4f} s (powerline after {POWERLINE_WAIT} s)")
+# The worker times the wait timeout with time.monotonic(), which has a resolution of
+# 15.6 ms on Windows before Python 3.13, so the timed-out wait may be shorter than its
+# timeout by that much. The other two waits are timed by the simulator's threads.
+check(0.018 <= measured['duration'][0] < 0.1, f"'loaded' lasted {measured['duration'][0]:.4f} s (trigger after 0.02 s)")
+check(0.034 <= measured['duration'][1] < 0.2, f"'imaged' lasted {measured['duration'][1]:.4f} s (timeout 0.05 s)")
+check(POWERLINE_WAIT - 0.002 <= measured['duration'][2] < 0.1, f"'mains' lasted {measured['duration'][2]:.4f} s (powerline after {POWERLINE_WAIT} s)")
 check(master.check_remote_values() == front_panel(high=[5, 6]), 'the device ends in the final state')
 
 # Abort during the run:

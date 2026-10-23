@@ -136,8 +136,10 @@ class SimulatedDevice:
                 self.trigger_on_powerline = bool((tags >> 1) & 1)
 
     def _run_time(self):
+        # perf_counter: time.monotonic() has a resolution of 15.6 ms on Windows before
+        # Python 3.13.
         if self._run_t0 is not None and self.running:
-            return round((time.monotonic() - self._run_t0) / CYCLE)
+            return round((time.perf_counter() - self._run_t0) / CYCLE)
         return self.run_time
 
     def _send_powerline_state(self):
@@ -216,7 +218,7 @@ class SimulatedDevice:
     def _run(self, run_id):
         if self.trigger_on_powerline:
             time.sleep(POWERLINE_WAIT)
-        self._run_t0 = time.monotonic()
+        self._run_t0 = time.perf_counter()
         counters = {}
         address = 0
         with self._lock:
