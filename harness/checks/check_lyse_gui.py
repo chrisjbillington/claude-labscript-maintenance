@@ -1,12 +1,13 @@
 """Run the lyse GUI in this process under the offscreen platform. Check that a shot file
 that has not been run is not loaded; that the results of single-shot routines appear in
 the dataframe and the shots table when the shot is analysed, analysed again, and analysed
-with a routine that fails after saving a result; and exercise the Abort button: a routine that loops
-in Python is interrupted and its worker survives, a routine that is blocked in a long
-sleep has its worker restarted, analysis is paused in both cases, and the interrupted
-worker then runs a routine to completion. The Abort checks are reported as KNOWN when
+with a routine that fails after saving a result; and exercise the Abort button: a routine
+that loops in Python is interrupted and its worker survives, a routine that is blocked in
+a long sleep has its worker restarted, analysis is paused in both cases, and the
+interrupted worker then runs a routine to completion. The Abort checks are reported as KNOWN when
 lyse has no Abort button."""
 
+import faulthandler
 import logging
 import shutil
 import sys
@@ -14,6 +15,9 @@ import time
 from pathlib import Path
 
 from _common import SHOTS, WORK, check, finish, load_state
+
+# Print the Python stack of every thread if the process crashes:
+faulthandler.enable(all_threads=True)
 
 state = load_state()
 shot = state['example_shot']
@@ -146,12 +150,15 @@ try:
         item = shots_model._model.item(row, shots_model.column_indices[column])
         return shots_model.dataframe.at[row, column], item.text() if item else None
 
-    def analyse(mark_not_done):
+    def analyse(mark_not_done, until_paused=False):
         n_multishot = multishot_log.count
+        n_paused = paused_log.count
         if mark_not_done:
             shots_model._view.selectAll()
             filebox.on_mark_selection_not_done_clicked()
         resume()
+        if until_paused:
+            return wait_until(lambda: paused_log.count > n_paused, 60)
         return wait_until(lambda: multishot_log.count > n_multishot, 60)
 
     write_results_script('results_a', 1.5)
@@ -177,9 +184,7 @@ try:
 
     write_results_script('results_a', 6.5)
     write_results_script('results_b', 'z', fail=True)
-    n_paused = paused_log.count
-    analyse(mark_not_done=True)
-    check(wait_until(lambda: paused_log.count > n_paused, 60) and filebox.analysis_paused,
+    check(analyse(mark_not_done=True, until_paused=True) and filebox.analysis_paused,
           'analysis is paused after a routine error')
     check(results_routines['results_b'].error, 'the failed routine has the error status')
     check(result('results_a') == (6.5, '6.5') and result('results_b') == ('z', 'z'),
