@@ -127,7 +127,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 | 96 | labscript-utils #104 excepthook uses Tk | question | 2 | Close as answered; optional stderr fallback |
 | 97 | labscript #112 timing limited by slow component | support | 2 | Convert to docs (gated clocks page), close |
 | 98 | qtutils #22 RTD version string | tooling | 2 | fixed in qtutils #37 (merged 2026-10-17); issue closed |
-| 99 | qtutils #31 PyQt6 aliases tracker | meta | 2 | closed 2026-10-21; the dead `exec()` alias branch is removed in qtutils #40 |
+| 99 | qtutils #31 PyQt6 aliases tracker | meta | 2 | closed 2026-10-21; the dead `exec()` alias branch is removed in qtutils #40 (merged 2026-10-23) |
 | 100 | qtutils #2 / PR #32 clear output box | feature | 2 | fixed in qtutils #36 (merged 2026-10-17) (context-menu part of #32, author credited); issue closed |
 | 101 | lyse #35 persist hidden columns | feature | 2 | fix later |
 | 102 | lyse #41 plot window size | bug | 2 | fix later |
@@ -235,7 +235,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 | 204 | setuptools-conda #2 save recipes | feature | 1 | close as won't fix |
 | 205 | runmanager #47 lazy shot-file creation | proposal | 1 | close as fixed |
 | 206 | runmanager #53 ModuleWatcher reloads runmanager | bug | 1 | close as obsolete |
-| 207 | runmanager #32 output box scrolling | bug | 1 | reproduced 2026-10-21; fixed by qtutils #41 (open) |
+| 207 | runmanager #32 output box scrolling | bug | 1 | reproduced 2026-10-21; fixed by qtutils #41 (merged 2026-10-23); closed |
 | 208 | runmanager #2 FingerTabBar paintEvent | bug | 1 | close as won't fix |
 | 209 | runmanager #62 nested group folders | feature | 1 | close as won't fix |
 | 210 | runmanager #125 per-variable history (empty) | feature | 1 | close as stale |
@@ -294,7 +294,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 - lyse #139: serial analysis-subprocess start-up is slower under PySide6/PyQt6, which the release moves users to. Fixed in lyse #145 (merged 2026-10-18).
 - lyse #14 and #90: small, long-standing behaviour bugs with contained fixes. Fixed in lyse #145 (merged 2026-10-18).
 - runviewer #13: resampler drops short pulses at t=0; labscript-c-extensions must be rebuilt for Python 3.13 to 3.15 anyway, so include the fix. fixed in labscript-c-extensions #13 (merged 2026-10-17).
-- qtutils #31 (closed 2026-10-21; aliases shipped in 4.1.3, which lyse pins; qtutils #40 removes the `exec()` alias branch, which no binding needs) and #22 (RTD shows version 0.1.0.dev1; fixed in qtutils #37 (merged 2026-10-17)).
+- qtutils #31 (closed 2026-10-21; aliases shipped in 4.1.3, which lyse pins; qtutils #40 (merged 2026-10-23) removes the `exec()` alias branch, which no binding needs) and #22 (RTD shows version 0.1.0.dev1; fixed in qtutils #37 (merged 2026-10-17)).
 - setuptools-conda #26 only if conda packages are built for free-threaded Pythons.
 ### runmanager, labscript-suite
 
@@ -2854,7 +2854,7 @@ Reviewed in the style of PR-REVIEW.md section 2. Head `453459d` (master merged i
 | 5 | lyse #139 serial subprocess start-up | bug (performance) | 3 | fixed in lyse #145 (merged 2026-10-18); issue closed |
 | 6 | runviewer #13 pulses at t=0 dropped by resampler | bug (in labscript-c-extensions) | 3 | fixed in labscript-c-extensions #13 (merged 2026-10-17); issue closed |
 | 7 | qtutils #22 RTD version string | tooling | 2 | fixed in qtutils #37 (merged 2026-10-17); issue closed |
-| 8 | qtutils #31 PyQt6 aliases tracker | meta | 2 | closed 2026-10-21; the dead `exec()` alias branch is removed in qtutils #40 |
+| 8 | qtutils #31 PyQt6 aliases tracker | meta | 2 | closed 2026-10-21; the dead `exec()` alias branch is removed in qtutils #40 (merged 2026-10-23) |
 | 9 | qtutils #2 / PR #32 clear output box | feature | 2 | fixed in qtutils #36 (merged 2026-10-17) (context-menu part of #32, author credited); issue closed |
 | 10 | lyse #35 persist hidden columns | feature | 2 | fix later |
 | 11 | lyse #41 plot window size | bug | 2 | fix later |
@@ -2906,7 +2906,7 @@ Reviewed in the style of PR-REVIEW.md section 2. Head `453459d` (master merged i
 - lyse #139: serial analysis-subprocess start-up is slower under PySide6/PyQt6, which the release moves users to. Fixed in lyse #145 (merged 2026-10-18).
 - lyse #14 and #90: small, long-standing behaviour bugs with contained fixes. Fixed in lyse #145 (merged 2026-10-18).
 - runviewer #13: resampler drops short pulses at t=0; labscript-c-extensions must be rebuilt for Python 3.13 to 3.15 anyway, so include the fix. fixed in labscript-c-extensions #13 (merged 2026-10-17).
-- qtutils #31 (closed 2026-10-21; aliases shipped in 4.1.3, which lyse pins; qtutils #40 removes the `exec()` alias branch, which no binding needs) and #22 (RTD shows version 0.1.0.dev1; fixed in qtutils #37 (merged 2026-10-17)).
+- qtutils #31 (closed 2026-10-21; aliases shipped in 4.1.3, which lyse pins; qtutils #40 (merged 2026-10-23) removes the `exec()` alias branch, which no binding needs) and #22 (RTD shows version 0.1.0.dev1; fixed in qtutils #37 (merged 2026-10-17)).
 - setuptools-conda #26 only if conda packages are built for free-threaded Pythons.
 
 ## 3.x Issue triage: runmanager, labscript-suite, mise, bias
@@ -3623,7 +3623,7 @@ Sources and limits:
 | 31 | labscript-suite #6 editor/hdfview in docs | docs | 2 | convert to docs |
 | 32 | runmanager #47 lazy shot-file creation | proposal | 1 | close as fixed |
 | 33 | runmanager #53 ModuleWatcher reloads runmanager | bug | 1 | close as obsolete |
-| 34 | runmanager #32 output box scrolling | bug | 1 | reproduced 2026-10-21; fixed by qtutils #41 (open) |
+| 34 | runmanager #32 output box scrolling | bug | 1 | reproduced 2026-10-21; fixed by qtutils #41 (merged 2026-10-23); closed |
 | 35 | runmanager #2 FingerTabBar paintEvent | bug | 1 | close as won't fix |
 | 36 | runmanager #62 nested group folders | feature | 1 | close as won't fix |
 | 37 | runmanager #125 per-variable history (empty) | feature | 1 | close as stale |

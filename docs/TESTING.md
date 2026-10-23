@@ -5,6 +5,22 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-23: qtutils #41 and #38 rebased
+
+#41 (`auto-scroll-after-show`, now f799f83) was rebased onto master 114a6ec, which
+includes #39 and #40, and #38 (`qtlock-enforce-opt-in`, now 4d9b1b7) onto master
+cf803f9, which includes #41. The only conflict in each was the 4.1.4 entries in
+`CHANGELOG.txt`; all entries are kept, in merge order. Locally (Python 3.14.8), qtutils
+imports from each rebased branch, and for #38 also with `QTUTILS_ENFORCE_QTLOCK=1`.
+
+`test.yml` runs
+[39954966629](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39954966629)
+(`qtutils=pr/41`) and
+[39956352577](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39956352577)
+(`qtutils=pr/38`): in each, the 25 jobs for Python 3.11 to 3.14 passed every step; the
+six Python 3.15 jobs failed at "Install the components", as on the masters. #41 was
+merged after its run.
+
 ## 2026-10-23: test-batch branches on diginuc rebuilt on the current masters
 
 After the merges of 2026-10-23, the `test-batch` branch of each clone in
