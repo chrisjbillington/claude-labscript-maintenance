@@ -5,6 +5,21 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-23: test-batch branches on diginuc rebuilt on the current masters
+
+After the merges of 2026-10-23, the `test-batch` branch of each clone in
+`diginuc:~/labscript-suite/dev` was rebuilt on the component's master, with the pull
+requests and branches of the previous batch that are not merged, at their current heads:
+zprocess #35 and #39 (7af3a9d), desktop-app #35 (b6e255b), qtutils #38 and #41 (629f7d5),
+labscript #130 (ac442c5), labscript-devices `narwhal-pulsegen` (07f0045), blacs
+`statemachine-main-thread` and `queue-main-thread` (d834169) and lyse #151 and #153
+(6a4f323). labscript-utils, runmanager and runviewer have nothing unmerged, so their
+`test-batch` is master (a9dbff7, adc9777, b6bde5c). Conflicts: zprocess
+`tests/test_zprocess.py` (#39 with #35; the imports of both are kept, with #39's default
+tree set-up, and both new tests are kept) and qtutils `CHANGELOG.txt` (#38 and #41; both
+entries are kept). The zprocess tests passed locally on the merged zprocess branch with
+Python 3.14.8 (44 tests), and every component imports from its clone in the diginuc venv.
+
 ## 2026-10-23: blacs `statemachine-main-thread` and `queue-main-thread` rebased onto master c0c2322
 
 `statemachine-main-thread` (now 98d55a1) was rebased onto master c0c2322, which includes
