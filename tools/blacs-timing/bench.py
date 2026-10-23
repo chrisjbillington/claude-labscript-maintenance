@@ -81,6 +81,8 @@ def main():
     p.add_argument('--stop', type=float, default=0.1, help='shot length in seconds')
     p.add_argument('--label', required=True)
     p.add_argument('--out', required=True)
+    p.add_argument('--load', type=int, default=0,
+                   help='number of busy-loop processes to run while BLACS runs')
     p.add_argument('--sample', help='run BLACS through sample_blacs.py and write its stack counts here')
     args = p.parse_args()
 
@@ -127,6 +129,7 @@ def main():
         env['SAMPLE_OUT'] = str(Path(args.sample).absolute())
         command = [sys.executable, str(Path(__file__).parent / 'sample_blacs.py')]
     stdout = open(out / f'blacs-stdout-{args.label}.log', 'w', buffering=1)
+    load = [subprocess.Popen([sys.executable, '-c', 'while True: pass']) for _ in range(args.load)]
     proc = subprocess.Popen(command, stdout=stdout,
                             stderr=subprocess.STDOUT, env=env)
     try:
@@ -164,6 +167,9 @@ def main():
             except subprocess.TimeoutExpired:
                 proc.kill()
                 proc.wait()
+        for busy in load:
+            busy.kill()
+            busy.wait()
         stdout.close()
     time.sleep(2)
     saved = out / f'BLACS-{args.label}.log'

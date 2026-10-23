@@ -5,6 +5,20 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-23: the BLACS shot queue in the main thread (blacs branch `queue-main-thread`)
+
+`test.yml` run
+[39935325016](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39935325016)
+with blacs at `queue-main-thread` (9cce66f, on `statemachine-main-thread`) and the other
+components at their masters: the 25 jobs for Python 3.11 to 3.14 (Ubuntu and Windows,
+PySide6, PyQt6 and PyQt5) passed every step, including BLACS start-up in the `apps`
+step. The harness does not run shots through BLACS. Locally (Python 3.14.8, PySide6,
+offscreen), the queue checks in `tools/blacs-queue/` pass all 55 checks on the branch in
+three runs; on `statemachine-main-thread` the two start-up latency checks fail (0.50 s,
+from the 1 s poll) and the other 53 pass. The shot cycle measurements with and without
+CPU load are in `BLACS-QUEUE.md` sections 3 and 6: with 8 dummy tabs the cycle goes
+from 184 to 160 ms without load and from 316 to 251 ms with 16 busy processes.
+
 ## 2026-10-23: the BLACS state machine in the main thread (blacs branch `statemachine-main-thread`)
 
 `test.yml` run

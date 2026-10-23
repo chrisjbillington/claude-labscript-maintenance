@@ -39,6 +39,9 @@ Look for more places where BLACS can be made faster.
 
 Look for performance gains in the way BLACS handles the shot queue.
 
+Status: an experimental rewrite is on blacs branch `queue-main-thread`
+(`BLACS-QUEUE.md`).
+
 ## BLACS: profile shot cycle time under load
 
 Profile BLACS while the system is under load and find the sources of the extra delay in

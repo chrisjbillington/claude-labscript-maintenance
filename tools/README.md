@@ -58,6 +58,25 @@ each function is on the stack and at its top. Use 150 shots or more so that the 
 are still running when sampling starts. py-spy does not work for this: in the namespace
 it falls behind by minutes.
 
+`bench.py --load N` runs N busy-loop processes while BLACS runs. `phases.py BLACS.log
+...` prints, for each log, the medians of the phases of the shot cycle: from the end of
+the previous shot to the first transition to buffered, the spread of the transitions,
+the run, and so on, from the queue manager's messages and the tabs' "Processing event"
+messages.
+
+## BLACS queue manager behaviour
+
+`blacs-queue/queuetest.py` checks the behaviour of the queue manager with the BLACS main
+window, three tabs that have worker processes (`queuetest_worker.py`) and stand-ins for
+the rest of BLACS: start and stop group order, the order of plugin callbacks, what is
+saved to the shot file, start-up latency of an idle or unpaused queue, and the status,
+pause and requeue after a failed or hung transition, a tab in an error state, a restart
+or an abort in each phase, and a failed front panel save. It was written for the
+experimental queue rewrite (`docs/BLACS-QUEUE.md`). Run it like `schedtest.py`, from its
+directory: `QT_QPA_PLATFORM=offscreen PYTHONPATH=$PWD BENCH_SCRATCH=<dir> unshare -rmn
+../blacs-timing/ns.sh <venv>/bin/python queuetest.py`, with the blacs under test first
+on `PYTHONPATH` and a scratch profile in `<dir>` as for `bench.py`.
+
 ## BLACS state machine behaviour
 
 `blacs-statemachine/schedtest.py` checks the behaviour of the tab state machine with two

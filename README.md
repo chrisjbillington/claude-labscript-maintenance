@@ -32,6 +32,7 @@ backward compatibility.
 | `docs/DEFECTS.md` | Defects found by testing that no GitHub issue or review document records, with importance and status |
 | `docs/SUBPROCESS-INTERRUPTION.md` | How to interrupt and end the suite's subprocesses without corrupting HDF5 files: the facts about the kill lock, signals and C code, measurements, and the two-stage design (interrupt, then confirmed kill) with its status per component (2026-10-22) |
 | `docs/BLACS-STATE-MACHINE.md` | Running the BLACS tab state machine in the main thread without changing the interface that device code uses: the assessment, the design, the behaviour that is kept, and the prototype with its measurements (2026-10-23) |
+| `docs/BLACS-QUEUE.md` | The shot queue's tab transitions in the main thread: measurements of the delay that the queue manager adds under load, the design of the experimental rewrite, the behaviour that changes, and its measurements (2026-10-23) |
 | `docs/WISHLIST.md` | Features that the maintainer may want to consider; none is planned |
 | `docs/NARWHAL-PULSEGEN.md` | Plan for a Narwhal Devices Pulse Generator device in labscript-devices: bundled serial driver, labscript device, BLACS worker and tab, runviewer parser, tests and decisions (2026-10-23) |
 | `docs/LOCAL-TASKS.md` | Tasks that a cloud session could not do, for a local session to do under supervision |
@@ -44,6 +45,14 @@ and the file:line evidence.
 
 ## State as of 2026-10-23
 
+- The BLACS queue manager added a delay before each transition that grew with CPU load:
+  with 8 dummy tabs and 16 busy processes on 16 cores it took about 50 ms to start the
+  tabs' transitions, one blocking main-thread call per tab. The experimental blacs
+  branch `queue-main-thread`, on `statemachine-main-thread`, transitions each group of
+  tabs in one pass in the main thread and wakes the queue manager thread once per
+  phase; it passes the checks in `tools/blacs-queue/` and shortens that cycle from 316
+  to 251 ms, and the unloaded one from 184 to 160 ms (`docs/BLACS-QUEUE.md`). No pull
+  request is planned.
 - The BLACS tab state machine can run in the main thread without a change to the
   interface that device code uses (`docs/BLACS-STATE-MACHINE.md`). The prototype, blacs
   branch `statemachine-main-thread`, passes the behaviour checks in
