@@ -5,6 +5,19 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-23: the legacy `Camera` device and `camera_server`
+
+Locally on Arch Linux with Python 3.14.8 in the harness venv (zprocess `pair-sockets`
+71fe1dd, labscript-utils master c1aa2a3, labscript master 33cdb31, labscript-devices
+master b6ea556). A connection table with a `DummyPseudoclock`, a `Trigger` and a
+`labscript_devices.Camera.Camera` with two exposures compiled, and the shot file has the
+`EXPOSURES` table. A `labscript_utils.camera_server.CameraServer` was started on
+localhost, and the methods of `labscript_devices.Camera.CameraWorker` with "use zmq" set
+were called directly, without BLACS: the connectivity check, `transition_to_buffered`
+with the shot file, `transition_to_manual` and `abort` all returned success. The BLACS
+tab and the `imaqdx_server.py` subclass, which needs NI-IMAQdx, were not run. The device
+is therefore usable with current code (`RELEASE-PLAN.md` 4.8, Z4 and Z5).
+
 ## 2026-10-23: lyse fixes backported to lyse 3.3.0 on Python 3.10
 
 The maintainer's lab machine runs lyse 3.3.0, which has the tree of master 92be8de, with
