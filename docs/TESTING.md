@@ -20,9 +20,9 @@ return the changed globals.
 
 ## 2026-10-23: shot cycle time on the lab machine diginuc, by configuration
 
-Sequences 0019 to 0026 of `drop_mot` on diginuc (4 cores, Linux), 100 shots each of
+Sequences 0019 to 0028 of `drop_mot` on diginuc (4 cores, Linux), 100 shots each of
 the same 50-point scan (shot duration 0.266 s, triggered on the mains line), run one
-after another between 18:45 and 19:40 with lyse running `gaussian_fit` and
+after another between 18:45 and 19:40 (0027 and 0028 at about 21:00) with lyse running `gaussian_fit` and
 `yellow_spectroscopy`. Phase times are from the BLACS debug log; mean of shots 20 to 99
 (the first 20 shots of every sequence are 0.1 to 0.4 s slower). Standard error of each
 cycle mean about 0.008 s. "New suite" is the test-batch branches on Python 3.14.8; "old
@@ -37,9 +37,16 @@ suite" is the labscript-suite 3.3.0 release on Python 3.10.12.
 | 0024 | new | `statemachine-main-thread` (52b0383) | lab's `user_devices` | PyQt5 | 0.702 | 0.189 | 0.327 | 0.172 | 0.014 |
 | 0025 | new | `statemachine-main-thread` (52b0383) | `labscript_devices.NarwhalPulseGenerator` | PyQt5 | 0.686 | 0.199 | 0.323 | 0.151 | 0.013 |
 | 0026 | new | `statemachine-main-thread` (52b0383) | `labscript_devices.NarwhalPulseGenerator` | PySide6 | 0.724 | 0.219 | 0.322 | 0.171 | 0.012 |
+| 0027 | new | `queue-main-thread` (9cce66f) | `labscript_devices.NarwhalPulseGenerator` | PySide6 | 0.647 | 0.168 | 0.320 | 0.151 | 0.008 |
+| 0028 | new | `queue-main-thread` (9cce66f) | `labscript_devices.NarwhalPulseGenerator` | PyQt5 | 0.600 | 0.155 | 0.312 | 0.128 | 0.005 |
 
-- PySide6 adds 0.113 s per shot with the old state machine and 0.038 s with the new
-  one, all of it in the two transitions.
+- PySide6 adds 0.113 s per shot with the old state machine, 0.038 s with
+  `statemachine-main-thread` and 0.047 s with `queue-main-thread`, all of it in the two
+  transitions.
+- lyse ran `yellow_spectroscopy` after 0.16 (0027) and 0.22 (0028) of shots, against
+  0.37 to 0.41 in 0024 to 0026, so lyse used less CPU time per shot in 0027 and 0028.
+  The FunctionRunner still ends the transition to buffered and the camera the
+  transition to manual in 0027 and 0028 (94% to 99% of shots).
 - CPU load from other processes changes the cycle by more than any of these software
   changes: in sequence 0013 (old suite, 15:26 to 15:58) the cycle went from 0.98 s to
   0.67 s at shot 1600 with no change of software, and lyse's `gaussian_fit` from 0.41 s
