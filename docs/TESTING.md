@@ -33,6 +33,39 @@ empty modules, and the wait monitor was run with a counter read that raises: on 
 `stop_tasks` raised `TypeError: _reraise() takes 1 positional argument but 3 were
 given`, and on #160 it raised the counter read's exception.
 
+## 2026-10-24: growth of globals files (D37) and runmanager `repack-globals-files`
+
+Locally, harness venv (Python 3.14.8, h5py 3.16.0, HDF5 2.0.0), runmanager master
+adc9777:
+
+- 2000 iterations of `set_value` and `set_expansion` on one global of a group of 20 grew
+  the globals file from 128 kB to 16.5 MB, linearly, by 4096 bytes for each call.
+  `h5repack` reduced the file to 18.6 kB.
+- The growth is 4096 bytes for each open in which a variable-length string attribute is
+  written, including a write of the value that the attribute already has. Opening and
+  closing the file without writing adds nothing, and 1000 writes in one open grew a small
+  file to 73 kB. Integer, boolean and fixed-length string attributes do not grow the file.
+- Creating the file with `libver='latest'`, with `fs_strategy='fsm'` or `'page'` and
+  `fs_persist=True`, or opening it with `meta_block_size=512`, makes no difference.
+
+runmanager writes to globals files from two threads: the main thread when the user edits
+a global and the preparse thread when `update_expansions` writes automatic expansion
+settings (`runmanager/__main__.py:2938`). The remote server thread reads them. Every open
+takes the zlock of the file through `labscript_utils.h5_lock`, which is a reentrant
+readers-writer lock with one client per thread.
+
+Branch `repack-globals-files` (500297b), same venv:
+
+- The same 2000 iterations: the file reached at most 1.06 MB and was repacked 15 times;
+  the globals read back unchanged and no temporary files were left.
+- Three threads writing 500 values each to one file: every final value was written.
+- The 16.5 MB file from master was repacked to 15 kB on its first edit.
+- A write takes 1.4 ms instead of 1.0 ms without repacks, of which 0.4 ms is the extra
+  zlock acquisition. A repack of a file with 500 globals takes 0.12 s, of which 0.10 s
+  is reading the attributes of both files for the comparison.
+- The `runmanager-api` step, in a scratch profile, passed with the new check printing
+  `FIXED` (530 kB after 600 writes); on master the check is `KNOWN` at 2.6 MB.
+
 ## 2026-10-24: lyse per-shot time with the lab's single-shot routine
 
 **On diginuc.** The maintainer loaded the 100 shots of sequence 0029 into lyse

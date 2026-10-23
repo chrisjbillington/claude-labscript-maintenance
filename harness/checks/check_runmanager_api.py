@@ -158,6 +158,19 @@ check(np.array_equal(evaluated['fixed']['derived'], [20, 40]),
 runmanager.set_value(gf, 'fixed', 'derived', 'array(amplitude) * 2')
 runmanager.set_expansion(gf, 'fixed', 'derived', '')
 
+# Each write of a string to a globals file adds 4 kB to it, which is reclaimed by
+# repacking the file once it has grown by 1 MB
+for n in range(600):
+    runmanager.set_value(gf, 'fixed', 'duration', repr(n + 1.0))
+size = os.path.getsize(gf)
+check(size < 1.5e6, f'globals file is {size} bytes after 600 writes', known='D37')
+check(runmanager.get_value(gf, 'fixed', 'duration') == '600.0'
+      and runmanager.get_units(gf, 'fixed', 'duration') == 's',
+      'globals file contents after 600 writes')
+leftover = [name for name in os.listdir(work) if name.endswith('.repack')]
+check(not leftover, f'no temporary files left after writes: {leftover}')
+runmanager.set_value(gf, 'fixed', 'duration', '1.0')
+
 # Diff and tokenizer
 d = runmanager.dict_diff({'a': 1, 'b': 2}, {'a': 1, 'b': 3, 'c': 4})
 check(set(d) == {'b', 'c'}, f'dict_diff {d}')

@@ -61,7 +61,7 @@ error window. labscript-utils releases before 3.5.0 ignore the variable.
 | `lyse` | `lyse.Run` reads globals, saves and reads back results and arrays; `get_dataframe_from_shot` and `get_dataframe_from_shots` return the results |
 | `runviewer` | `runviewer.__main__.Shot` loads the shot, which runs the runviewer parser of every device that has one; the traces and markers are checked |
 | `narwhal` | Shots with Narwhal Devices Pulse Generators from `fixtures/narwhal/`: the instruction tables (odd-cycle clock periods, a wait after a ramp, a powerline wait, a wait at t=0), the runviewer parser, and the BLACS worker on a simulated device as master and secondary, with waits that are triggered, time out and synchronise to the powerline, an abort, and a secondary that is never triggered |
-| `runmanager-api` | The library API on the `runmanager_test` fixture: globals file CRUD, evaluation, expansion, diff, run files, single-shot and multishot compilation with the compiler output streamed to a PULL socket |
+| `runmanager-api` | The library API on the `runmanager_test` fixture: globals file CRUD, the size of a globals file after many writes, evaluation, expansion, diff, run files, single-shot and multishot compilation with the compiler output streamed to a PULL socket |
 | `apps` | runmanager, runviewer, lyse and BLACS start under `QT_QPA_PLATFORM=offscreen`, listen on their labconfig ports and run for five seconds; the runmanager remote API is exercised; the output of each is checked for tracebacks |
 | `lyse-gui` | The lyse GUI in this process under `QT_QPA_PLATFORM=offscreen`: a shot file that has not been run is not loaded; a routine that loops in Python is interrupted by the Abort button and its worker survives, a routine blocked in a long sleep has its worker restarted, analysis is paused in both cases, and the interrupted worker then runs a routine to completion |
 | `blacs-shot` | lyse and BLACS start; a copy of the example shot is submitted to BLACS as runmanager submits it, and BLACS runs it with the dummy devices of the profile's connection table and sends it to lyse; the same file submitted again runs as a repeat in a new file; both shot files have a run time and a `data` group; the output of both applications has no tracebacks and BLACS.log has no errors |
@@ -70,10 +70,11 @@ error window. labscript-utils releases before 3.5.0 ignore the variable.
 A check for a known open bug is marked `KNOWN` in the log and does not fail the step.
 When the bug is fixed the check prints `FIXED` so that the marker can be removed. At
 present the `lyse-gui` check "the filebox has an Abort button" is marked as known for
-lyse #153, with the Abort checks run only when the button is present, and the `narwhal`
+lyse #153, with the Abort checks run only when the button is present. The `narwhal`
 check "the installed labscript-devices has the NarwhalPulseGenerator package" is marked
 as known for the labscript-devices `narwhal-pulsegen` branch, with the rest of the step
-run only when the package is present.
+run only when the package is present. The `runmanager-api` check that a globals file is
+smaller than 1.5 MB after 600 writes is marked as known for D37 in `docs/DEFECTS.md`.
 
 ## The profile
 
