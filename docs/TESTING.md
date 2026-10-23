@@ -71,6 +71,12 @@ and checks the size again once it holds it; with it:
 - The `runmanager-api` step, in a scratch profile, passed with the new check printing
   `FIXED` (530 kB after 600 writes); on master the check is `KNOWN` at 2.6 MB.
 - GitHub Actions run 39966730779 of 500297b was cancelled when 4c876e7 replaced it.
+- GitHub Actions run [39967998841](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39967998841)
+  of 4c876e7 (`runmanager=labscript-suite/runmanager@repack-globals-files`): the 24 jobs
+  for Python 3.11 to 3.14 on Ubuntu and Windows with PySide6, PyQt6 and PyQt5 passed, with
+  the new check printing `FIXED` at 530 kB on both platforms. The six Python 3.15 jobs
+  failed to install, because h5py 3.16.0 has no wheels for Python 3.15. The pull request
+  is [runmanager #144](https://github.com/labscript-suite/runmanager/pull/144).
 
 ## 2026-10-24: lyse per-shot time with the lab's single-shot routine
 
