@@ -539,7 +539,8 @@ nothing for users, and one commit can carry both the rc and the final tag.
 blacs #133, lyse #148, runmanager #142 and runviewer #79 (DEFECTS.md D12) make blacs,
 lyse, runmanager and runviewer call `labscript_utils.excepthook.install()`, which is new in labscript-utils
 3.5.0. If they are merged, the `labscript_utils` pins of those four and of
-labscript-devices are raised to `>=3.5.0rc1` at their steps, in the same way.
+labscript-devices are raised to `>=3.5.0rc1` at their steps, in the same way. lyse #156
+calls `get_shot_globals` with an open file, which labscript-utils #139 adds for 3.5.0.
 
 No tag is pushed until the whole release set is ready (maintainer's decision,
 2026-10-18); the sequence above is the order of the tags on that day, and only zprocess

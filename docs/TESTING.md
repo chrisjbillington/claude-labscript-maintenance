@@ -5,6 +5,53 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-23: labscript-utils #139 and lyse #156 (`get_shot_globals` with an open file)
+
+`test.yml` run
+[39939078038](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39939078038)
+with labscript-utils at `shot-globals-open-file` (6ae6524), lyse at
+`get-globals-open-file` (40370bd) and the other components at their masters: the 25 jobs
+for Python 3.11 to 3.14 passed every step; the six Python 3.15 jobs failed at "Install
+the components", as on the masters. Locally (Python 3.14.8), on a diginuc shot file with
+None, bool, byte-string and array globals added, `get_shot_globals` returns the same
+dict from the path and from an open file and leaves the file open, `Run.get_globals`
+returns the same inside and outside `Run.open`, and the two `globals_diff` functions
+return the changed globals.
+
+## 2026-10-23: shot cycle time on the lab machine diginuc, by configuration
+
+Sequences 0019 to 0026 of `drop_mot` on diginuc (4 cores, Linux), 100 shots each of
+the same 50-point scan (shot duration 0.266 s, triggered on the mains line), run one
+after another between 18:45 and 19:40 with lyse running `gaussian_fit` and
+`yellow_spectroscopy`. Phase times are from the BLACS debug log; mean of shots 20 to 99
+(the first 20 shots of every sequence are 0.1 to 0.4 s slower). Standard error of each
+cycle mean about 0.008 s. "New suite" is the test-batch branches on Python 3.14.8; "old
+suite" is the labscript-suite 3.3.0 release on Python 3.10.12.
+
+| Seq | Suite | BLACS state machine | Narwhal driver | Qt | Cycle (s) | To buffered | Start to run complete | To manual | Gap to next shot |
+|---|---|---|---|---|---|---|---|---|---|
+| 0023 | old | old | lab's `user_devices` | PyQt5 | 0.780 | 0.221 | 0.336 | 0.188 | 0.035 |
+| 0022 | new | old | lab's `user_devices` | PyQt5 | 0.825 | 0.242 | 0.347 | 0.198 | 0.038 |
+| 0020 | new | old | `labscript_devices.NarwhalPulseGenerator` | PyQt5 | 0.752 | 0.217 | 0.337 | 0.188 | 0.011 |
+| 0019 | new | old | `labscript_devices.NarwhalPulseGenerator` | PySide6 | 0.865 | 0.256 | 0.350 | 0.242 | 0.018 |
+| 0024 | new | `statemachine-main-thread` (52b0383) | lab's `user_devices` | PyQt5 | 0.702 | 0.189 | 0.327 | 0.172 | 0.014 |
+| 0025 | new | `statemachine-main-thread` (52b0383) | `labscript_devices.NarwhalPulseGenerator` | PyQt5 | 0.686 | 0.199 | 0.323 | 0.151 | 0.013 |
+| 0026 | new | `statemachine-main-thread` (52b0383) | `labscript_devices.NarwhalPulseGenerator` | PySide6 | 0.724 | 0.219 | 0.322 | 0.171 | 0.012 |
+
+- PySide6 adds 0.113 s per shot with the old state machine and 0.038 s with the new
+  one, all of it in the two transitions.
+- CPU load from other processes changes the cycle by more than any of these software
+  changes: in sequence 0013 (old suite, 15:26 to 15:58) the cycle went from 0.98 s to
+  0.67 s at shot 1600 with no change of software, and lyse's `gaussian_fit` from 0.41 s
+  to 0.16 s at the same time. lyse ran `yellow_spectroscopy` after 0.57 to 0.70 of
+  shots in 0020 and 0022 and after 0.37 to 0.43 in 0023 to 0026.
+- In 0025 the transition to buffered ends when the FunctionRunner finishes (96% of
+  shots): its worker job takes 76 ms (median), of which 38 ms is opening the shot file
+  twice, reading the function table, deserialising the functions and reading the
+  globals, and 18 ms is the lab's RPC call. The same file reads and deserialisation take
+  about 10 ms in an idle process. The transition to manual ends when the camera
+  (`motcam`) finishes (100% of shots), with a worker job of 84 ms.
+
 ## 2026-10-23: the BLACS shot queue in the main thread (blacs branch `queue-main-thread`)
 
 `test.yml` run
