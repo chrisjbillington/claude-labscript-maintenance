@@ -25,7 +25,7 @@ from qtutils.qt import QtCore, QtWidgets
 qapplication = QtWidgets.QApplication.instance()
 
 ABORT_FEATURE = 'lyse #153'
-SKIP_UNRUN_FEATURE = 'lyse skip-unrun-shots'
+SKIP_UNRUN_FEATURE = 'lyse #155'
 routines_dir = WORK / 'routines'
 routines_dir.mkdir(exist_ok=True)
 loop_script = routines_dir / 'loop_routine.py'

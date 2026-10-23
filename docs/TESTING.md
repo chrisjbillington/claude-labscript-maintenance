@@ -5,6 +5,30 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-23: lyse #155 (skip shot files that have not been run, DEFECTS.md D29)
+
+lyse #155 at af6977d, on master c74fa4e. The harness `compile` step now stamps the
+example shot with a `run time` attribute, as BLACS does after running a shot, and the
+`lyse-gui` step adds a copy of the example shot with a run time and a copy without one,
+with analysis paused.
+
+- Locally with Python 3.14.8 and PySide6: with #155 the first copy is loaded and the
+  second is not, with the warning in the output box (FIXED); with lyse master both are
+  loaded (KNOWN).
+- Run [39906724789](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39906724789),
+  before the shots were loaded with analysis paused: the check passed in all 25 jobs, but
+  on Ubuntu with Python 3.11 and PyQt5 the `lyse-gui` process ended with a segmentation
+  fault (exit code -11) after its checks, while the analysis threads were still running.
+- Run [39907891995](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39907891995)
+  with `lyse=labscript-suite/lyse@skip-unrun-shots`: every step passed in all 25 jobs,
+  FIXED in each (the six Python 3.15 jobs fail at install as always).
+- Run [39907895199](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39907895199)
+  with `lyse=abort-analysis zprocess=pr/34`: every step passed in all 25 jobs; the check
+  is KNOWN and the Abort checks pass after the shots are removed.
+- On the lab machine (lyse 3.3.0 backport, Python 3.10, pandas 2.3.3), the same change
+  was applied to the installed lyse. Of the shot files of the running sequence, the one
+  that BLACS had not yet run has no run time and is skipped, and the others are not.
+
 ## 2026-10-23: globals files written by runmanager #140, read by runmanager 3.3.0
 
 Locally (harness venv, Python 3.14.8). The library of the #140 branch (db18f83) wrote a
