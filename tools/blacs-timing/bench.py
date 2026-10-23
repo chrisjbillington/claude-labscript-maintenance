@@ -81,6 +81,7 @@ def main():
     p.add_argument('--stop', type=float, default=0.1, help='shot length in seconds')
     p.add_argument('--label', required=True)
     p.add_argument('--out', required=True)
+    p.add_argument('--sample', help='run BLACS through sample_blacs.py and write its stack counts here')
     args = p.parse_args()
 
     if not MARKER.exists():
@@ -121,8 +122,12 @@ def main():
     t_start = time.time()
 
     env = dict(os.environ, QT_QPA_PLATFORM='offscreen', PYTHONUNBUFFERED='1')
+    command = [sys.executable, '-m', 'blacs']
+    if args.sample:
+        env['SAMPLE_OUT'] = str(Path(args.sample).absolute())
+        command = [sys.executable, str(Path(__file__).parent / 'sample_blacs.py')]
     stdout = open(out / f'blacs-stdout-{args.label}.log', 'w', buffering=1)
-    proc = subprocess.Popen([sys.executable, '-m', 'blacs'], stdout=stdout,
+    proc = subprocess.Popen(command, stdout=stdout,
                             stderr=subprocess.STDOUT, env=env)
     try:
         t0 = time.time()

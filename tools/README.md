@@ -50,6 +50,27 @@ servers BLACS starts are its own, write into the scratch profile, and are killed
 afterwards. Without the network namespace a zlog server already running on the machine
 writes the benchmark's `BLACS.log` into the real profile.
 
+`bench.py --sample COUNTS` runs BLACS through `sample_blacs.py`, which records the Python
+stack of every BLACS thread every 2 ms from 20 s after start-up and writes the count of
+each stack to COUNTS when BLACS is terminated. `stacks.py COUNTS THREAD` lists, for one
+thread (`main`, or a name such as `Thread-29 (manage)`), the number of samples in which
+each function is on the stack and at its top. Use 150 shots or more so that the shots
+are still running when sampling starts. py-spy does not work for this: in the namespace
+it falls behind by minutes.
+
+## BLACS state machine behaviour
+
+`blacs-statemachine/schedtest.py` checks the behaviour of the tab state machine with two
+tabs that have worker processes (`schedtest_worker.py`): state order, a state queued by
+a state, mode selection, `delete_stale_states`, worker and state exceptions, an
+unpicklable job, a bare `yield`, `event_queue.put` with a bound method, statemachine
+timeouts, parallel jobs in two tabs, and restart and close during a worker job. It was
+written for the main-thread state machine (`docs/BLACS-STATE-MACHINE.md`) and gives the
+same results on blacs master. Run it from its directory as
+`QT_QPA_PLATFORM=offscreen PYTHONPATH=$PWD BENCH_SCRATCH=<dir> unshare -rmn
+../blacs-timing/ns.sh <venv>/bin/python schedtest.py`, with the blacs under test
+installed in the venv or first on `PYTHONPATH`.
+
 ## Qt style screenshots
 
 `style-screenshots/` takes images of the main windows of BLACS, runmanager, lyse and

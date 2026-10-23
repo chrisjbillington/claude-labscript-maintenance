@@ -31,6 +31,7 @@ backward compatibility.
 | `docs/TESTING.md` | Results of the harness runs, with dates and versions |
 | `docs/DEFECTS.md` | Defects found by testing that no GitHub issue or review document records, with importance and status |
 | `docs/SUBPROCESS-INTERRUPTION.md` | How to interrupt and end the suite's subprocesses without corrupting HDF5 files: the facts about the kill lock, signals and C code, measurements, and the two-stage design (interrupt, then confirmed kill) with its status per component (2026-10-22) |
+| `docs/BLACS-STATE-MACHINE.md` | Running the BLACS tab state machine in the main thread without changing the interface that device code uses: the assessment, the design, the behaviour that is kept, and the prototype with its measurements (2026-10-23) |
 | `docs/WISHLIST.md` | Features that the maintainer may want to consider; none is planned |
 | `docs/NARWHAL-PULSEGEN.md` | Plan for a Narwhal Devices Pulse Generator device in labscript-devices: bundled serial driver, labscript device, BLACS worker and tab, runviewer parser, tests and decisions (2026-10-23) |
 | `docs/LOCAL-TASKS.md` | Tasks that a cloud session could not do, for a local session to do under supervision |
@@ -40,6 +41,14 @@ Read `docs/RELEASE-PLAN.md` first for what needs doing. `docs/MAINTENANCE.md` sa
 been fixed already. The ranked tables at the top of `docs/ISSUE-TRIAGE.md` and
 `docs/PR-REVIEW.md` give the per-item actions; the rest of those files is the reasoning
 and the file:line evidence.
+
+## State as of 2026-10-23
+
+- The BLACS tab state machine can run in the main thread without a change to the
+  interface that device code uses (`docs/BLACS-STATE-MACHINE.md`). The prototype, blacs
+  branch `statemachine-main-thread`, passes the behaviour checks in
+  `tools/blacs-statemachine/` and shortens the 8-tab dummy shot cycle from 0.24 s to
+  0.19 s on the laptop. Most of the main thread's remaining Python time is debug logging.
 
 ## State as of 2026-10-22
 

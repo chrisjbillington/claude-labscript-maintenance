@@ -97,15 +97,70 @@ was not searched.
 
 ## 5. Risks
 
-- Ordering and re-entrancy errors in the new scheduler. The harness and
-  `tools/blacs-timing/` cover the shot cycle; restart during a worker job, fatal errors
-  and statemachine timeouts need checks of their own.
-- The size of the gain is not known until it is measured. Each generator step still
-  waits its turn in the main thread behind other tabs and the GUI.
+- Ordering and re-entrancy errors in the new scheduler. `tools/blacs-statemachine/`
+  checks the behaviour listed in section 4 with real worker processes; the harness and
+  `tools/blacs-timing/` cover the shot cycle.
+- Each generator step still waits its turn in the main thread behind other tabs and the
+  GUI, so the gain depends on how busy the main thread is. It has been measured only with
+  dummy devices on a laptop (section 6).
 - The queue manager (`experiment_queue.py`, `manage()`) is not part of this work. It
   talks to the tabs only through state calls and `notify_queue`, so it can be changed
   separately.
 
-## 6. Status
+## 6. Prototype
 
-- Branch `statemachine-main-thread` of blacs: prototype in progress.
+Branch `statemachine-main-thread` of labscript-suite/blacs, one commit (52b0383) on
+master cac5198. `Tab.mainloop` and `StateQueue.check_for_next_item` are removed;
+`StateQueue.get()` replaces the latter. The branch also posts one state label and tab
+icon update for all state changes made before it runs, which is the change in blacs #132.
+`tab_base_classes.py` has the same number of lines as before; the gain is in the
+threading, not the size.
+
+**Behaviour (run).** `tools/blacs-statemachine/schedtest.py` passes its 23 checks on
+the branch and on master (Python 3.14.8, PySide6, offscreen). On master it also logs
+"mainloop thread of tab1 did not stop" when the tabs are closed; the branch does not.
+
+**Shot cycle (run).** `tools/blacs-timing/bench.py`, 50 shots of 0.1 s, a
+`DummyPseudoclock` and one or seven `DummyIntermediateDevice`s, Python 3.14.8, PySide6,
+offscreen, the maintainer's laptop (12th Gen Core i7-1270P), all other components at
+master on 2026-10-23. Medians over the last 49 shots; the overhead is the time that a tab
+spends on a `transition_to_buffered` or `transition_to_manual` event outside the worker
+job, averaged over tabs.
+
+| Tabs | blacs | Cycle (s) | To buffered (s) | To manual (s) | Overhead per event per tab (ms) |
+|---|---|---|---|---|---|
+| 2 | master | 0.180 | 0.025 | 0.037 | 17.5 |
+| 2 | branch | 0.148 | 0.019 | 0.019 | 5.3 |
+| 8 | master | 0.240, 0.242 | 0.055, 0.060 | 0.076, 0.069 | 37.4, 36.3 |
+| 8 | branch | 0.188, 0.188, 0.182 | 0.035 to 0.037 | 0.039 to 0.044 | 6.0 |
+
+With 8 tabs the time outside the 0.1 s shot falls from about 0.13 s to 0.08 s.
+
+**Where the rest of the cycle goes (run).** `bench.py --sample` with 8 tabs and 150
+shots, on the branch. The sampler slows BLACS a little (cycle 0.196 s).
+
+- One shot, from the log: the queue manager takes 24 ms from "Got a file" to the first
+  `transition_to_buffered` state; the 8 transitions then take 22 ms, run one after
+  another in the main thread at about 1 ms each, with 3 to 4 ms between a job's result
+  and the resumption of its generator; after "Run complete" the queue manager takes 32 ms,
+  mostly saving the front panel values into the shot file, before the first
+  `transition_to_manual`; the 8 transitions to manual take 21 ms.
+- Main thread: of the samples in which it was running Python code, 88% were in
+  `logging.debug` calls: 58% sending the record to the zlog server and 29% waiting for
+  the handler lock that other threads hold. The state machine logs nine debug messages
+  per state. Raising the state machine's logger to INFO took the 8-tab cycle from 0.188
+  and 0.182 s to 0.173 and 0.167 s in interleaved runs.
+- Queue manager thread: 35% of its samples were blocked in `inmain` calls; the rest
+  were mostly waiting for the tabs and for the shot.
+
+## 7. Next steps
+
+1. Run the harness workflow on the branch and record it in `TESTING.md`.
+2. Measure the branch on the lab machine with its real devices.
+3. Log less from the state machine: one debug message per state with its timings,
+   instead of nine, and change `tools/blacs-timing/analyse.py` to read it.
+4. The queue manager: the 24 ms before the first transition, the front panel save
+   between the end of the shot and the transitions to manual, and its `inmain` calls.
+   This is a separate change to `experiment_queue.py`, and is the wishlist entry on the
+   shot queue.
+5. Decide whether the branch replaces blacs #132, which it includes.

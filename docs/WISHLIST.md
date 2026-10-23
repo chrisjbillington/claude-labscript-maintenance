@@ -35,11 +35,6 @@ another process to use.
 
 Look for more places where BLACS can be made faster.
 
-## BLACS: simpler and faster asynchronous architecture
-
-Overhaul the asynchronous architecture of BLACS, if possible, so that it is simpler and
-faster.
-
 ## BLACS: faster queue handling
 
 Look for performance gains in the way BLACS handles the shot queue.
