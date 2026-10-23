@@ -5,6 +5,50 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-23: the Narwhal Devices Pulse Generator device (labscript-devices branch `narwhal-pulsegen`)
+
+Branch `narwhal-pulsegen` on labscript-suite/labscript-devices, commit bf5cbc5 on master
+33e20e7 (`NARWHAL-PULSEGEN.md`). The harness step `narwhal` was added for it
+(`harness/README.md`): it compiles two fixture shots, checks the instruction tables, runs
+the runviewer parser and runs the BLACS worker class on a simulated device that executes
+the instructions in real time.
+
+**Local** (harness venv, Python 3.14.8, PySide6 6.12, in a namespace with a scratch
+profile, the branch on `PYTHONPATH`): the `narwhal` step passes its 51 checks in 7 s. The
+master program of the fixture shot is 28 instructions and lasts the stop time plus the
+final 1 us clock tick; the ramp with a 101-cycle period is 100 ticks of 50 + 51 cycles;
+the wait after the second ramp is on a copy of the loop before it, so the device pauses
+once; `powerline_sync` is set on the instruction after the `wait_for_powerline` wait. The
+worker on the simulated device measured the wait ended by a trigger after 20 ms as
+20.5 ms, resumed the wait with a 50 ms timeout after 50.7 ms and recorded it as timed
+out, measured the powerline wait as 10.3 ms, wrote `/data/waits`, returned the final
+values with the unused channels at their front panel values, aborted a run, and reported
+"pulsegen2 is at instruction 0 of 6 and is not running. It may not have received its
+trigger." for a secondary that was never triggered. The shot that begins with a wait
+compiles to a one-cycle waiting instruction that holds the front panel state, and runs.
+The `imports`, `compile`, `runviewer` and `apps` steps pass with the branch on the path,
+so every module of the package imports without a deprecation warning and BLACS starts
+with the device registered. The tab's control panel builds under PySide6 offscreen and
+displays a device state.
+
+**GitHub Actions:** dispatch of `test.yml` with
+`labscript-devices=labscript-suite/labscript-devices@narwhal-pulsegen`, run
+[39918371155](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39918371155):
+24 of the 25 jobs for Python 3.11 to 3.14 passed every step. The Windows job for Python
+3.12 with PyQt6 failed the `narwhal` step: the simulated device timed its run with
+`time.monotonic()`, which has a resolution of 15.6 ms on Windows before Python 3.13, so
+one measured wait was 15.5 ms instead of at least 20 ms and the powerline wait was
+-1.0 ms. The simulator now uses `time.perf_counter()`, and the bound on the wait that
+times out, which the worker times with `time.monotonic()`, allows 16 ms. Run
+[39919806120](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39919806120)
+with the same refs: the 25 jobs for Python 3.11 to 3.14 passed every step (on the
+Windows Python 3.12 PyQt6 job the three waits measured 22.5 ms, 61.2 ms and 10.7 ms). In
+both runs the six Python 3.15 jobs failed at "Install the components" on the h5py build,
+as on the masters.
+
+The device has not been run against hardware from this branch; that is a task in
+`LOCAL-TASKS.md`. No pull request is opened until it has.
+
 ## 2026-10-23: labscript-devices #158 and blacs #134 (`clicked` argument, DEFECTS.md D30 to D33)
 
 labscript-devices #158 at 422f2a3 and blacs #134 at 9fa23e7, both on master (b6ea556 and

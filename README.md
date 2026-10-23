@@ -52,6 +52,13 @@ and the file:line evidence.
 
 ## State as of 2026-10-22
 
+- A labscript device for the Narwhal Devices Pulse Generator is written on the
+  labscript-devices branch `narwhal-pulsegen` (bf5cbc5), following
+  `docs/NARWHAL-PULSEGEN.md`: a bundled serial driver, the labscript device, BLACS tab
+  and worker, and a runviewer parser, with a docs page. The harness step `narwhal` tests
+  it on a simulated device; run 39919806120 passed on Python 3.11 to 3.14 with every Qt
+  binding (`docs/TESTING.md`). The maintainer is testing it on the lab's hardware
+  (`docs/LOCAL-TASKS.md`) before a pull request is opened.
 - lyse #151 and #153 (kill lock not held for a whole routine; Abort button) showed that
   the suite has no safe way to end a busy subprocess: the kill lock has no effect on
   Windows, SIGTERM reaches only a worker that is executing Python, and Restart and
