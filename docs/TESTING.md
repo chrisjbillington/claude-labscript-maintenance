@@ -5,6 +5,21 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-23: lyse #150 with the removal of defunct model columns (DEFECTS.md D25)
+
+lyse #150 at 79f9db9, on master c74fa4e. A script that drives `DataFrameModel` directly
+adds shots, saves results that include a dict result, hides a column, removes all shots
+and adds new shots. At 5142bbb, `update_row` raised `KeyError` with the name of a result
+column, as on the lab machine; at 79f9db9 the Qt model no longer had the columns that are
+not in the new dataframe, and a hidden column that a later result added again was
+hidden. This was run with pandas 3.0.6 on Python 3.14 and, with the same change on the
+lyse 3.3.0 backport, with pandas 2.3.3 on Python 3.10.
+
+**GitHub Actions:** run
+[39897307988](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39897307988)
+of `test.yml` with `lyse=pr/150` passed every step in all 25 jobs (the six Python 3.15
+jobs fail at install as always: no h5py wheel and no HDF5 to build one).
+
 ## 2026-10-23: the legacy `Camera` device and `camera_server`
 
 Locally on Arch Linux with Python 3.14.8 in the harness venv (zprocess `pair-sockets`
