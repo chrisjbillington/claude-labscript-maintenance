@@ -310,7 +310,11 @@ class Driver(object):
                 self.test_restart_in_run,
                 self.test_ttm_fail,
                 self.test_front_panel_save_fails,
+                self.test_stop_in_run,
             ]:
+                if test == self.test_stop_in_run and not hasattr(self.qm, 'stop'):
+                    # QueueManager.stop() is blacs #131
+                    continue
                 self.reset()
                 try:
                     test()
@@ -541,6 +545,29 @@ class Driver(object):
         check('front panel save fails: tabs are aborted, not transitioned to manual',
               all((name, 'abort_buffered') in e for name in DEVICES)
               and not any(name_event[1] == 'ttm' for name_event in e), e)
+
+    def test_stop_in_run(self):
+        PLANS['pc']['run'] = 'hang'
+        path = self.new_shot()
+        second = self.new_shot()
+        t0 = time.time()
+        self.submit(path)
+        self.submit(second)
+        wait_for(lambda: first(t0, ('pc', 'start_run')) is not None)
+        time.sleep(0.2)
+        inmain(self.qm.stop)
+        ok = self.wait_status('Aborted, shot requeued')
+        check('stop in the run: status', ok, self.status())
+        check('stop in the run: queue manager thread ends',
+              wait_for(lambda: not self.qm.manager.is_alive(), 5))
+        check('stop in the run: shot requeued first', self.queued() == [path, second], self.queued())
+        with h5py.File(path, 'r') as f:
+            clean = 'front_panel' not in f and 'data' not in f
+        check('stop in the run: requeued shot file has no front panel or data', clean)
+        wait_for(self.tabs_idle)
+        e = events(t0)
+        check('stop in the run: every tab is aborted',
+              all((name, 'abort_buffered') in e for name in DEVICES), e)
 
 
 def main():

@@ -1,0 +1,89 @@
+From bdc03d08f1170f1a8662367d7bfc5351a1379d98 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 23 Oct 2026 22:10:42 +1100
+Subject: [PATCH] Port QueueManager.stop() from #131 to the main-thread queue
+
+For use when queue-main-thread and #131 (abort and requeue the running
+shot when BLACS is closed) are combined; #131's changes to __main__.py
+are kept as they are and its changes to experiment_queue.py are
+replaced by this commit.
+
+stop() aborts the current shot through Shot.abort(), which ends a shot
+that is being prepared, programmed or run, and lets one that is
+transitioning to manual complete. The aborted shot is put back at the
+top of the queue with the status "Aborted, shot requeued"; a shot
+aborted during the run is cleaned first, since its front panel has
+already been saved. No shot is taken from the queue after stop().
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01TqajgmYurmkWm1X28YEmJq
+---
+ blacs/experiment_queue.py | 22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
+
+diff --git a/blacs/experiment_queue.py b/blacs/experiment_queue.py
+index e636816..0d81458 100644
+--- a/blacs/experiment_queue.py
++++ b/blacs/experiment_queue.py
+@@ -137,6 +137,7 @@ class QueueManager(object):
+         self.BLACS = BLACS
+         self.last_opened_shots_folder = BLACS.exp_config.get('paths', 'experiment_shot_storage')
+         self._manager_running = True
++        self._requeue_aborted_shot = False
+         self._manager_paused = False
+         self._manager_repeat = False
+         self._manager_repeat_mode = self.REPEAT_ALL
+@@ -404,6 +405,16 @@ class QueueManager(object):
+             item.setData(device_orders, DEVICE_ORDERS_ROLE)
+             self._model.appendRow(item)
+     
++    @inmain_decorator(True)
++    def stop(self):
++        """Stop the queue manager. A shot that is being programmed or run is aborted
++        and put back at the top of the queue. A shot that is being saved is completed.
++        The queue manager thread ends once the current shot, if any, is done."""
++        self._requeue_aborted_shot = True
++        self.manager_running = False
++        if self._shot is not None:
++            self._shot.abort()
++
+     @inmain_decorator(True)
+     def prepend(self,h5file):
+         if not self.is_in_queue(h5file):
+@@ -553,6 +564,8 @@ class QueueManager(object):
+         are no pre_transition_to_buffered callbacks, the transition to buffered is
+         started. Runs in the main thread."""
+         self._wakeup.clear()
++        if not self._manager_running:
++            return None
+         if self._manager_paused:
+             if self.get_status() == "Idle":
+                 self._logger.info('Paused')
+@@ -686,8 +699,12 @@ class QueueManager(object):
+                     if kind != 'abort':
+                         self.manager_paused = True
+                         self.prepend(path)
++                    elif self._requeue_aborted_shot:
++                        self.prepend(path)
+                     if kind == 'timeout':
+                         self.set_status(device_status(data, 'timed out programming') + "\nQueue paused")
++                    elif kind == 'abort' and self._requeue_aborted_shot:
++                        self.set_status("Aborted, shot requeued")
+                     elif kind == 'abort':
+                         self.set_status("Aborted")
+                     elif kind == 'restart':
+@@ -713,7 +730,10 @@ class QueueManager(object):
+                 kind, data = self._wait_for_event(shot, logger)
+                 if kind in ('abort', 'restart'):
+                     inmain(self._abort_shot, shot)
+-                    if kind == 'abort':
++                    if kind == 'abort' and self._requeue_aborted_shot:
++                        self._requeue_failed_shot(path, logger)
++                        self.set_status("Aborted, shot requeued")
++                    elif kind == 'abort':
+                         self.set_status("Aborted")
+                     else:
+                         restarted_devices, error_devices = data
+-- 
+2.56.0
+
