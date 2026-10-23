@@ -29,3 +29,14 @@ another process to use.
 ## BLACS: further performance improvements
 
 Look for more places where BLACS can be made faster.
+
+## runmanager: group and output status shown on the tabs
+
+The tab of each globals group shows the status of the group, for example an icon or bold
+text if the group has globals with expansions, and red text if a global in the group has
+an error. The output tab shows an icon or red text if an error was written to the output
+since the user last viewed the tab.
+
+A group tab already has an exclamation icon while one of its globals fails to evaluate
+(`runmanager/__main__.py:798`, runmanager 7e692f4). The output tab has no status
+indication.
