@@ -3,7 +3,7 @@
 Written 2026-10-23. Sections: 1 what exists, 2 goals, 3 the device and its protocol,
 4 package layout, 5 labscript device, 6 BLACS worker, 7 BLACS tab, 8 runviewer parser,
 9 differences from the current device, 10 testing, 11 implementation sequence,
-12 decisions.
+12 decisions, 13 implementation, 14 licensing.
 
 The decisions of section 12 were taken by the maintainer on 2026-10-23, and the device
 was implemented the same day on the labscript-devices branch `narwhal-pulsegen`
@@ -500,15 +500,18 @@ Hardware tests for the maintainer, on diginuc with the lab's device, recorded in
 3. Push the branch to labscript-suite/labscript-devices, dispatch
    `.github/workflows/test.yml` with `labscript-devices=labscript-suite/labscript-devices@narwhal-pulsegen`,
    record the run in `docs/TESTING.md`.
-4. Open the pull request with the "Written by Claude" note, the symptom-first
+4. Check with Rory Speirs (Narwhal Devices) that the MIT licence is acceptable for all
+   the work that is derived from the vendor's code (section 14), and add the notice
+   that he agrees to.
+5. Open the pull request with the "Written by Claude" note, the symptom-first
    description and the verification in plain terms; add a row to
    `docs/PULL-REQUESTS.md`; add the hardware tests to `docs/LOCAL-TASKS.md`.
-5. After the hardware tests pass: change the lab's connection table import to
+6. After the hardware tests pass: change the lab's connection table import to
    `labscript_devices.NarwhalPulseGenerator.labscript_devices`, make `serial_number` an
    int, recompile the connection table, remove `user_devices/NarwhalDevicesPulseGenerator`
    and the `ndpulsegen` and `portalocker` packages from the lab's environment. The BLACS
    front panel settings are keyed by device and channel names, which do not change.
-6. Merge, delete the branch, update `docs/PULL-REQUESTS.md`, and add the device to the
+7. Merge, delete the branch, update `docs/PULL-REQUESTS.md`, and add the device to the
    release notes in `docs/RELEASE-PLAN.md`.
 
 ## 12. Decisions
@@ -567,3 +570,37 @@ the plan:
 The harness step `narwhal` (`harness/checks/check_narwhal.py`, fixtures in
 `harness/fixtures/narwhal/`) is as planned in section 10; its results are in
 `TESTING.md`. The hardware tests are a task in `LOCAL-TASKS.md`.
+
+## 14. Licensing (2026-10-24)
+
+The vendor's code is under two licences:
+
+- `ndpulsegen` (github.com/Narwhal-Devices/narwhaldevs-pulsegen, version 1.0.1 at
+  commit ba4e7d4) is MIT, "Copyright (c) 2023 RorySpeirs".
+- The vendor's labscript driver (github.com/Narwhal-Devices/userlib,
+  `user_devices/NarwhalDevicesPulseGenerator`) has no licence file and no license
+  headers.
+
+The branch was compared with both, by matching lines after removing whitespace and
+comments, and by reading the matching sections. Copied text: the two `wheelEvent`
+overrides in `blacs_tabs.py` (a four-line Qt idiom) and the echo check byte `0xD1` in
+`driver.py`. Derived without copied text:
+
+- `driver.py`: the message identifiers, lengths, field layouts, tag bits and value
+  ranges of `ndpulsegen/transcode.py`, and the design of `ndpulsegen/comms.py` (port
+  search by USB VID and PID with an echo request, and a reader thread that sorts messages
+  into queues).
+- `labscript_devices.py`: the constructor arguments and defaults, the device property
+  names, and the `pseudoclock`, `direct_outputs` and `internal_wait_monitor_outputs`
+  properties; the one-cycle waiting instruction for a wait at t=0; powerline-synchronised
+  waits.
+- `blacs_workers.py`: wait durations from the run time in instruction notifications, and
+  the software trigger that resumes a timed-out wait only if the device is stopped at the
+  wait's address.
+- `blacs_tabs.py`: the set of manual controls.
+
+The internal wait monitor devices, the wait events and the `/data/waits` table follow
+the PrawnBlaster in labscript-devices, as the vendor's driver does.
+
+Before the pull request is opened, Rory Speirs must confirm that the MIT licence is
+acceptable for all of this derived work (section 11, step 4).
