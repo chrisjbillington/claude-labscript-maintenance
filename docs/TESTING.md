@@ -5,6 +5,49 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-24: lyse per-shot time with the lab's single-shot routine
+
+**On diginuc.** The maintainer loaded the 100 shots of sequence 0029 into lyse
+(`test-batch` 6a4f323, PyQt5, pandas 3.1.0, NumPy 2.5.4, h5py 3.16.0, load average 3.6
+on 4 cores, BLACS idle) with `gaussian_fit` as the only single-shot routine. Medians from
+`lyse.log`, shots 5 to 99:
+
+| Interval | Time |
+|---|---|
+| analysing one shot to analysing the next | 210 ms |
+| routine sent to the worker to result received | 117 ms |
+| routine finished to next shot started (`update_rows`, `set_status_percent`) | 87 ms |
+
+The routine body, run in a plain process on the same files at the same time, takes
+82 ms without `save_results_dict`: `analyse_image` for the two images 62 ms, `Run()` 6 ms
+(two file opens), reading the images 6 ms; opening a shot file read-only takes 3 ms.
+During sequence 0028 (BLACS running shots at 0.6 s), the routine took 256 ms, the time
+after it 174 ms, and the multishot routine `yellow_spectroscopy`, about 1.0 s, ran 20
+times in 100 shots.
+
+**Locally** (Python 3.14.8, PySide6, offscreen, pandas 3.0.6), the same shots and routine
+in lyse, labscript-utils, zprocess and qtutils copied from diginuc's `test-batch`, with
+timing markers added to lyse and the routine, 100 shots submitted at once. Medians:
+
+| Step | Time |
+|---|---|
+| per shot | 70 ms |
+| routine body: `Run()` 3.1, read images 2.7, fits 22.5, `save_results_dict` 5.3 | 33.6 ms |
+| worker: receive, start thread, call into Qt main thread, compile the routine; return result | 4.3 ms |
+| routine box: status icons and `enabled()` checks, each a call into the main thread | 3.5 ms |
+| `update_rows`: dataframe assignment (`DEFECTS.md` D35) | 10.9 ms |
+| `update_rows`: Qt model items | 3.8 ms |
+| waiting for the main thread after `layoutChanged` (`set_status_percent`, then `update_rows({})` and `set_status_percent` for `done`) | 12.6 ms |
+
+The per-shot time is the same for rows 100 to 600 of a 600-shot run. With one shot
+submitted every 0.15 s, a shot reaches the analysis thread 141 ms after submission:
+100 ms is the wait in `incoming_buffer_loop` for more shots, 22 ms is
+`get_dataframe_from_shot` in the incoming thread, 5 ms is `add_files` in the main thread
+and 12 ms is the pass of the multishot routine box, which runs after every shot when the
+queue is empty, even with no multishot routines. Assigning the same 28 results with
+`.at` takes 0.27 ms, and with one `.loc[row, columns] = values` 2.7 ms, against 6.8 ms
+for the current per-column `.loc` assignment.
+
 ## 2026-10-23: qtutils #41 and #38 rebased
 
 #41 (`auto-scroll-after-show`, now f799f83) was rebased onto master 114a6ec, which
