@@ -78,7 +78,7 @@ cycle with its standard error.
 
 ## 2026-10-24: camera image reply times and zprocess encryption on loopback
 
-labscript-devices branch `camera-image-ack` (c3d8f5c, on master 5a5892c) makes
+labscript-devices branch `camera-image-ack` (c3d8f5c, on master 5a5892c; reworded as 7a51c3a, labscript-devices #161) makes
 `IMAQdxCamera.blacs_tabs.ImageReceiver` reply to the worker from the server thread
 once the previous image has been displayed, instead of from the main thread. Locally,
 Python 3.14.8, PySide6, offscreen, with the sender in a separate process and the
