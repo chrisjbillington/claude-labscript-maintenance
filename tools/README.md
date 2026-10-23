@@ -131,3 +131,18 @@ SCRATCH_HOME=/tmp/fakeroot REAL_UID=$(id -u) REAL_GID=$(id -g) \
 The harness steps that make WORK run the same way, with `harness/suite.py test` in place
 of `run_all.py`. The scratch home has no GNOME settings, so the GTK theme is the default
 Adwaita and not the desktop's theme.
+
+## runmanager value history
+
+`value-history/drive.py --out DIR --labscript-file FILE [--scheme light|dark]` starts
+runmanager under the offscreen Qt platform, makes a globals file in DIR with older uses
+recorded in its history, compiles FILE several times through Engage, and exercises the
+value history: the order of the list, filtering, choosing a value with the keyboard,
+pinning, removing, switching to the previous value, Alt+Down in the table and in the
+editor, and renaming a global. It prints PASS or FAIL for each check and saves
+screenshots in DIR. FILE is the runmanager test experiment of a harness profile
+(`userlib/labscriptlib/runmanager_test/experiment.py`). It was run with the Python of a
+harness venv that has the runmanager branch installed, in the namespace of
+`blacs-timing/ns.sh`. With `--scheme dark` it sets a dark palette and tells runmanager
+that the colour scheme is dark, since the offscreen platform has no colour scheme.
+

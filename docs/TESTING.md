@@ -5,6 +5,30 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-24: runmanager value history
+
+runmanager branch `value-history` (2e41aa5) records the values of each global that are
+used to compile shots and lists them in a drop-down on the value cell (`WISHLIST.md`).
+`tools/value-history/drive.py` ran it under the offscreen platform with Fusion, on
+Python 3.14.8 with PySide6 6.12.0, PyQt6 and PyQt5, with light and dark palettes, in a
+namespace with a scratch profile. In each of the six runs the 26 checks passed: compiling
+the runmanager test experiment through Engage records each value, comment included; a
+value that fails to compile is not recorded; values that differ only in comments are one
+entry; the list order, filtering, choosing with the keyboard, Ctrl+P, Delete, Escape,
+Alt+Down in the table and in the editor, switching to the previous value and renaming a
+global behave as intended. The first PyQt5 run showed no faded pin icons:
+`QIcon.pixmap(16, QIcon.Disabled)` resolves to the `pixmap(width, height)` overload in
+PyQt5 and gives a 16 by 1 pixmap; the branch passes a `QSize`. 2000 records of 50
+globals in a test file did not change its size after the first few hundred, since the
+history is written as fixed-length attributes (`DEFECTS.md` D37 is the growth that
+variable-length strings cause).
+
+The harness steps `versions` to `apps` passed locally with the branch installed (Python
+3.14.8, PySide6). `test.yml` run
+[39970622133](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39970622133)
+with `runmanager=labscript-suite/runmanager@value-history`: the 25 jobs for Python 3.11
+to 3.14 passed every step; the six Python 3.15 jobs failed at "Install the components",
+as before.
 ## 2026-10-24: blacs #138 (D36, experiment server started last)
 
 Locally (Python 3.14.8, PySide6, in a namespace with a scratch profile), with blacs
@@ -46,6 +70,7 @@ A REQ/REP round trip of one 6.2 MB message (2x1080x1440 uint16) on 127.0.0.1 tak
 2.4 ms with plain zmq and 75 ms with a `labscript_utils.ls_zprocess.Context` socket,
 which uses CurveZMQ when a shared secret is configured; for 0.23 MB it is 0.1 ms and
 3.1 ms (libzmq 4.3.5, pyzmq 27.2.0).
+||||||| parent of 4885ad7 (Record the runmanager value history branch, its tests and the screenshot driver)
 
 ## 2026-10-24: shots run through BLACS; labscript-devices #160 and blacs #137
 
