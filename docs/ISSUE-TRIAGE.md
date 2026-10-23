@@ -76,7 +76,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 | 45 | labscript-suite #60 CITATION.cff in component repos | docs | 3 | leave open, not for this release (maintainer decision 2026-10-18) |
 | 46 | runmanager #97 remote is_compiling | feature | 3 | fix for next release if cheap |
 | 47 | runmanager #41 save window geometry | feature | 3 | fix later |
-| 48 | runmanager #50 expansion types rewritten on restart | bug | 3 | fix later (mitigate with #66) |
+| 48 | runmanager #50 expansion types rewritten on restart | bug | 3 | fixed in runmanager #140 (merged 2026-10-23), which records in the globals file whether each expansion setting was chosen by the user; issue closed 2026-10-23 |
 | 49 | runmanager #35 async compile hangs if worker dies | bug | 3 | fix later |
 | 50 | runmanager #45 compile progress / per-sequence abort | feature | 3 | fix later; merge abort part into #33 |
 | 51 | labscript-suite #105 uv install docs | docs | 3 | convert to docs |
@@ -123,7 +123,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 | 92 | labscript #54 constant with duration | feature | 2 | Fix later or close; rewrite input |
 | 93 | labscript #109 Trigger ignores `inverted` | bug | 2 | Fix later (error when both given) |
 | 94 | labscript-utils #20 shared "open external program" helper | feature | 2 | Fix later |
-| 95 | labscript-utils #29 macOS autostart (fork in GUI process) | bug | 2 | Fix later in zprocess, needs macOS tester |
+| 95 | labscript-utils #29 macOS autostart (fork in GUI process) | bug | 2 | fixed in labscript-utils #137 (merged 2026-10-23), which starts the zlog and zlock servers in a subprocess instead of forking the GUI process; the applications start the zlog server on the GitHub macOS runners (`TESTING.md`, 2026-10-23); issue closed 2026-10-23 |
 | 96 | labscript-utils #104 excepthook uses Tk | question | 2 | Close as answered; optional stderr fallback |
 | 97 | labscript #112 timing limited by slow component | support | 2 | Convert to docs (gated clocks page), close |
 | 98 | qtutils #22 RTD version string | tooling | 2 | fixed in qtutils #37 (merged 2026-10-17); issue closed |
@@ -145,7 +145,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 | 114 | runviewer #14 smaller digital plots | feature | 2 | leave open, reply |
 | 115 | runviewer #17 line numbers per instruction | feature | 2 | close for legacy; rewrite requirement |
 | 116 | setuptools-conda #26 free-threaded python deps | feature | 2 | leave open (wait for upstream) |
-| 117 | runmanager #60 API lacks zip-group guessing | bug | 2 | leave open |
+| 117 | runmanager #60 API lacks zip-group guessing | bug | 2 | leave open; runmanager #140 (merged 2026-10-23) adds `automatic_expansions` to the library, which computes the GUI's automatic settings without iterating, but the API does not apply it when compiling |
 | 118 | runmanager #54 labscript file not cached per sequence | bug | 2 | fix later |
 | 119 | runmanager #52 file checkbox after group deletion | bug | 2 | fix later |
 | 120 | runmanager #34 tabs can be moved before fixed tabs | bug | 2 | fix later |
@@ -263,7 +263,7 @@ abandoned by agreement); the per-repo tables in section 3 give the reason for ea
 - labscript #41: no automated tests; a compile smoke test across the supported Python/NumPy matrix is the cheapest guard against the two items above.
 - labscript #95: NumPy 2 turns the PrawnBlaster `half_period` overflow (idle clockline longer than 42 s) from a crash into silent truncation; add dtype and range check in labscript-devices. Fixed in labscript-devices #153 (merged 2026-10-18).
 - labscript-utils #28: compile crashes (`KeyError: 'labscriptlib'`) after editing a file when the apparatus directory is a namespace package, which is how `labscript-profile-create` lays it out; ship `__init__.py` and fix the ModuleWatcher whitelist. Fixed by labscript-utils #129, merged 2026-10-17; issue closed.
-- labscript-utils #29: zprocess `start_daemon` forks the GUI process; relevant only if macOS is a release target.
+- labscript-utils #29: zprocess `start_daemon` forks the GUI process; relevant only if macOS is a release target. Fixed in labscript-utils #137 (merged 2026-10-23); issue closed.
 - labscript-utils #104: Tk excepthook subprocess needs `tkinter`; confirm availability on the supported Pythons or add a stderr fallback.
 - labscript-utils #100: already fixed (v3.4.0); mention Python 3.12+ support in release notes.
 - labscript-utils #60 and #116 (PR #117): first-run experience of the release; both small.
@@ -926,6 +926,7 @@ Verification notes that apply to several issues:
 - **Rewrite relevance**: requirement (service auto-start must not fork a GUI process; `rewrite/src/shotscript/server.py` should spawn, not fork)
 - **Importance**: 2
 - **Recommended action**: fix later in zprocess (`Popen(start_new_session=True)`), ask a macOS user to test.
+- **Status 2026-10-23**: fixed in labscript-utils #137 (merged 2026-10-23), which runs the `--daemon` scripts with `subprocess.run`; zprocess #37 makes the same change in `start_daemon`. Issue closed.
 
 ### labscript-utils #60: Load example_experiment.py on first run of runmanager (rpanderson, opened 2020-06-25, last activity 2020-06-25, 0 comments)
 - **Summary**: Ship `app_saved_configs/example_apparatus/runmanager/runmanager.ini` in the default profile so runmanager opens the example experiment on first run; path needs generating or interpolation.
@@ -1032,7 +1033,7 @@ Verification notes that apply to several issues:
 | 21 | labscript #54 constant with duration | feature | 2 | Fix later or close; rewrite input |
 | 22 | labscript #109 Trigger ignores `inverted` | bug | 2 | Fix later (error when both given) |
 | 23 | labscript-utils #20 shared "open external program" helper | feature | 2 | Fix later |
-| 24 | labscript-utils #29 macOS autostart (fork in GUI process) | bug | 2 | Fix later in zprocess, needs macOS tester |
+| 24 | labscript-utils #29 macOS autostart (fork in GUI process) | bug | 2 | fixed in labscript-utils #137 (merged 2026-10-23), which starts the zlog and zlock servers in a subprocess instead of forking the GUI process; the applications start the zlog server on the GitHub macOS runners (`TESTING.md`, 2026-10-23); issue closed 2026-10-23 |
 | 25 | labscript-utils #104 excepthook uses Tk | question | 2 | Close as answered; optional stderr fallback |
 | 26 | labscript #5 instruction time tolerance | feature | 1 | Close |
 | 27 | labscript #7 nested loops | feature | 1 | Close |
@@ -1068,7 +1069,7 @@ Verification notes that apply to several issues:
 - labscript #41: no automated tests; a compile smoke test across the supported Python/NumPy matrix is the cheapest guard against the two items above.
 - labscript #95: NumPy 2 turns the PrawnBlaster `half_period` overflow (idle clockline longer than 42 s) from a crash into silent truncation; add dtype and range check in labscript-devices. Fixed in labscript-devices #153 (merged 2026-10-18).
 - labscript-utils #28: compile crashes (`KeyError: 'labscriptlib'`) after editing a file when the apparatus directory is a namespace package, which is how `labscript-profile-create` lays it out; ship `__init__.py` and fix the ModuleWatcher whitelist. Fixed by labscript-utils #129, merged 2026-10-17; issue closed.
-- labscript-utils #29: zprocess `start_daemon` forks the GUI process; relevant only if macOS is a release target.
+- labscript-utils #29: zprocess `start_daemon` forks the GUI process; relevant only if macOS is a release target. Fixed in labscript-utils #137 (merged 2026-10-23); issue closed.
 - labscript-utils #104: Tk excepthook subprocess needs `tkinter`; confirm availability on the supported Pythons or add a stderr fallback.
 - labscript-utils #100: already fixed (v3.4.0); mention Python 3.12+ support in release notes.
 - labscript-utils #60 and #116 (PR #117): first-run experience of the release; both small.
@@ -2997,6 +2998,7 @@ Sources and limits:
 - **Rewrite relevance**: requirement: expansion settings must be explicit data in the globals store; no guessing in either GUI or API, so the two cannot differ.
 - **Importance**: 2
 - **Recommended action**: leave open (document that the API uses stored expansions verbatim).
+- **Status 2026-10-23**: runmanager #140 (merged) moves the automatic rule into the library as `automatic_expansions`, a function of the values, the dependency hierarchy and the custom flags that needs no iteration. The compile functions still use the stored expansions.
 
 ### runmanager #54: runmanager doesn't cache the labscript file when compiling shots (philipstarkey, opened 2018-03-13, last activity 2018-03-27, 3 comments)
 - **Summary**: Each shot re-reads the labscript file from disk, so editing it mid-sequence produces a sequence compiled from two versions. Archived comments: cache the file in memory and hold the ModuleWatcher in a warning mode across the sequence; accepted as a minor limitation that conditionally imported modules cannot be covered.
@@ -3049,6 +3051,7 @@ Sources and limits:
 - **Rewrite relevance**: requirement: expansion type is user data stored with the global and never silently rewritten; type-based guessing only as an explicit user action.
 - **Importance**: 3
 - **Recommended action**: fix later (mitigation together with #66 if time allows).
+- **Status 2026-10-23**: fixed in runmanager #140 (merged 2026-10-23) with the flag proposed in the report (`expansion_custom`). Verified by running the GUI's post-parse update from the library on master: a list set to no expansion and a derived global set from its zip group to `outer` keep those settings. Issue closed.
 
 ### runmanager #48: Continuous Engage (philipstarkey for Kevin Cox, opened 2017-08-17, last activity 2017-08-25, 5 comments)
 - **Summary**: A mode that re-engages every X seconds, ideally paced by BLACS finishing. Comments: maintainer planned a BLACS-driven compile queue instead; JQI posted a QTimer patch.
@@ -3597,12 +3600,12 @@ Sources and limits:
 | 8 | labscript-suite #60 CITATION.cff in component repos | docs | 3 | leave open, not for this release (maintainer decision 2026-10-18) |
 | 9 | runmanager #97 remote is_compiling | feature | 3 | fix for next release if cheap |
 | 10 | runmanager #41 save window geometry | feature | 3 | fix later |
-| 11 | runmanager #50 expansion types rewritten on restart | bug | 3 | fix later (mitigate with #66) |
+| 11 | runmanager #50 expansion types rewritten on restart | bug | 3 | fixed in runmanager #140 (merged 2026-10-23), which records in the globals file whether each expansion setting was chosen by the user; issue closed 2026-10-23 |
 | 12 | runmanager #35 async compile hangs if worker dies | bug | 3 | fix later |
 | 13 | runmanager #45 compile progress / per-sequence abort | feature | 3 | fix later; merge abort part into #33 |
 | 14 | labscript-suite #105 uv install docs | docs | 3 | convert to docs |
 | 15 | labscript-suite #23 end-to-end test | tooling | 3 | leave open; ask Json-To-String/dihm for status |
-| 16 | runmanager #60 API lacks zip-group guessing | bug | 2 | leave open |
+| 16 | runmanager #60 API lacks zip-group guessing | bug | 2 | leave open; runmanager #140 (merged 2026-10-23) adds `automatic_expansions` to the library, which computes the GUI's automatic settings without iterating, but the API does not apply it when compiling |
 | 17 | runmanager #54 labscript file not cached per sequence | bug | 2 | fix later |
 | 18 | runmanager #52 file checkbox after group deletion | bug | 2 | fix later |
 | 19 | runmanager #34 tabs can be moved before fixed tabs | bug | 2 | fix later |

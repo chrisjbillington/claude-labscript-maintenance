@@ -514,17 +514,17 @@ Dependency order. Each is tagged on a `maintenance/x.y.x` branch per the release
 
 | Step | Package | Version | Carries |
 |---|---|---|---|
-| 1 | zprocess | 2.28.0 | #27, #19, heartbeat changes, PAIR sockets (#33, maintainer's decision 2026-10-19; needs a new release candidate once merged). Tagged from `master`: `v2.28.0rc1` at e74b638 on 2026-10-17 is on PyPI but has no win-64 conda packages (defect D7, `DEFECTS.md`); `v2.28.0rc2` at f5f4685, which carries the D7 fix (#31), is on PyPI and on the Anaconda main label for all four platforms (run 39029064804). The `maintenance/2.28.x` branch that was pushed for rc1 is deleted; zprocess does not use maintenance branches |
-| 2 | qtutils (philipstarkey) | 4.1.4 | #22 RTD version, optional "Clear output" part of PR #32. qtutils #37 (#22) and #36 (clear output, closes #2) merged 2026-10-17; not tagged |
+| 1 | zprocess | 2.28.0 | #27, #19, heartbeat changes, PAIR sockets (#33, maintainer's decision 2026-10-19; merged 2026-10-23 as 1ec60ed, so a new release candidate is needed). Tagged from `master`: `v2.28.0rc1` at e74b638 on 2026-10-17 is on PyPI but has no win-64 conda packages (defect D7, `DEFECTS.md`); `v2.28.0rc2` at f5f4685, which carries the D7 fix (#31), is on PyPI and on the Anaconda main label for all four platforms (run 39029064804). The `maintenance/2.28.x` branch that was pushed for rc1 is deleted; zprocess does not use maintenance branches |
+| 2 | qtutils (philipstarkey) | 4.1.4 | #22 RTD version, optional "Clear output" part of PR #32. qtutils #37 (#22) and #36 (clear output, closes #2) merged 2026-10-17; qtutils #39 (16 px icons, DEFECTS.md D11) merged 2026-10-23; not tagged |
 | 3 | desktop-app | 0.5.1 | #20 lazy pywin32. desktop-app #34 merged 2026-10-17; not tagged. desktop-app #35 (the entry point launcher loses the venv on macOS, DEFECTS.md D19), open |
 | 4 | labscript-c-extensions | 1.3.1 | runviewer #13 resampler fix (PR #13, also fixes REVIEW.md item 19, merged 2026-10-17 as b0f985d); py311 to py315 wheels come from the metadata (#10) and workflow (#11) merges; the `master` run on b0f985d builds them (`TESTING.md`) |
-| 5 | labscript-utils | 3.5.0 | #28, #100, #60, PR #117, Qt6 work |
+| 5 | labscript-utils | 3.5.0 | #28, #100, #60, PR #117, Qt6 work; PRs #136 (D12), #137 (D21) and #139 (`get_shot_globals` with an open file), merged 2026-10-23 |
 | 6 | labscript | 3.5.0 | #123, #52, #43, #104, #16 |
-| 7 | runmanager | 3.4.0 | #130 refactor plus fixes, #66, #123, #33, #30, #26 |
-| 8 | blacs | 3.3.0 | PR #123, #46, #52, #100, front-panel dtype, Qt6 work |
-| 9 | lyse | 3.4.0 | PR #132, #14, #90, #139, Qt6 work; Abort button (PR #153) |
-| 10 | runviewer | 3.3.0 | Qt6 work, c-extensions pin |
-| 11 | labscript-devices | 3.4.0 | dtype fixes, #109, #79, #95, PRs #110, #126, #87, #63, #144 |
+| 7 | runmanager | 3.4.0 | #130 refactor plus fixes, #66, #123, #33, #30, #26; PRs #137 and #138 (merged 2026-10-21), #139 (topological evaluator), #140 (custom and automatic expansion settings), #141 (D11), #142 (D12) and #143 (D28), merged 2026-10-23 |
+| 8 | blacs | 3.3.0 | PR #123, #46, #52, #100, front-panel dtype, Qt6 work; PRs #131 (REVIEW.md B3), #132 (non-blocking state display), #133 (D12) and #134 (D32, D33), merged 2026-10-23 |
+| 9 | lyse | 3.4.0 | PR #132, #14, #90, #139, Qt6 work; PRs #148 (D12), #149, #150 (D13, D25), #152 (D16), #154 (D17), #155 (D29) and #156 (D34), merged 2026-10-23; Abort button (PR #153) |
+| 10 | runviewer | 3.3.0 | Qt6 work, c-extensions pin; PRs #78 and #79 (D12), merged 2026-10-23 |
+| 11 | labscript-devices | 3.4.0 | dtype fixes, #109, #79, #95, PRs #110, #126, #87, #63, #144; PRs #156 (D12), #157 (DummyIntermediateDevice runviewer parser), #158 (D30, D31) and #159 (FunctionRunner opens the shot file once), merged 2026-10-23 |
 | 12 | labscript-suite | 3.4.0 | pins, docs, `requires-python` |
 
 The component pins in runmanager (step 7) and labscript-suite (step 12) are raised by
@@ -538,9 +538,10 @@ nothing for users, and one commit can carry both the rc and the final tag.
 
 blacs #133, lyse #148, runmanager #142 and runviewer #79 (DEFECTS.md D12) make blacs,
 lyse, runmanager and runviewer call `labscript_utils.excepthook.install()`, which is new in labscript-utils
-3.5.0. If they are merged, the `labscript_utils` pins of those four and of
+3.5.0. They were merged on 2026-10-23, so the `labscript_utils` pins of those four and of
 labscript-devices are raised to `>=3.5.0rc1` at their steps, in the same way. lyse #156
-calls `get_shot_globals` with an open file, which labscript-utils #139 adds for 3.5.0.
+and labscript-devices #159, also merged, call `get_shot_globals` with an open file, which
+labscript-utils #139 adds for 3.5.0.
 
 No tag is pushed until the whole release set is ready (maintainer's decision,
 2026-10-18); the sequence above is the order of the tags on that day, and only zprocess
@@ -583,7 +584,8 @@ section 6).
   break compatibility. Done 2026-10-19 as zprocess #33: the socket type is negotiated
   through the parent info and the remote process server's protocol version, so no
   compatibility is broken and blacs #54 is not needed for it. The maintainer decided on
-  2026-10-19 that it goes into 2.28.0 (section 5, step 1).
+  2026-10-19 that it goes into 2.28.0 (section 5, step 1). #33 was merged and #14 closed on
+  2026-10-23.
 - labscript-devices #148 (TriggerableCamera and DummyCamera): the right structure, but
   removes the `mock` kwarg from every connection table and needs hardware testing;
   schedule for labscript-devices 3.5.0 with #106 rebased on top.

@@ -37,6 +37,8 @@ since moved `master` of every repo. The changes that touch review items are:
 | `runviewer` | (scope table) | PRs #76 and #77, merged 2026-10-18; master 38e5c0b | item 9; B1 to B5, B7 to B12 |
 | `lyse` | (scope table) | PRs #144, #145, #146 and #147, merged 2026-10-18; master c74fa4e | items 15, 16; B1 to B14 |
 | `labscript-c-extensions` | (scope table) | PR #14, merged 2026-10-18; master 80bae70 | B1: `resample` writes past `y_out` |
+| `runmanager` | 08ccc99 | PRs #137 and #138, merged 2026-10-21; PRs #139, #140 and #143, merged 2026-10-23; master adc9777 | B4; `evaluate_globals` evaluates in dependency order and `TraceDictionary` is removed (#139); automatic expansion settings computed in the library and `guess_expansion_modes` removed (#140) |
+| `blacs` | (scope table) | PR #131, merged 2026-10-23; master c0c2322 | B3 |
 
 ### labscript-utils PR #128 (ispielma)
 
@@ -73,8 +75,8 @@ The old `runmanager/__init__.py` is now split as follows:
 
 | New module | Contents |
 |---|---|
-| `group_manager.py` | globals file and group CRUD, `get_all_groups`, `get_globals`, `get_shot_globals`, `guess_expansion_type` |
-| `evaluator.py` | `TraceDictionary`, `iterator_to_tuple`, `evaluate_globals` |
+| `group_manager.py` | globals file and group CRUD, `get_all_groups`, `get_globals`, `get_shot_globals`, `guess_expansion_type`; since #140 also `get_expansion_custom`, `get_custom_expansions` and `automatic_expansions` |
+| `evaluator.py` | `iterator_to_tuple`, `evaluate_globals`; `TraceDictionary` until #139 removed it |
 | `expander.py` | `expand_globals` |
 | `compiler.py` | sequence index, run file creation, the three `compile_*_async` functions |
 | `differ.py` | `flatten_globals`, `dict_diff`, `globals_diff_groups`, `globals_diff_shots` |
@@ -172,7 +174,7 @@ on 2026-10-18: labscript #128, blacs #129 and #130, runmanager #134 and #136, ru
 #77, lyse #145 and #147, labscript-utils #133 and #135, labscript-c-extensions #14 and
 labscript-devices #153 and #155. Fixed by pull requests opened later on 2026-10-18 after
 the maintainer's decisions: the rest of labscript B5 (labscript #130), blacs B3, which
-aborts and requeues the running shot (blacs #131), and runmanager B4, which makes uneven
+aborts and requeues the running shot (blacs #131, merged 2026-10-23), and runmanager B4, which makes uneven
 zip groups an error (runmanager #137, merged 2026-10-21).
 
 Not changed by maintainer decision on 2026-10-18: the `compile_loop` timeout of
@@ -227,8 +229,9 @@ all merged on 2026-10-18 between 08:45 and 09:21 UTC. Many of their descriptions
 several issues after one "Closes", which GitHub does not follow, so the remaining issues
 were closed by hand the same day; zprocess #16 is left open. Later on 2026-10-18, after the
 maintainer's decisions: labscript #130 (labscript #104 and the rest of B5), runmanager
-#137 (B4, merged 2026-10-21) and blacs #131 (B3); labscript #130 and blacs #131 are open. On 2026-10-19: zprocess #33 (PAIR sockets with
-version negotiation, PR-REVIEW.md item 4), for zprocess 2.28.0.
+#137 (B4, merged 2026-10-21) and blacs #131 (B3, merged 2026-10-23); labscript #130 is open. On 2026-10-19: zprocess #33 (PAIR sockets with
+version negotiation, PR-REVIEW.md item 4), for zprocess 2.28.0, merged 2026-10-23. Later pull requests, from 2026-10-21, are
+listed in `PULL-REQUESTS.md`.
 
 The scheme rename needs setuptools_scm 10, which introduced the name
 `semver-pep440-release-branch` (setuptools_scm 9.2.2 does not have it); the default

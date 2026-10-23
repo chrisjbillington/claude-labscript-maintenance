@@ -30,7 +30,8 @@ the full rewrite of the suite.
 - **(read)** A state with one worker call costs about six blocking round trips to the main
   thread: setting `last_requested_state` twice, `check_for_next_item`, the state
   function, `__next__` and `send`. Each `state` assignment adds a label and tab icon
-  update in the main thread (blocking on master; posted by blacs #132).
+  update in the main thread (blocking before blacs #132; posted since #132 was merged on
+  2026-10-23).
 - **(read)** `_initialise_worker` is guaranteed to be the first state only because the
   mainloop thread cannot get a state until the Qt event loop runs (comment at `:60-74`).
 - **(run)** On the lab machine the mainloop overhead per transition event per tab is 30 to
@@ -166,4 +167,5 @@ shots, on the branch. The sampler slows BLACS a little (cycle 0.196 s).
    between the end of the shot and the transitions to manual, and its `inmain` calls.
    This is a separate change to `experiment_queue.py`, and is the wishlist entry on the
    shot queue.
-4. Decide whether the branch replaces blacs #132, which it includes.
+4. blacs #132, which the branch includes, was merged on 2026-10-23; rebase the branch onto
+   master.

@@ -87,27 +87,22 @@ check(runmanager.guess_expansion_type([1, 2]) == 'outer' and runmanager.guess_ex
 # Expansion settings record whether the user chose them. set_expansion records a custom
 # setting unless told otherwise, and automatic_expansions keeps custom settings, makes
 # lists and ranges outer and zips derived lists with the list they derive from
-EXPANSION_API = ['get_expansion_custom', 'get_custom_expansions', 'automatic_expansions']
-missing = [n for n in EXPANSION_API if not hasattr(runmanager, n)]
-if not check(not missing, f'expansion settings API present (missing: {missing})', known='runmanager #140'):
-    print('skipping the expansion settings checks')
-else:
-    check(runmanager.guess_expansion_type(range(3)) == 'outer', 'guess_expansion_type: ranges are outer')
-    custom = runmanager.get_custom_expansions(groups)
-    check(custom['scan'] == {'amplitude': True, 'gain': True, 'offset': True} and custom['fixed']['derived'] is True
-          and custom['fixed']['duration'] is False, f'get_custom_expansions {custom}')
-    runmanager.set_expansion(gf, 'fixed', 'derived', '', custom=False)
-    check(runmanager.get_expansion_custom(gf, 'fixed', 'derived') is False, 'set_expansion with custom=False')
-    flat_values = runmanager.flatten_globals(evaluated, evaluated=True)
-    flat_custom = {name: flag for group in runmanager.get_custom_expansions(groups).values() for name, flag in group.items()}
-    automatic = runmanager.automatic_expansions(flat_values, hierarchy, expansions, flat_custom)
-    check(automatic == {'amplitude': 'outer', 'gain': 'zip1', 'offset': 'zip1', 'duration': '', 'use_do': '',
-                        'derived': 'outer'},
-          f'automatic_expansions with a custom outer amplitude: {automatic}')
-    flat_custom['amplitude'] = False
-    automatic = runmanager.automatic_expansions(flat_values, hierarchy, expansions, flat_custom)
-    check(automatic['amplitude'] == 'amplitude' and automatic['derived'] == 'amplitude',
-          f'automatic_expansions zips a derived list with its source: {automatic}')
+check(runmanager.guess_expansion_type(range(3)) == 'outer', 'guess_expansion_type: ranges are outer')
+custom = runmanager.get_custom_expansions(groups)
+check(custom['scan'] == {'amplitude': True, 'gain': True, 'offset': True} and custom['fixed']['derived'] is True
+      and custom['fixed']['duration'] is False, f'get_custom_expansions {custom}')
+runmanager.set_expansion(gf, 'fixed', 'derived', '', custom=False)
+check(runmanager.get_expansion_custom(gf, 'fixed', 'derived') is False, 'set_expansion with custom=False')
+flat_values = runmanager.flatten_globals(evaluated, evaluated=True)
+flat_custom = {name: flag for group in runmanager.get_custom_expansions(groups).values() for name, flag in group.items()}
+automatic = runmanager.automatic_expansions(flat_values, hierarchy, expansions, flat_custom)
+check(automatic == {'amplitude': 'outer', 'gain': 'zip1', 'offset': 'zip1', 'duration': '', 'use_do': '',
+                    'derived': 'outer'},
+      f'automatic_expansions with a custom outer amplitude: {automatic}')
+flat_custom['amplitude'] = False
+automatic = runmanager.automatic_expansions(flat_values, hierarchy, expansions, flat_custom)
+check(automatic['amplitude'] == 'amplitude' and automatic['derived'] == 'amplitude',
+      f'automatic_expansions zips a derived list with its source: {automatic}')
 
 runmanager.set_value(gf, 'fixed', 'duration', 'undefined_name + 1')
 try:
@@ -128,11 +123,10 @@ evaluated, hierarchy, _ = runmanager.evaluate_globals(
 cycle_error = evaluated['fixed']['duration']
 check(isinstance(cycle_error, ValueError) and 'duration' in str(cycle_error) and 'use_do' in str(cycle_error)
       and evaluated['fixed']['use_do'] is cycle_error,
-      f'globals in a cycle hold an error naming the cycle: {cycle_error!r}', known='runmanager #139')
+      f'globals in a cycle hold an error naming the cycle: {cycle_error!r}')
 check(isinstance(evaluated['fixed']['derived'], NameError),
       f"global referring to a cycle holds NameError: {evaluated['fixed']['derived']!r}")
-check(hierarchy.get('derived') == ['amplitude', 'duration', 'gain'], f'hierarchy of a conditional: {hierarchy}',
-      known='runmanager #139')
+check(hierarchy.get('derived') == ['amplitude', 'duration', 'gain'], f'hierarchy of a conditional: {hierarchy}')
 runmanager.set_value(gf, 'fixed', 'duration', '1.0')
 runmanager.set_value(gf, 'fixed', 'use_do', 'True')
 runmanager.set_value(gf, 'fixed', 'derived', 'array(amplitude) * 2')
@@ -154,8 +148,7 @@ runmanager.set_expansion(gf, 'fixed', 'derived', 'zip2')
 evaluated, _, _ = runmanager.evaluate_globals(
     runmanager.get_globals(runmanager.get_all_groups(gf)), raise_exceptions=False)
 check(isinstance(evaluated['fixed']['derived'], ValueError) and 'amplitude' in str(evaluated['fixed']['derived']),
-      f"zipped global referring to an outer global holds an error: {evaluated['fixed']['derived']!r}",
-      known='runmanager #143')
+      f"zipped global referring to an outer global holds an error: {evaluated['fixed']['derived']!r}")
 runmanager.set_value(gf, 'fixed', 'derived', 'array(offset) * 2')
 runmanager.set_expansion(gf, 'fixed', 'derived', 'zip1')
 evaluated, _, _ = runmanager.evaluate_globals(

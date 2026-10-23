@@ -25,7 +25,6 @@ from qtutils.qt import QtCore, QtWidgets
 qapplication = QtWidgets.QApplication.instance()
 
 ABORT_FEATURE = 'lyse #153'
-SKIP_UNRUN_FEATURE = 'lyse #155'
 routines_dir = WORK / 'routines'
 routines_dir.mkdir(exist_ok=True)
 loop_script = routines_dir / 'loop_routine.py'
@@ -119,7 +118,7 @@ try:
 
     check(wait_until(lambda: loaded(run_shot), 60), 'a shot file that has been run is loaded')
     check(not loaded(unrun_shot) and 'has not been run' in output_text(),
-          'a shot file that has not been run is not loaded', known=SKIP_UNRUN_FEATURE)
+          'a shot file that has not been run is not loaded')
     filebox.shots_model._view.selectAll()
     filebox.shots_model.remove_selection(confirm=False)
 

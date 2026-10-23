@@ -14,6 +14,9 @@ Status 2026-10-18: merged on 2026-10-17, most with a maintainer fix commit: blac
 and prawn_digital_output #23. Closed: blacs #121 by its author, and qtutils #32, whose
 context-menu part went into qtutils #36. The rest are open.
 
+Status 2026-10-23: blacs #89 closed by the maintainer and zprocess #14 closed as superseded,
+after zprocess #33 was merged.
+
 Each PR's head is fetched in its local clone as `origin/pr/<N>`. "Merges" means
 `git merge-tree` against the upstream default branch reports no conflict.
 
@@ -27,7 +30,7 @@ paragraph per PR, section 3 contains the detailed per-group reports.
 | 1 | blacs #123 plugin-loading bugfixes (ispielma, 2026) | bugfix | 4 | merged 2026-10-17 (d061535) | Merged as is after testing; the comment trim went into blacs #128, merged 2026-10-18 |
 | 2 | labscript-devices #110 Windfreak SynthHD (dihm, 2024) | feature | 4 | yes | Merge after three one-line fixes. Merged 2026-10-17 with fix commit 30979be (merge 2a2d785) |
 | 3 | labscript-devices #126 AD9959 DDS Sweeper (carterturn, 2025) | feature | 4 | yes | Merge after deleting the dead runviewer parser and fixing `clock_limit`. Merged 2026-10-17 with fix commit 357495a (merge 6f78a56); the worker changes are not tested on hardware |
-| 4 | zprocess #14 PAIR sockets (mjdoris, 2021) | bugfix, behaviour change | 3 | conflict | Maintainer rework: 14 real lines plus a version check for mixed zprocess versions. Done as zprocess #33 (opened 2026-10-19, for 2.28.0); #14 stays open until #33 is merged |
+| 4 | zprocess #14 PAIR sockets (mjdoris, 2021) | bugfix, behaviour change | 3 | conflict | Maintainer rework: 14 real lines plus a version check for mixed zprocess versions. Done as zprocess #33 (opened 2026-10-19, for 2.28.0), merged 2026-10-23 (1ec60ed); #14 closed as superseded 2026-10-23 |
 | 5 | labscript-devices #148 TriggerableCamera + DummyCamera (ispielma, 2026) | refactor, feature | 3 | yes | Design feedback to author, hardware test, then merge; merge #144, #87, #63 first or re-apply onto it |
 | 6 | labscript-devices #144 Andor fixes (TesseTiemens, 2026) | bugfix | 3 | yes | Ask author: SyntaxError on Python < 3.12, wrong model string, semaphore deadlock. Merged 2026-10-17 with fix commit 2d65acd (merge 2d0b872), without the fast setup path and the semaphore |
 | 7 | lyse #132 data-group attributes in dataframe (chrisjbillington, 2026) | feature | 3 | yes | Merge after changing overwrite to merge-into-existing. Merged 2026-10-17 with fix commit 001df5f (merge ca8d78e) |
@@ -43,7 +46,7 @@ paragraph per PR, section 3 contains the detailed per-group reports.
 | 17 | runmanager #128 config path in title (ispielma, 2026) | feature | 2 | conflict (since #130 merged) | Ask author: depends on a closed labscript-utils PR; drop the QShortcut hunk |
 | 18 | labscript-devices #106 GeniCam cameras (TerryGeng, 2023) | feature | 2 | yes | Ask to rebase as a thin TriggerableCamera subclass, else close as stale |
 | 19 | labscript-devices #130 Stahl BS 34-1A (OljaKhor, 2025) | feature | 2 | yes | Rework as a static device or close |
-| 20 | labscript-devices #53 DummyIntermediateDevice widgets (rpanderson, 2020) | feature | 2 | conflict | Close as stale or maintainer rework |
+| 20 | labscript-devices #53 DummyIntermediateDevice widgets (rpanderson, 2020) | feature | 2 | conflict | Close as stale or maintainer rework. The runviewer parser part is done as labscript-devices #157, merged 2026-10-23; the widgets part is not done |
 | 21 | blacs #88 lock monitor plugin (zakv, 2021) | feature | 2 | yes | Close as out of scope; belongs in a separate package |
 | 22 | prawn_digital_output #23 testing notebook (dihm, 2025) | tooling | 2 | yes | Merge after stripping outputs and fixing the save branch. Merged 2026-10-17 with fix commit 121448f (merge ec7d967) |
 | 23 | setuptools-conda #5 extras support (philipstarkey, 2020) | feature | 2 | conflict | Close; untested and the parser it modifies was rewritten |
@@ -87,8 +90,8 @@ versions on remote worker computers fail with no useful error; a version check i
 parent-info handshake is needed. Moot for shotscript. **Status 2026-10-19:** re-done on
 master as zprocess #33 with the socket type negotiated through `parentinfo` and the
 remote process server's protocol version, so every mixed combination works (`TESTING.md`,
-"zprocess PAIR sockets"); goes into 2.28.0 (maintainer's decision 2026-10-19). #14 is
-left open until #33 is merged.
+"zprocess PAIR sockets"); goes into 2.28.0 (maintainer's decision 2026-10-19). #33 was merged on 2026-10-23 and
+#14 closed as superseded the same day.
 
 **labscript-devices #148.** Separates the generic camera device/tab/worker from the
 IMAQdx backend and adds a DummyCamera that evaluates an image function at compile time
@@ -1165,7 +1168,7 @@ Base: `origin/master` = e5757c7 (2026-06-04, merge of #119). #90 is reviewed els
 - **Breaking?**: Behaviour change: duplicate job execution in the retry path; otherwise none.
 - **Rewrite relevance**: Design requirement for the rewrite's worker transport: request IDs and idempotent acks, and never bind a many-to-one socket for a one-to-one channel. The rewrite drops zmq, so the specific bug does not carry over.
 - **Importance**: 1. Unsafe workaround for a problem whose fix lies in zprocess.
-- **Recommended action**: Close as superseded by the diagnosis in the thread; if the NIST problem is still live, do the PAIR-socket change in zprocess (with a version check) rather than this. **Status 2026-10-19:** the PAIR-socket change is zprocess #33; close this once #33 is merged.
+- **Recommended action**: Close as superseded by the diagnosis in the thread; if the NIST problem is still live, do the PAIR-socket change in zprocess (with a version check) rather than this. **Status 2026-10-19:** the PAIR-socket change is zprocess #33; close this once #33 is merged. **Status 2026-10-23:** #33 merged; the maintainer closed #89 the same day.
 
 ### blacs #88: Add plugin lock monitor (zakv, opened 2021-02-06, last updated 2023-01-02)
 
@@ -1196,7 +1199,7 @@ Base: `origin/master` = e5757c7 (2026-06-04, merge of #119). #90 is reviewed els
 | 2 | #105 Virtual Devices plugin | feature | 3 | Ask author: finish EO, remove polling thread, store tuples in item data, remove star imports, squash; merge `output_classes.py` fixes now |
 | 3 | #88 lock monitor plugin | feature | 2 | Close as out of scope / separate package (or merge with matplotlib optional and Qt6 check) |
 | 4 | #121 shared plugin refactor | refactor | 1 | Close as obsolete (labscript-utils counterpart closed; fixes resubmitted as #123). Closed by the author 2026-10-16 |
-| 5 | #89 tab/worker retry | bugfix | 1 | Close; unsafe retry, superseded by PAIR-socket diagnosis in zprocess (zprocess #33, opened 2026-10-19; close #89 once it is merged) |
+| 5 | #89 tab/worker retry | bugfix | 1 | Close; unsafe retry, superseded by PAIR-socket diagnosis in zprocess (zprocess #33, opened 2026-10-19; close #89 once it is merged). #33 merged and #89 closed by the maintainer 2026-10-23 |
 
 ## 3.x PR review: lyse #132, lyse #118/#85, runmanager #104 + blacs #90, runmanager #128
 

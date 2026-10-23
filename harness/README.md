@@ -67,17 +67,11 @@ error window. labscript-utils releases before 3.5.0 ignore the variable.
 
 A check for a known open bug is marked `KNOWN` in the log and does not fail the step.
 When the bug is fixed the check prints `FIXED` so that the marker can be removed. At
-present the `runmanager-api` checks "globals in a cycle hold an error naming the cycle"
-and "hierarchy of a conditional" are marked as known for runmanager #139, and
-"expansion settings API present" is marked as known for runmanager #140, with the
-checks of that API run only when it is present, and "zipped global referring to an outer
-global holds an error" is marked as known for runmanager #143. The `runviewer` check
-"DummyIntermediateDevice has a runviewer parser" is marked as known for
-labscript-devices #157, with the checks of the
-`analog_out` and `digital_out` trace values run only when the parser is present. The
-`narwhal` check "the installed labscript-devices has the NarwhalPulseGenerator package"
-is marked as known for the labscript-devices `narwhal-pulsegen` branch, and the rest of
-the step runs only when the package is present.
+present the `lyse-gui` check "the filebox has an Abort button" is marked as known for
+lyse #153, with the Abort checks run only when the button is present, and the `narwhal`
+check "the installed labscript-devices has the NarwhalPulseGenerator package" is marked
+as known for the labscript-devices `narwhal-pulsegen` branch, with the rest of the step
+run only when the package is present.
 
 ## The profile
 

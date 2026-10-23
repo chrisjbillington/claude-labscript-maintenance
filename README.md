@@ -45,6 +45,14 @@ and the file:line evidence.
 
 ## State as of 2026-10-23
 
+- Twenty-six pull requests were merged on 2026-10-23 (`docs/PULL-REQUESTS.md`):
+  runmanager #139 to #143 (topological evaluator, custom and automatic expansion
+  settings, zip group axis check), blacs #131 to #134, lyse #148 to #150, #152 and #154
+  to #156, labscript-utils #136 and #137, labscript-devices #156 to #159, runviewer #78
+  and #79, qtutils #39 and zprocess #33 (PAIR sockets). This fixes `docs/DEFECTS.md`
+  D11 to D13, D16, D17, D21 (for the applications), D25 and D28 to D34, and review item
+  blacs B3. The harness `KNOWN` markers for these pull requests are removed; the
+  remaining ones are for lyse #153 and the `narwhal-pulsegen` branch.
 - The BLACS queue manager added a delay before each transition that grew with CPU load:
   with 8 dummy tabs and 16 busy processes on 16 cores it took about 50 ms to start the
   tabs' transitions, one blocking main-thread call per tab. The experimental blacs
@@ -86,6 +94,7 @@ and the file:line evidence.
   kill the process, and `zprocess.start_daemon` forks twice (D21). zprocess #37 makes
   `start_daemon` start daemons from a fresh Python process, and labscript-utils #137
   starts the zlog and zlock servers without `start_daemon`; either one fixes D21.
+  labscript-utils #137 was merged on 2026-10-23.
   zprocess #38 fixes a race in which BLACS created several event brokers and heartbeat
   servers and called appnope concurrently (D22). zprocess #39 stops zprocess creating a
   default `ProcessTree` on import, for zprocess 3; labscript-utils #138 uses the new
@@ -131,7 +140,7 @@ and the file:line evidence.
   passing the harness on Python 3.11 to 3.14 with all three Qt bindings: labscript #130
   (removes the pylab star import, labscript #104; secondary pseudoclocks in the
   shared-trigger check), runmanager #137 (uneven zip groups are an error, merged 2026-10-21) and blacs #131
-  (closing BLACS during a shot aborts and requeues it). labscript #130 and blacs #131 are
+  (closing BLACS during a shot aborts and requeues it, merged 2026-10-23). labscript #130 is
   open. labscript B3
   (`wait_delay`) and the labscript-devices hardware items are waiting for discussion
   (`docs/MAINTENANCE.md`, "Part 2 status"). Breaking changes for the release notes and the

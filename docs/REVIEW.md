@@ -364,7 +364,7 @@ Paths are relative to each repo's root unless stated otherwise.
   reaching a `yield` puts the tab into fatal error. In-tree, `shutdown_workers` (591) does
   this for a tab with no workers. Line 842: `if next_yield:` means that a falsy yield
   re-sends the previous job to the worker.
-- **Fixed by blacs PR #131, opened 2026-10-18 (the shot is aborted and requeued).** ~~**B3. `blacs/__main__.py:123-145, 635-657` (read).**~~ Closing BLACS during a shot has no
+- **Fixed by blacs PR #131, merged 2026-10-23 (the shot is aborted and requeued).** ~~**B3. `blacs/__main__.py:123-145, 635-657` (read).**~~ Closing BLACS during a shot has no
   guard. `closeEvent` sets `manager_running = False`, queues `shutdown_workers` on every tab
   and terminates workers after 2 s. The running shot is abandoned with devices in buffered
   mode, and the shot is absent from the saved queue. The TODO at `experiment_queue.py:748`

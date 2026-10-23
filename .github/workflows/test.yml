@@ -48,8 +48,7 @@ jobs:
         qt: ${{ fromJSON(inputs.qts || '["PySide6", "PyQt6", "PyQt5"]') }}
         pins: ['${{ inputs.pins }}']
         include:
-          # The master branches do not compile on NumPy 2.5 (labscript #123); this job
-          # shows whether anything else has regressed.
+          # One job with NumPy older than 2.5.
           - os: ubuntu-latest
             python: '3.14'
             qt: PySide6

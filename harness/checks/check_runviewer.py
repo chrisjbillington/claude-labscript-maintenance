@@ -74,8 +74,7 @@ for name, (times, values) in traces.items():
 
 # The example experiment sets digital_out high from 1 s to 1.75 s and ramps analog_out
 # from 0 V to 1 V between 1.5 s and 1.75 s.
-if check('intermediate_device' in with_parser, 'DummyIntermediateDevice has a runviewer parser',
-         known='labscript-devices #157'):
+if check('intermediate_device' in with_parser, 'DummyIntermediateDevice has a runviewer parser'):
     def value_at(name, t):
         times, values = traces[name]
         return values[np.searchsorted(times, t, side='right') - 1]

@@ -119,7 +119,7 @@ handler's `send`, which encrypts and sends each record.
   waited for it indefinitely.
 - **(read)** `get_next_file`, `transition_device_to_buffered`, `get_device_error_state`,
   `_abort_buffered_devices` and the attribute `current_queue` are removed. blacs #131
-  (abort the shot when BLACS closes) puts an abort to `current_queue`; its `stop()` is
+  (abort the shot when BLACS closes, merged 2026-10-23) puts an abort to `current_queue`; its `stop()` is
   ported to the main-thread queue in `patches/blacs-queue-main-thread-stop.patch`, for
   when the two are combined (`LOCAL-TASKS.md`).
 

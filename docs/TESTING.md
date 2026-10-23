@@ -43,6 +43,17 @@ average 1.7). Medians of repeated calls in a warm process.
 - In sequence 0025 the FunctionRunner worker job took 76 ms (median), so reading the
   globals is about 3% of the job.
 
+## 2026-10-23: runmanager #50 on master adc9777
+
+With runmanager master adc9777 (#140 merged), Python 3.14.8: a globals file with
+`a = [1, 2, 3]`, `b = array(a) * 2` and `c = [4, 5]`, all new and so automatic, gets `a`
+and `b` in zip group `a` and `c` outer from the post-parse update that the GUI runs
+(`RunManager.update_expansions`: `get_custom_expansions`, `automatic_expansions`, then
+`set_expansion(..., custom=False)` for each global without a custom setting), reproduced
+with the library functions. After `set_expansion` of `c` to `''` and of `b` to `outer`,
+which record custom settings, two more runs of the update leave `c` unexpanded and `b`
+outer, so the two cases of runmanager #50 persist across a reopen. Issue closed.
+
 ## 2026-10-23: runmanager #139 and #140 rebased onto master 9770920
 
 #139 (`topological-evaluator`, now 2d8129d) was rebased onto master 9770920, which
