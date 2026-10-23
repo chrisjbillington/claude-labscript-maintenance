@@ -25,3 +25,7 @@ running.
 
 Use case: hardware that only one process at a time can access can be released for
 another process to use.
+
+## BLACS: further performance improvements
+
+Look for more places where BLACS can be made faster.
