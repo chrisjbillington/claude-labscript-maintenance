@@ -51,6 +51,40 @@ Run
 with D36 reported as KNOWN by `blacs-shot`; the six Python 3.15 jobs failed at "Install
 the components", as before.
 
+## 2026-10-24: pyzmq Linux wheels build libsodium without optimisation
+
+The libsodium in the pyzmq Linux wheels is compiled without `-O`. pyzmq's cibuildwheel
+configuration sets `CFLAGS="-Wl,-strip-all"` for Linux (`pyproject.toml`,
+`[tool.cibuildwheel.linux.environment]`, since pyzmq 22.0.0, commit e29095d1 of
+2021-01-28), and `tools/install_libzmq.sh` runs libsodium's `./configure` with it.
+libsodium's `configure.ac` adds `-O3` only when `CFLAGS` is not set (read). The same
+script builds libzmq with `CXXFLAGS="-Wl,-strip-all"`.
+
+Throughput of `crypto_box_easy_afternm`, the cipher of CurveZMQ messages, on 6.2 MB,
+called through ctypes, and the REQ/REP round trip of one 6.2 MB message on 127.0.0.1
+(median):
+
+| Machine | Library | Throughput | CURVE round trip | Plain round trip |
+|---|---|---|---|---|
+| laptop (i7-1270P, Arch) | pyzmq 27.2.0 wheel, bundled libsodium 1.0.22 | 161 MB/s | 76 ms | 2.6 ms |
+| laptop | libsodium 1.0.22 built with `CFLAGS="-Wl,-strip-all"` | 164 MB/s | | |
+| laptop | libsodium 1.0.22 built with default flags | 1896 MB/s | | |
+| laptop | libsodium 1.0.22 built with `LDFLAGS="-Wl,-strip-all"` | 1955 MB/s | | |
+| laptop | Arch libsodium 1.0.22, with pyzmq 27.2.0 built from source on Arch libzmq 4.3.5 | 1857 MB/s | 11.9 ms | 2.7 ms |
+| diginuc (i3-1115G4, Ubuntu 22.04) | pyzmq 27.2.0 wheel (Python 3.14), bundled libsodium 1.0.22 | 72 MB/s | 174 ms | 2.7 ms |
+| diginuc | pyzmq 25.1.0 wheel (Python 3.10), bundled libsodium 1.0.18 | 78 MB/s | 183 ms | 2.8 ms |
+| diginuc | Ubuntu libsodium 1.0.18 | 1369 to 1673 MB/s | | |
+
+- The build with `CFLAGS="-Wl,-strip-all"` reproduces the wheel's throughput and size
+  (1.43 MB, wheel 1.35 MB; default flags 0.70 MB). With the strip flag in `LDFLAGS`
+  instead, the library is fast and 0.63 MB.
+- libzmq without optimisation changes plain zmq little: 21.8 µs per round trip of 100 B
+  messages with the wheel and 19.0 µs with pyzmq built on the Arch libzmq.
+- No pyzmq issue reports this; pyzmq #1491 (2021) about the wheel size led to the flag.
+- Not measured: the macOS wheels (`install_libzmq.sh` also sets `CFLAGS` there),
+  the Windows wheels (libsodium built with msbuild in a Release configuration, read) and
+  conda's pyzmq.
+
 ## 2026-10-24: labscript-devices `camera-image-ack` on diginuc
 
 Sequences 0000 to 0003 of `drop_mot` on diginuc, 2026-10-24 01:29 to 01:38, 100 shots
