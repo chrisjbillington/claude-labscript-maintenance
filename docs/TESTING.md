@@ -5,6 +5,33 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-23: evaluation of zipped globals that depend on other axes (DEFECTS.md D27, D28)
+
+A colleague's globals file, with `yellow_pulse_time` derived from
+`total_yellow_pulse_duration` and from `yellow_pulse_1` and `yellow_pulse_2` in another
+zip group, evaluated and expanded with the library (harness venv, Python 3.14.8) on
+runmanager 3.3.0, master 7e692f4 and the #139 (2101a63) and #140 (db18f83) branches: no
+errors, 100 shots, and `yellow_pulse_time` half the duration in every shot on all four
+(D28). On 3.3.0 and master, `PYTHONHASHSEED` 1 and 3 iterated the `clock` zip group
+fastest and 2 and 4 the durations (D27). The same scan written as four globals in one zip
+group with `np.tile`, `np.repeat` and `np.where` gave the intended pulse times on 3.3.0.
+
+runmanager #143 (b283c3a, on master 7e692f4): the colleague's file gives the
+`ValueError` on `yellow_pulse_time` only. A global derived from an `outer` global or
+another zip group, and one that depends on another axis through a global with no
+expansion, hold the error; a chain of derived globals in one zip group, an `outer` copy
+of an `outer` global and a scalar computed from the lengths of two `outer` lists evaluate
+as before; `raise_exceptions=True` raises the error. The evaluator change applied to the
+#139 branch gives the same results.
+
+**GitHub Actions:** run
+[39904642902](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39904642902)
+of `test.yml` with `runmanager=labscript-suite/runmanager@zip-cross-axis-check` passed
+every step in all 25 jobs, with the new `runmanager-api` case reported as FIXED (the six
+Python 3.15 jobs fail at install as always). The push run
+[39904626431](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39904626431)
+on the masters passed, with the case reported as KNOWN.
+
 ## 2026-10-23: lyse #150 with the removal of defunct model columns (DEFECTS.md D25)
 
 lyse #150 at 79f9db9, on master c74fa4e. A script that drives `DataFrameModel` directly
