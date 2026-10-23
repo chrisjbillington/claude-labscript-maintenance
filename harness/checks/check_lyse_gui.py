@@ -1,15 +1,17 @@
-"""Run the lyse GUI in this process under the offscreen platform and exercise the Abort
-button: a routine that loops in Python is interrupted and its worker survives, a routine
-that is blocked in a long sleep has its worker restarted, analysis is paused in both
-cases, and the interrupted worker then runs a routine to completion. The checks are
-reported as KNOWN when lyse has no Abort button."""
+"""Run the lyse GUI in this process under the offscreen platform. Check that a shot file
+that has not been run is not loaded, and exercise the Abort button: a routine that loops
+in Python is interrupted and its worker survives, a routine that is blocked in a long
+sleep has its worker restarted, analysis is paused in both cases, and the interrupted
+worker then runs a routine to completion. The Abort checks are reported as KNOWN when
+lyse has no Abort button."""
 
 import logging
+import shutil
 import sys
 import time
 from pathlib import Path
 
-from _common import WORK, check, finish, load_state
+from _common import SHOTS, WORK, check, finish, load_state
 
 state = load_state()
 shot = state['example_shot']
@@ -17,11 +19,13 @@ shot = state['example_shot']
 # Importing the lyse entry module creates the QApplication and shows the splash, as
 # starting lyse does; the application itself is created below.
 import lyse.__main__ as lyse_main
+import h5py
 from qtutils.qt import QtCore, QtWidgets
 
 qapplication = QtWidgets.QApplication.instance()
 
 ABORT_FEATURE = 'lyse #153'
+SKIP_UNRUN_FEATURE = 'lyse skip-unrun-shots'
 routines_dir = WORK / 'routines'
 routines_dir.mkdir(exist_ok=True)
 loop_script = routines_dir / 'loop_routine.py'
@@ -76,6 +80,16 @@ paused_log = LogCounter('analysis is paused')
 logging.getLogger('lyse.FileBox.analysis_loop').addHandler(paused_log)
 
 
+def copy_shot(name, run):
+    """Copy the example shot, without its run time if run is False"""
+    path = SHOTS / name
+    shutil.copy(shot, path)
+    if not run:
+        with h5py.File(path, 'r+') as f:
+            del f.attrs['run time']
+    return str(path)
+
+
 def set_enabled(box, routine, enabled):
     item = box.model.item(routine.get_row_index(), box.COL_ACTIVE)
     item.setCheckState(QtCore.Qt.Checked if enabled else QtCore.Qt.Unchecked)
@@ -94,6 +108,18 @@ lyse_main.splash.hide()
 filebox = app.filebox
 box = app.singleshot_routinebox
 try:
+    unrun_shot = copy_shot('not_run.h5', run=False)
+    run_shot = copy_shot('run.h5', run=True)
+    filebox.incoming_queue.put(unrun_shot)
+    filebox.incoming_queue.put(run_shot)
+    def loaded(path):
+        return path in filebox.shots_model.row_number_by_filepath
+
+    check(wait_until(lambda: loaded(run_shot), 60), 'a shot file that has been run is loaded')
+    check(not loaded(unrun_shot) and 'has not been run' in output_text(),
+          'a shot file that has not been run is not loaded', known=SKIP_UNRUN_FEATURE)
+    wait_until(lambda: filebox.shots_model.get_first_incomplete() is None, 30)
+
     if not check(hasattr(filebox.ui, 'pushButton_abort'), 'the filebox has an Abort button',
                  known=ABORT_FEATURE):
         finish()

@@ -3,6 +3,7 @@ and check the shot file contents."""
 
 import os
 import sys
+from datetime import datetime
 from pathlib import Path
 
 from _common import SHOTS, attempt, check, finish, labconfig, save_state
@@ -60,6 +61,10 @@ with h5py.File(run_file, 'r') as f:
     check('PULSE_PROGRAM' in f['devices/pseudoclock'], 'pseudoclock has a pulse program')
     stop_time = f['devices/pseudoclock'].attrs['stop_time']
     check(abs(stop_time - 2.25) < 1e-9, f'stop time {stop_time}')
+
+# BLACS stamps a shot with its run time after running it:
+with h5py.File(run_file, 'r+') as f:
+    f.attrs['run time'] = datetime.now().strftime('%Y%m%dT%H%M%S.%f')
 
 save_state(connection_table_h5=ct_h5, example_shot=run_file, example_script=script)
 finish()
