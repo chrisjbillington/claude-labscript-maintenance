@@ -108,6 +108,8 @@ lyse_main.splash.hide()
 filebox = app.filebox
 box = app.singleshot_routinebox
 try:
+    # Shots are loaded with analysis paused, and removed before the Abort checks:
+    filebox.ui.pushButton_analysis_running.setChecked(True)
     unrun_shot = copy_shot('not_run.h5', run=False)
     run_shot = copy_shot('run.h5', run=True)
     filebox.incoming_queue.put(unrun_shot)
@@ -118,11 +120,13 @@ try:
     check(wait_until(lambda: loaded(run_shot), 60), 'a shot file that has been run is loaded')
     check(not loaded(unrun_shot) and 'has not been run' in output_text(),
           'a shot file that has not been run is not loaded', known=SKIP_UNRUN_FEATURE)
-    wait_until(lambda: filebox.shots_model.get_first_incomplete() is None, 30)
+    filebox.shots_model._view.selectAll()
+    filebox.shots_model.remove_selection(confirm=False)
 
     if not check(hasattr(filebox.ui, 'pushButton_abort'), 'the filebox has an Abort button',
                  known=ABORT_FEATURE):
         finish()
+    resume()
 
     box.add_routines([(str(loop_script), QtCore.Qt.Checked)])
     loop_routine = box.routines[0]
