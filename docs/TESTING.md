@@ -48,6 +48,18 @@ queue is empty, even with no multishot routines. Assigning the same 28 results w
 `.at` takes 0.27 ms, and with one `.loc[row, columns] = values` 2.7 ms, against 6.8 ms
 for the current per-column `.loc` assignment.
 
+## 2026-10-23: blacs #135 (`statemachine-main-thread`) and #136 (`queue-main-thread`)
+
+`test.yml` runs
+[39960991964](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39960991964)
+(blacs at `statemachine-main-thread`, 4c0f058) and
+[39961004193](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39961004193)
+(blacs at `queue-main-thread`, 4fa3b05), the other components at their masters: in each,
+the jobs for Python 3.11 to 3.14 passed every step, except the Ubuntu Python 3.14 PyQt5
+job of the first run, which failed at "Clone the components" with a network error from
+GitHub while fetching qtutils. The six Python 3.15 jobs failed at "Install the
+components", as on the masters. The pull requests were opened after these runs.
+
 ## 2026-10-23: qtutils #41 and #38 rebased
 
 #41 (`auto-scroll-after-show`, now f799f83) was rebased onto master 114a6ec, which

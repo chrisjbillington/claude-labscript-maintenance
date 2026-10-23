@@ -4,7 +4,7 @@ Written 2026-10-23. Measurement of the delay between BLACS taking a shot from th
 and the tabs starting their transitions, and an experimental rewrite of the queue
 manager (`blacs/experiment_queue.py`) that removes most of it. The rewrite is blacs
 branch `queue-main-thread` (4fa3b05), one commit on `statemachine-main-thread` (4c0f058,
-`BLACS-STATE-MACHINE.md`). It is experimental; no pull request is planned. Each fact is
+`BLACS-STATE-MACHINE.md`). It is [blacs #136](https://github.com/labscript-suite/blacs/pull/136), opened 2026-10-24 on top of #135. Each fact is
 labelled with how it was verified (run, read or plausible), as in `REVIEW.md`.
 
 ## 1. Summary
