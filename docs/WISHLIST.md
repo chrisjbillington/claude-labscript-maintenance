@@ -44,3 +44,21 @@ an error. The output tab shows an icon or red text if there was an error.
 A group tab already has an exclamation icon while one of its globals fails to evaluate
 (`runmanager/__main__.py:798`, runmanager 7e692f4). The output tab has no status
 indication.
+
+## All applications: desktop-app functionality on macOS
+
+`desktop-app install` and the applications themselves give BLACS, runmanager, lyse and
+runviewer the same desktop integration on macOS as on Windows and Linux: an application
+bundle with the correct name and icon, and a Dock icon and application name for the
+running process.
+
+desktop-app master (c8498cf) creates `.app` bundles in `~/Applications`
+(`desktop_app/macos.py:29`, from desktop-app #29) and reads `short_display_name` from
+`desktop-app.json` (`desktop_app/shell.py:65`). `set_process_appid`
+(`desktop_app/shell.py:184`) does nothing on macOS. The four applications set no
+`short_display_name` in their `desktop-app.json`, and the splash screen takes the Qt
+application name from `sys.argv` (`labscript_utils/splash.py:55`, labscript-utils
+e5cd210). The closed pull requests that would have changed the applications are listed
+in section 6 of `RELEASE-PLAN.md` (labscript-utils #124, blacs #122, runmanager
+#129, runviewer #72, lyse #138). An application started from its entry point script in
+a macOS venv does not see the venv until desktop-app #35 is merged (`DEFECTS.md` D19).
