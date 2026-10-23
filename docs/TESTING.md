@@ -5,6 +5,19 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-23: zprocess #38 rebased onto master 8582358
+
+#38 (`appnope-once`, now c0ff0bf) was rebased onto master 8582358, which includes #34,
+#36 and #37. The only conflict was the `zprocess.process_tree` import line in
+`tests/test_zprocess.py`, which now imports both `ReadQueue` (from master) and
+`ProcessTree` (from #38). Locally (Python 3.14.8), the zprocess test suite passes, 36
+tests, including the new test of processes started concurrently.
+
+`test.yml` run
+[39952276822](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39952276822)
+(`zprocess=pr/38`): the 25 jobs for Python 3.11 to 3.14 passed every step; the six
+Python 3.15 jobs failed at "Install the components", as on the masters.
+
 ## 2026-10-23: labscript #131 (`load_globals` cleanup)
 
 `test.yml` run
