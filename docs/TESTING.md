@@ -204,7 +204,12 @@ every step; the six Python 3.15 jobs failed at "Install the components", as on t
 masters. In run
 [39969987453](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39969987453)
 (push of the new check, masters), the `lyse-gui` process on Ubuntu, Python 3.11, PySide6
-ended with a segmentation fault while the second routine ran (D39).
+ended with a segmentation fault while the second routine ran (D39); the job passed when
+run again. Run
+[39972898331](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39972898331)
+(`lyse=pr/157`, with the harness waiting for the pause after the routine error): the 25
+jobs for Python 3.11 to 3.14 passed every step; the six Python 3.15 jobs failed at
+install.
 
 ## 2026-10-24: lyse per-shot time with the lab's single-shot routine
 
