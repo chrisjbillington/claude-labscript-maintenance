@@ -5,6 +5,51 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-23: lyse fixes backported to lyse 3.3.0 on Python 3.10
+
+The maintainer's lab machine runs lyse 3.3.0, which has the tree of master 92be8de, with
+the local `os.nice(10)` edit and a local edit that reads the `data` group attributes. It
+runs Python 3.10.12 with PyQt5 5.15.9, labscript-utils 3.4.1, zprocess 2.26.1, qtutils
+4.0.0, pandas 2.3.3, NumPy 2.2.6 and h5py 3.15.1. lyse master requires Python 3.11, so
+the fixes were cherry-picked onto v3.3.0 instead of installing master:
+
+- 6066df4 and 001df5f (lyse #132), in place of the local `data` group edit;
+- 8a6a5d5 (#144), 9cff0f3, 0b010a9 and 455f19b (#145), 3723c9b and 00a26a1 (#146), and
+  the fourteen commits of #147;
+- the open pull requests #149 (03e3c95), #150 (5142bbb), #151 (6c8312d) and #152 (ed71cc7,
+  0bb3acd).
+
+The Qt6 commits, the packaging commits and the open pull requests #148 (needs
+labscript-utils #136), #153 (needs zprocess #34 and #35) and #154 (PyQt6 only) were left
+out. Only 455f19b and 74f1968 conflicted, on start-up logging lines and a
+`Qt.CheckState()` wrapper that 3.3.0 does not have; the resolution takes the incoming
+code without those lines.
+
+Locally on Arch Linux, in a Python 3.10.22 venv with the lab machine's versions of the
+suite and its dependencies and the offscreen Qt platform:
+
+- The harness `lyse` step passed, lyse and its submodules imported, and lyse started
+  and listened on its port in the `apps` step with no traceback. The other failures were
+  in the unchanged components (labscript 3.4.0 imports fail with `-W
+  error::DeprecationWarning`, runmanager 3.3.0 has no `runmanager.widgets`, BLACS 3.2.3
+  raises `KeyError: 'window_xpos'` in `restore_window` on a new profile).
+- A script ran the lyse GUI in its process with three single-shot routines and a
+  multishot routine that saves three results to every shot, on 500 copies of the example
+  shot, then removed 490 shots. Two interleaved runs each:
+
+  | | 3.3.0 with local edits | backport |
+  |---|---|---|
+  | start the four workers | 3.6 s | 2.7 s |
+  | single-shot analysis of 500 shots | 34.6 s | 35.0 to 35.5 s |
+  | end of single-shot analysis to multishot results in the dataframe | 5.1 to 5.2 s | 2.6 to 3.0 s |
+  | remove 490 of 500 shots (about 20 columns) | 0.03 s | 0.01 s |
+
+  The multishot time includes the routine opening the 500 shot files.
+- Restarting a routine while it ran hung the GUI with both versions: the main thread
+  blocked in `Interruptor.subscribe` under `check_child_exited` (DEFECTS.md D14). With
+  the one-line change of zprocess #34 applied to zprocess 2.26.1 as well, the worker
+  exited on SIGTERM (return code -15) and the routine restarted 2.9 s after `restart()`.
+
 ## 2026-10-23: zprocess #38, zprocess #39 and labscript-utils #138
 
 zprocess #38 (4bece28, on master 1de4c26) creates a `ProcessTree`'s broker and heartbeat
