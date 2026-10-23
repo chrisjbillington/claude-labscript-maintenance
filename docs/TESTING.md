@@ -114,7 +114,7 @@ wheel; library sizes are uncompressed, from the cp310 wheel.
 | manylinux riscv64 | 1 | 742 kB | 768 kB (+3.6%) | 683 → 437 kB | 963 → 556 kB |
 | macOS universal2 | 6 | 1469 kB | 1249 kB (−15%) | 1262 → 1038 kB | 3329 → 1314 kB |
 | macOS x86_64 (PyPy) | 3 | 911 kB | 684 kB (−25%) | 1369 → 664 kB | 1621 → 639 kB |
-| Android, Windows | 33 | | within 0.3% | not affected | not affected |
+| Android, Windows | 21 | | within 0.3% | not affected | not affected |
 
 The libraries are smaller on every affected platform. The aarch64 and riscv64 wheels are
 larger because the optimised libraries compress less well. Plain zmq round trips of 100 B messages on the laptop: 21.8
