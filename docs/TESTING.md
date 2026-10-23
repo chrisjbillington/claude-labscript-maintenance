@@ -284,6 +284,28 @@ and checks the size again once it holds it; with it:
   failed to install, because h5py 3.16.0 has no wheels for Python 3.15. The pull request
   is [runmanager #144](https://github.com/labscript-suite/runmanager/pull/144).
 
+## 2026-10-24: lyse #157 on diginuc
+
+lyse at master 3edf99c and at the #157 branch head a00f06f, each run three times,
+alternating, on diginuc (i3-1115G4, 4 cores, Python 3.14.8, PyQt5 5.15.11, Qt offscreen,
+the `test-batch` versions of the other components). Each run started lyse with
+`gaussian_fit` as the only routine, submitted the 100 shots of sequence 0029 (copies in
+`/tmp`, removed afterwards) at once and waited for them to be analysed. BLACS was not
+running; another program kept the load average at about 1.8. Medians over shots 5 to 99,
+in ms, as the range over the three runs:
+
+| | master, idle | #157, idle | master, 3 busy processes | #157, 3 busy processes |
+|---|---|---|---|---|
+| per shot | 126 to 129 | 102 to 104 | 229 to 233 | 187 to 203 |
+| routine body | 67 to 69 | 72 to 73 | 131 to 134 | 131 to 143 |
+| per shot minus routine body | 60 to 62 | 32 to 33 | 97 to 100 | 57 to 62 |
+| routine sent to result received (`lyse.log`) | 78 to 79 | 79 to 81 | 149 to 158 | 147 to 162 |
+| result received to next routine sent (`lyse.log`) | 50 to 52 | 23 to 25 | 76 to 82 | 38 to 43 |
+
+100 shots took 14.1 to 14.7 s on master and 11.9 s on #157 when idle, and 25.6 to 25.9 s
+and 21.4 to 22.2 s with three busy processes. The maintainer's measurement below, with
+the lyse window on screen, had 117 ms and 87 ms for the last two rows.
+
 ## 2026-10-24: lyse #157 (per-shot time outside the routines)
 
 lyse branch `shot-overhead`, four commits on master 3edf99c, measured as in the entry
