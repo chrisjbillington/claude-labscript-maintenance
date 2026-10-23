@@ -5,6 +5,20 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-23: labscript-devices #159 (FunctionRunner opens the shot file once)
+
+`test.yml` run
+[39944421762](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39944421762)
+with labscript-devices at `function-runner-one-open` (db02f86) and the other components
+at their masters, which include labscript-utils #139: the 25 jobs for Python 3.11 to
+3.14 passed every step; the six Python 3.15 jobs failed at "Install the components", as
+on the masters. The harness does not run the FunctionRunner worker. Locally (Python
+3.14.8), `FunctionRunnerWorker.transition_to_buffered` on a diginuc shot file with a
+start and a stop function opens the file once (twice before the change), and the
+functions receive the same globals as `get_shot_globals` returns. An earlier run,
+39943687032, failed at "Clone the components" on most jobs because labscript-utils #139
+was merged and its branch deleted while the run was starting.
+
 ## 2026-10-23: labscript-utils #139 and lyse #156 (`get_shot_globals` with an open file)
 
 `test.yml` run
