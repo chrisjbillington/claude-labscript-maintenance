@@ -3,7 +3,10 @@
 Written 2026-10-23. Sections: 1 what exists, 2 goals, 3 the device and its protocol,
 4 package layout, 5 labscript device, 6 BLACS worker, 7 BLACS tab, 8 runviewer parser,
 9 differences from the current device, 10 testing, 11 implementation sequence,
-12 decisions for the maintainer.
+12 decisions.
+
+Decisions 1 to 3 of section 12 were taken by the maintainer on 2026-10-23; decision 4
+is open.
 
 ## 1. What exists
 
@@ -164,6 +167,17 @@ NarwhalPulseGenerator(
 - `trigger_on_powerline`: bool, `device_properties`.
 - `use_wait_monitor`: as for the PrawnBlaster.
 
+`wait_for_powerline(label, t, timeout=1.0)` is a method of the device: it calls
+`labscript.wait(label, t, timeout)` and records `t`, so that `generate_code` sets
+`powerline_sync` on the instruction after that wait (section 5.3). The device then resumes
+at the next positive zero crossing of the mains plus `powerline_trigger_delay`, and
+ignores hardware and software triggers while it waits, so the timeout is never used and
+the default of one second only has to be longer than one mains period. The method serves
+two uses: a wait whose external trigger should take effect at a zero crossing, and a wait
+whose only purpose is to realign the shot with the mains phase. The wait monitor measures
+it like any other wait. Starting the shot at a zero crossing is `trigger_on_powerline`,
+which applies to every trigger the device receives, including those that end waits.
+
 `device_properties` also carry `clock_limit`, `clock_resolution`, `trigger_delay`,
 `trigger_minimum_duration`, `minimum_recovery_time` and `wait_delay` for the runviewer
 parser, and `generate_code` adds `is_master_pseudoclock`, `stop_time` and
@@ -193,9 +207,10 @@ For each instruction:
 5. For `'WAIT'`: set `stop_and_wait` on the last device instruction emitted. If that
    instruction has `goto_counter > 0`, first split the last repetition off into its own
    pair of instructions (reduce the loop's counter by one and append a copy of the pair
-   without the loop), so that the device pauses once and not on every repetition. If
-   nothing has been emitted yet, raise a `LabscriptError`: a wait at t=0 is not
-   supported (section 12).
+   without the loop), so that the device pauses once and not on every repetition. If the
+   wait's time is one recorded by `wait_for_powerline`, set `powerline_sync` on the next
+   device instruction emitted. If nothing has been emitted yet, see section 12,
+   decision 4.
 6. If `reps - 1 > 2^32 - 1`, raise a `LabscriptError`. No labscript ramp needs that
    many ticks.
 7. After the loop, if there are more than 8192 device instructions, raise a
@@ -211,9 +226,6 @@ The table is written to `devices/{name}/PULSE_PROGRAM` with dtype `state <u4`,
 channels that have a clockline or a direct output, is a device property: the worker
 holds the other channels at their front panel values (section 6.3). This replaces the
 `-1` sentinels in the current device's `int8` channel arrays.
-
-The powerline-synchronised wait (section 12, decision 2) sets `powerline_sync` on the
-instruction after the wait.
 
 ## 6. The BLACS worker
 
@@ -425,11 +437,10 @@ Dropped:
 
 - The vendor library and `portalocker`.
 - A wait whose label starts with `ACsync` making the following instruction
-  powerline-synchronised. See decision 2.
+  powerline-synchronised. Replaced by `wait_for_powerline` (section 5.2).
 - The `.ui` file and the three custom widget classes.
 - Writing the firmware version, hardware version, serial number and port into the shot
-  file at the end of every shot. See decision 3.
-- A wait at t=0 (the original emits a one-cycle instruction for it).
+  file at the end of every shot.
 
 Kept: every constructor argument, the `pseudoclock` and `direct_outputs` properties and
 the `channel n` connection strings, the internal wait monitor, every front panel control,
@@ -499,24 +510,33 @@ Hardware tests for the maintainer, on diginuc with the lab's device, recorded in
 6. Merge, delete the branch, update `docs/PULL-REQUESTS.md`, and add the device to the
    release notes in `docs/RELEASE-PLAN.md`.
 
-## 12. Decisions for the maintainer
+## 12. Decisions
 
-1. Name. This plan uses `NarwhalPulseGenerator` for the package and the class. The
-   current class is `NarwhalDevicesPulseGenerator`. The lab's connection table changes
-   its import either way, so the shorter name costs nothing; say if the vendor's full
-   name is preferred.
-2. Powerline-synchronised waits. The current device makes a wait whose label starts with
-   `ACsync` resume at the next mains zero crossing instead of on a trigger. The lab does
-   not use it. Options: (a) drop it; (b) keep it as an explicit method
-   `pulsegen.wait_for_powerline(label, t)` that calls `labscript.wait` and records `t`,
-   so that `generate_code` sets `powerline_sync` on the instruction after that wait. (b)
-   is about fifteen lines and keeps the hardware feature reachable from labscript.
-   Recommendation: (b), unless no one wants it.
-3. Device information in the shot file. The current worker writes the firmware version,
-   hardware version, serial number and port as attributes of the device group at the end
-   of every shot. Recommendation: drop it; the information is in the BLACS tab and the
-   log. Say if an analysis depends on it.
-4. A wait at t=0 is an error in this plan. The current device emits a one-cycle
-   instruction with `stop_and_wait` for it. Nothing in the lab does this.
-5. Tests live in this repository's harness, not in labscript-devices, which has no test
+Taken on 2026-10-23:
+
+1. Name: `NarwhalPulseGenerator` for the package and the class.
+2. Powerline-synchronised waits are kept, as the explicit method `wait_for_powerline`
+   (section 5.2), not as a wait label prefix.
+3. The firmware version, hardware version, serial number and port are not written into
+   the shot file.
+4. Tests live in this repository's harness, not in labscript-devices, which has no test
    suite. The simulator is a harness fixture, not a `mock` option of the device.
+
+Open:
+
+5. A wait at t=0. Its meaning is "pause before the first instruction until a trigger",
+   which is how a master device starts a shot on an external trigger, or, with
+   `wait_for_powerline`, at a zero crossing without `trigger_on_powerline` applying to
+   the other waits. labscript already rejects it whenever a wait monitor exists: `start()`
+   pulses the wait monitor at t=0 (`labscript/labscript.py:663`), the wait pulses it at
+   t=0 again, and `Trigger.trigger` raises for overlapping triggerings
+   (`labscript/outputs.py:1716`). The internal wait monitor is on by default, so the
+   case only compiles with `use_wait_monitor=False` and no other wait monitor, and then
+   nothing measures the wait. The current device supports it with a one-cycle instruction
+   that has `stop_and_wait` set before the shot's first instruction. The plan can do the
+   same at the cost of a device property `wait_at_start` and three lines in the worker,
+   which fill that instruction's state from the front panel so that no output changes
+   before the trigger; the device pauses one cycle after the software trigger and the
+   first instruction starts at the hardware trigger plus the trigger delay, so no timing
+   is shifted. Recommendation: support it that way, since the hardware allows it and
+   the labscript limitation with wait monitors is separate.

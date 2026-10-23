@@ -32,7 +32,7 @@ backward compatibility.
 | `docs/DEFECTS.md` | Defects found by testing that no GitHub issue or review document records, with importance and status |
 | `docs/SUBPROCESS-INTERRUPTION.md` | How to interrupt and end the suite's subprocesses without corrupting HDF5 files: the facts about the kill lock, signals and C code, measurements, and the two-stage design (interrupt, then confirmed kill) with its status per component (2026-10-22) |
 | `docs/WISHLIST.md` | Features that the maintainer may want to consider; none is planned |
-| `docs/NARWHAL-PULSEGEN.md` | Plan for a Narwhal Devices Pulse Generator device in labscript-devices: bundled serial driver, labscript device, BLACS worker and tab, runviewer parser, tests and the decisions it needs (2026-10-23) |
+| `docs/NARWHAL-PULSEGEN.md` | Plan for a Narwhal Devices Pulse Generator device in labscript-devices: bundled serial driver, labscript device, BLACS worker and tab, runviewer parser, tests and decisions (2026-10-23) |
 | `docs/LOCAL-TASKS.md` | Tasks that a cloud session could not do, for a local session to do under supervision |
 | `tools/` | Scripts used to produce the documents: GitHub page scrapers |
 
