@@ -34,6 +34,7 @@ fix is made, in which case the row names the pull request. Importance uses the s
 | D21 | 2026-10-22 | zprocess `zprocess/utils.py:117` (`start_daemon`) with labscript-utils `labscript_utils/excepthook/__init__.py:101` on macOS | With the Tcl/Tk 8.6.16 and 8.6.18 that the python.org installers of Python 3.12 and 3.13 bundle, a process that imports tkinter and forks gets a child that is killed with SIGKILL if it calls `fork()` again. `start_daemon` forks and then starts the daemon with `subprocess.Popen`, which forks a second time, so the daemon is never started. The four applications import `labscript_utils.excepthook`, which imports tkinter, before `setup_logging` starts the zlog server, so on the macOS runner with Python 3.12 and 3.13 they all fail at start-up. The zlock server is started from processes that do not import tkinter and is not affected; Python 3.11 (Tcl/Tk 8.6.13) and 3.14 (Tcl/Tk 9.0.4) are not affected | 3 | run (macOS GitHub Actions, reproduced without the suite) | open; fixed by [zprocess #37](https://github.com/chrisjbillington/zprocess/pull/37) and, for the zlog and zlock servers, by [labscript-utils #137](https://github.com/labscript-suite/labscript-utils/pull/137); either one alone fixes the applications |
 | D22 | 2026-10-22 | zprocess `zprocess/process_tree.py:163` (`HeartbeatServer.__init__`) with appnope 1.0.0 `appnope/_nope.py:70` | On macOS every `HeartbeatServer` calls `appnope.nope()`, which sets `objc_msgSend.argtypes`, a global, before each call. BLACS starts the workers of its device tabs from several threads at once, so two threads can set different `argtypes` at the same time, and one call fails with `ctypes.ArgumentError: argument 3: TypeError: wrong type`. The device tab's worker is then not started | 3 | run (macOS GitHub Actions, 1 of 12 jobs of run 39772363140, 1 of 12 of run 39793127711, 1 of 4 of run 39793279995); cause read | open; fixed by [zprocess #38](https://github.com/chrisjbillington/zprocess/pull/38) |
 | D23 | 2026-10-22 | zprocess `tests/test_zprocess.py:411` (`_assert_intervals_are_immediate_retries`) | The heartbeat tests that send malformed replies require every interval between heartbeat requests to be at most 1.5 s, with a heartbeat interval of 1 s. On the macOS runner intervals of 1.50 s to 1.53 s occur, so `test_subproc_survives_malformed_heartbeats_below_budget` or `test_successful_heartbeat_resets_miss_counter` fails in some jobs | 2 | run (macOS GitHub Actions, 2 of 12 jobs of run 39772363140) | open |
+| D24 | 2026-10-23 | labscript-devices `labscript_devices/NI_DAQmx/blacs_workers.py:856` (`transition_to_manual`) | When the wait monitor thread raises an exception, `transition_to_manual` raises `TypeError: _reraise() takes 1 positional argument but 3 were given` instead of the wait monitor's exception. The worker calls `_reraise(*self.wait_monitor_thread_exception)`, but zprocess `utils._reraise` (a private function, `zprocess/utils.py:107`) takes the `exc_info` tuple as one argument | 2 | run (the function body with the same call, Python 3.14.8); read (the worker) | open |
 
 ## Detail
 
@@ -446,3 +447,15 @@ child sends its next heartbeat within 1.5 s, when the heartbeat interval is 1 s.
 39772363140 the macOS jobs for Python 3.11 with PySide6 and Python 3.13 with PyQt6
 measured intervals of 1.505 s, 1.532 s and 1.538 s and failed. Fix: a larger bound, for
 example the midpoint between the heartbeat interval and the reply timeout.
+
+### D24. The NI DAQmx worker loses the wait monitor's exception
+
+The wait monitor thread of the NI DAQmx worker stores `sys.exc_info()` in
+`self.wait_monitor_thread_exception` (`labscript_devices/NI_DAQmx/blacs_workers.py:827`).
+`transition_to_manual` re-raises it with `_reraise(*self.wait_monitor_thread_exception)`
+(`:856`), which passes three arguments to zprocess `utils._reraise(exc_info)`, a function
+of one argument. Running the function body with the same call raised `TypeError:
+_reraise() takes 1 positional argument but 3 were given`, so BLACS shows that error for
+the shot instead of the wait monitor's.
+Fix: `raise exc.with_traceback(tb)` from the stored tuple in the worker, without the
+zprocess import.

@@ -462,8 +462,33 @@ it:
 - zprocess #38: on macOS, App Nap is disabled in every process that creates a
   `ProcessTree`.
 
-A review of zprocess and the suite for other changes that belong in zprocess 3 is to
-follow.
+The goal is that zprocess 3 breaks compatibility for code outside the suite, but not
+for the components of the release set that requires it. The review of 2026-10-23 (zprocess
+master 1de4c26, the component default branches) gives the items below. Line numbers are
+for zprocess master 1de4c26. The status of each item is "agreed" (the maintainer
+accepted it), "proposed" (not yet decided) or "not for 3" (it needs no major version).
+
+| # | Change in zprocess 3 | Users found | Change needed in the suite | Status |
+|---|---|---|---|---|
+| Z1 | Remove the module-level zlock functions and the `Lock` wrapper that uses `_default_zlock_client` (`zlock/__init__.py:231-303`) | none. `labscript_utils/ls_zprocess.py:158` assigns `_default_zlock_client`; the assignment is harmless after the removal | delete the assignment in labscript-utils #138 | agreed |
+| Z2 | Remove the module-level zlog functions and the `ZMQLoggingHandler` wrapper (`zlog/__init__.py:184-230`) | none | none | agreed |
+| Z3 | Remove the `ZMQServer.setup_auth` hook (`clientserver.py:86-94`, `142`). A subclass that defines `setup_auth(context)` in its own class body gets a plain `zmq.Context` instead of a `SecureContext`; zprocess calls the hook with that context so that the subclass can configure its own authentication, and ignores `shared_secret` and `allow_insecure`. It dates from zprocess 2.4.1 (848cb04, 2018) | none in the suite or in its history | none | proposed |
+| Z4 | Remove the `ZMQServer` subclass (`clientserver.py:440-460`) that accepts `type=` for `dtype=`, requires `port` and defaults to `allow_insecure=True` | `labscript_utils/camera_server.py:76` (`type='string'`); its only user in the suite is the legacy `labscript_devices/imaqdx_server.py`, which is the server for the "use zmq" option of `labscript_devices/Camera.py` (REVIEW.md C2) | `camera_server.py`: `dtype='string', allow_insecure=True`, which keeps the server's behaviour | proposed |
+| Z5 | Replace the `ZMQClient(allow_insecure=True)` that `clientserver.py:464` creates on import with `set_default_client()`; `zmq_get*` and `zmq_push*` look up the default client when they are called and raise `RuntimeError` if none is set. Today the functions are bound to the import-time client, so code outside zprocess cannot replace it | `labscript_devices/Camera.py` (`zmq_get_string`, 6 calls); one lab's code on GitHub submits shots to BLACS with `zprocess.zmq_get` | labscript-utils sets `ls_zprocess.ZMQClient.instance()` as the default where #138 sets the default `ProcessTree`. `Camera.py` uses its own `zprocess.ZMQClient(allow_insecure=True)`: with the labconfig client it would use CURVE when the lab has a shared secret, and the camera server does not | proposed |
+| Z6 | Remove `setup_connection_with_parent()` and `subprocess_with_queues()` (`process_tree.py:1552-1575`) | none in the suite; on GitHub only labscript-suite/mise (last push 2020) and an old lyse fork | none | agreed |
+| Z7 | Remove `embed()` (`utils.py:201`), which raises `NotImplementedError` | none | none | agreed |
+| Z8 | Keep `Event` and `Process` without a `ProcessTree` (they use the default tree) and the `type=` keyword of `Event` (`process_tree.py:1519-1550`) | blacs `Worker` subclasses `zprocess.Process`; NI_DAQmx, PrawnBlaster and CiceroOpalKellyXEM3001 call `Event(..., type='post')` without a tree | change the three devices to `role=` | agreed |
+| Z9 | Remove `zprocess.locking` (`locking/__init__.py:1` says it will be removed in zprocess 3) | `blacs/__main__.py:60` imports it and does not use it | delete the import in blacs. Every released blacs has the import and requires zprocess with no upper bound, so with zprocess 3 every released blacs fails at start-up. Keeping the nine-line module avoids that | proposed |
+| Z10 | Default `allow_insecure` to `False` in the zlock, zlog and remote server command lines (`zlock/__main__.py:129`, `zlog/__main__.py:173`, `remote/__main__.py:38`, planned since 6b11198), in `ZLockClient`, `ZLogClient` and the three server classes | none: labscript-utils `zlock.py`, `zlog.py` and `remote.py` pass the option explicitly in every tag since 3.0.0b1, and `ProcessTree` passes it to its clients | none | proposed |
+| Z11 | `PICKLE_PROTOCOL` 4 to 5 (`__init__.py:3`). Protocol 5 is the highest protocol on Python 3.11 to 3.15 (run on 3.12, 3.13, 3.14 and 3.15) and is read by Python 3.8 and later, so a peer with an older zprocess on Python 3.8 or later still unpickles the messages | n.a. | none | agreed |
+| Z12 | `ProcessTree.connect_to_parent()` sets the tree as the default. With #39 only `Process._run()` and `setup_connection_with_parent()` set it, so in a child that calls `connect_to_parent()` itself (the runmanager batch compiler, the lyse analysis subprocess) `Event` without a tree raises `RuntimeError`. With Z6 the call in `setup_connection_with_parent()` goes, and the one in `Process._run()` may then be redundant: `process_class_wrapper.py` calls `connect_to_parent()` before `_run()` (to check) | n.a. | none | proposed |
+| Z13 | Remove `setuptools_scm` from the runtime dependencies (`pyproject.toml`). `__version__.py` imports it only when zprocess is imported from a git checkout; blacs `__version__.py` catches the `ImportError` instead, and blacs does not depend on `setuptools_scm` at run time. qtutils and labscript-utils (`versions.py`, REVIEW.md C1) declare it too | n.a. | none | not for 3 |
+
+The changes in the suite go into the 3.5.0 release set, before zprocess 3 is released.
+zprocess 3 then breaks only older releases of the suite: blacs through Z9 unless the module
+is kept, `camera_server.py` through Z4 and `Camera.py` through Z5. labscript-devices
+`NI_DAQmx/blacs_workers.py:26` also imports the private `zprocess.utils._reraise` and
+calls it wrongly (`DEFECTS.md` D24); the fix stops the import.
 
 When zprocess 3 is released, the labscript suite's dependency on zprocess must be raised
 to it:
