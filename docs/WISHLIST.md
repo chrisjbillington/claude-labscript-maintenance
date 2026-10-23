@@ -75,3 +75,9 @@ e5cd210). The closed pull requests that would have changed the applications are 
 in section 6 of `RELEASE-PLAN.md` (labscript-utils #124, blacs #122, runmanager
 #129, runviewer #72, lyse #138). An application started from its entry point script in
 a macOS venv does not see the venv until desktop-app #35 is merged (`DEFECTS.md` D19).
+
+## All repositories: consolidate duplicated functionality
+
+Find functionality that is implemented more than once across the suite, within one
+repository or in several, and replace the copies with one implementation, for example
+in labscript-utils.
