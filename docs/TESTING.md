@@ -5,6 +5,27 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-23: the 34 mergeable pull requests merged together
+
+The 34 pull requests listed as mergeable now in `PULL-REQUESTS.md` were merged, in
+pull request order, into a `test-batch` branch of each component on its master: zprocess
+#33 to #39 (c02be91), desktop-app #35 (2842896), qtutils #38 to #41 (3649974),
+labscript-utils #136 and #137 (a419aa3), labscript #130 (33c06f3), labscript-devices #156
+and #157 (011b129), blacs #131 to #133 (071b76e), runmanager #139 to #143 (77714e6),
+runviewer #78 and #79 (2cbe04a) and lyse #148 to #154 (b8f05c0). Conflicts: zprocess
+`tests/test_zprocess.py` (#38 with #34 on an import line; #39 with the tests added by
+the other pull requests, where #39's test changes were applied by hand), qtutils
+`CHANGELOG.txt` (#38, #39 and #41 add entries at the same place; all kept) and
+runmanager `docs/source/usage.rst` (#143 with #139; #143's paragraph is placed before
+#139's description of the evaluator). runmanager `evaluator.py` merged without conflict,
+and #143's check works on the #139 evaluator.
+
+Locally on Arch Linux with Python 3.14.8 and PySide6, every harness step passed,
+including the zprocess tests (85 tests). The checks for runmanager #139, #140 and #143,
+lyse #153 and labscript-devices #157 reported FIXED. The branches are checked out in the
+clones on the maintainer's lab machine, in a Python 3.14 venv with editable installs,
+for testing with the lab's hardware and files.
+
 ## 2026-10-23: lyse #155 (skip shot files that have not been run, DEFECTS.md D29)
 
 lyse #155 at af6977d, on master c74fa4e. The harness `compile` step now stamps the
