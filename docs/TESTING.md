@@ -54,6 +54,14 @@ with the library functions. After `set_expansion` of `c` to `''` and of `b` to `
 which record custom settings, two more runs of the update leave `c` unexpanded and `b`
 outer, so the two cases of runmanager #50 persist across a reopen. Issue closed.
 
+`test.yml` run
+[39950460611](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39950460611),
+on the push of the harness without the markers for runmanager #139, #140 and #143, lyse
+#155 and labscript-devices #157, with every component at its master: the 25 jobs for
+Python 3.11 to 3.14 passed every step; the six Python 3.15 jobs failed at "Install the
+components", as before. The only `KNOWN` lines are for lyse #153 and the
+`narwhal-pulsegen` branch.
+
 ## 2026-10-23: runmanager #139 and #140 rebased onto master 9770920
 
 #139 (`topological-evaluator`, now 2d8129d) was rebased onto master 9770920, which
