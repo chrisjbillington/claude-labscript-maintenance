@@ -81,3 +81,20 @@ a macOS venv does not see the venv until desktop-app #35 is merged (`DEFECTS.md`
 Find functionality that is implemented more than once across the suite, within one
 repository or in several, and replace the copies with one implementation, for example
 in labscript-utils.
+
+## All repositories: modern string handling in HDF5 files
+
+Go through the suite and change every place that writes strings to HDF5 files, or reads
+them, to the current h5py idioms: `h5py.string_dtype()` for variable-length UTF-8
+strings, and `.asstr()` or `Dataset.asstr()[...]` for reading. Shot files, globals files
+and connection tables written by older versions, which hold fixed-length or ASCII byte
+strings, must stay readable.
+
+The suite converts bytes to `str` after reading with a function `_ensure_str`, which is
+defined three times: `labscript_utils/connections.py:24` (labscript-utils a9dbff7, also
+imported by `lyse/dataframe_utilities.py:24`, lyse 3edf99c),
+`runmanager/group_manager.py:29` (runmanager adc9777) and
+`blacs/front_panel_settings.py:26` and `blacs/plugins/progress_bar/__init__.py:44`
+(blacs c0c2322). labscript writes with `h5py.special_dtype(vlen=str)`
+(`labscript/labscript.py:267`, labscript 33cdb31). labscript-devices has about 25 more
+sites that use NumPy byte-string dtypes or similar.
