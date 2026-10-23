@@ -37,6 +37,8 @@ fix is made, in which case the row names the pull request. Importance uses the s
 | D24 | 2026-10-23 | labscript-devices `labscript_devices/NI_DAQmx/blacs_workers.py:856` (`transition_to_manual`) | When the wait monitor thread raises an exception, `transition_to_manual` raises `TypeError: _reraise() takes 1 positional argument but 3 were given` instead of the wait monitor's exception. The worker calls `_reraise(*self.wait_monitor_thread_exception)`, but zprocess `utils._reraise` (a private function, `zprocess/utils.py:107`) takes the `exc_info` tuple as one argument | 2 | run (the function body with the same call, Python 3.14.8); read (the worker) | open |
 | D25 | 2026-10-23 | lyse #150 at 5142bbb, `lyse/filebox.py:484` (`update_row`) | `update_row` raises `KeyError` with a result column name, such as `('gaussian_fit', 'atoms_amp', '', '')`, when shots are added after all shots have been removed. `concat_with_padding` drops the empty dataframe, so the columns of earlier results leave the dataframe, but the pull request had removed the code that removed the corresponding Qt model columns. Reported by the maintainer from the lyse 3.3.0 backport on the lab machine | 4 | run (pandas 2.3.3 and 3.0.6) | fixed in lyse #150 at 79f9db9 (`DataFrameModel._remove_defunct_columns`, called from `add_files`) |
 | D26 | 2026-10-23 | lyse `lyse/routines.py:509` (`AnalysisRoutine.do_analysis`) | If an analysis worker exits during a routine without `check_child_exited` ending it (here the worker received SIGKILL while lyse was being closed, by a route not established), `do_analysis` waits on `from_worker.get()` forever. Nothing polls the worker, so it stays a zombie, the routine box never runs another routine and the filebox analysis loop waits for it. Only `check_child_exited` (restart or remove) puts the `error` reply that unblocks the loop | 3 | run (lab machine, lyse 3.3.0 backport: worker a zombie with exit status SIGKILL, analysis thread blocked at `routines.py:509` under py-spy); cause read | open |
+| D27 | 2026-10-23 | runmanager `runmanager/__init__.py:548` (3.3.0), `runmanager/expander.py:45` (master) | Without an axis order (`expansion_config`), `expand_globals` puts the zip group axes in the order of a `set` of their names, which depends on the string hash seed, so the shot order changes from one Python process to the next. On a globals file with two zip groups, half of the hash seeds tried iterated one group fastest and half the other, on 3.3.0 and on master 7e692f4. The GUI passes the order from the Axes tab and is not affected; `make_run_file_from_globals_files` and other library calls are | 2 | run | open |
+| D28 | 2026-10-23 | runmanager `runmanager/__init__.py:399` (`evaluate_globals`, 3.3.0), `runmanager/evaluator.py:56` (master) | A global in a zip group that depends on globals on other axes of the outer product evaluates without an error and has wrong values in some shots. Each global is evaluated once for the whole sequence with the full lists of the globals that it refers to, so `a and b` or `x if flag else y` on lists tests the truth of the lists, not of each shot's values. A lab's globals file with `pulse_time = duration / 2 if (pulse_1 and pulse_2) else duration`, `pulse_1` and `pulse_2` in one zip group and `pulse_time` zipped with `duration` (as the GUI zips it automatically) gave `duration / 2` in all 100 shots, including those with one pulse | 3 | run (3.3.0, master 7e692f4, #139 and #140) | reported by the maintainer from a colleague's globals file; fixed in [runmanager #143](https://github.com/labscript-suite/runmanager/pull/143), open, which reports such a global as an error |
 
 ## Detail
 
@@ -461,3 +463,49 @@ _reraise() takes 1 positional argument but 3 were given`, so BLACS shows that er
 the shot instead of the wait monitor's.
 Fix: `raise exc.with_traceback(tb)` from the stored tuple in the worker, without the
 zprocess import.
+
+### D27. The order of zip group axes depends on the hash seed
+
+`expand_globals` collects the zip keys with `zip_keys = set(expansions.values())`
+(`runmanager/expander.py:45` on master, `runmanager/__init__.py:548` on 3.3.0) and builds
+the axes in that order. Axes that `expansion_config` does not order get order -1, and
+the sort by order is stable, so their order is the order of the set. With
+`PYTHONHASHSEED` 1 and 3 a file with the zip groups `clock` and
+`total_yellow_pulse_duration` iterated `clock` fastest, and with 2 and 4 the durations
+fastest. Fix: build the zip keys in the order in which the globals are defined, for
+example with `dict.fromkeys(expansions.values())`.
+
+### D28. A zipped global that depends on another axis has wrong values
+
+The globals file had `yellow_pulse_1 = [True, False]` and `yellow_pulse_2 = [False, True]`
+in the zip group `clock`, `total_yellow_pulse_duration = np.linspace(1, 2500, 50) * us`,
+and `yellow_pulse_time = total_yellow_pulse_duration / 4 if ramsey else
+total_yellow_pulse_duration / 2 if (yellow_pulse_1 and yellow_pulse_2) else
+total_yellow_pulse_duration`, zipped with `total_yellow_pulse_duration` by the GUI's
+automatic zip groups (`guess_expansion_modes`, `runmanager/__main__.py:2837` on master).
+`yellow_pulse_1 and yellow_pulse_2` evaluates to the non-empty list `[False, True]`, so
+`yellow_pulse_time` is half the duration in all 100 shots; with one pulse on in each shot,
+the intended value is the full duration. `yellow_valid = ValueError(...) if ramsey and
+(yellow_pulse_1 or yellow_pulse_2) else 'ok'` has the same form. The values were the same
+on 3.3.0, master 7e692f4 and the #139 and #140 branches; #140's `automatic_expansions`
+zips `yellow_pulse_time` with the durations as well.
+
+A global that depends on two axes cannot be one axis of the outer product, so evaluating
+it correctly would need evaluation per shot, which changes the meaning of existing
+expressions such as `len(x)` of an expanded global. runmanager #143 instead gives a
+global in a zip group a `ValueError` if it refers, directly or through globals that are
+not expanded, to an `outer` global or a global in another zip group. Globals without an
+expansion are not checked, since `len(a) * len(b)` is correct and cannot be told apart
+from `a or b`. A zipped global that uses only the length of a global on another axis is
+reported although its values are correct.
+
+On 3.3.0 the scan can be written with all four globals in one zip group:
+`durations = tuple(np.linspace(1, 2500, 50) * us)` with no expansion,
+`total_yellow_pulse_duration = np.tile(durations, 2)`,
+`yellow_pulse_1 = np.repeat([True, False], len(durations))`,
+`yellow_pulse_2 = np.repeat([False, True], len(durations))` and `yellow_pulse_time =
+np.where(ramsey, total_yellow_pulse_duration / 4, np.where(yellow_pulse_1 &
+yellow_pulse_2, total_yellow_pulse_duration / 2, total_yellow_pulse_duration))`. This
+gives 100 shots with `yellow_pulse_time` equal to the duration in each (run, library
+only), and the #143 check does not report it. The alternative is to compute the pulse
+time in the experiment script.

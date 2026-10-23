@@ -148,6 +148,23 @@ check(not isinstance(evaluated['fixed']['derived'], Exception) and evaluated['fi
       f"global referring to it evaluates: derived = {evaluated['fixed']['derived']!r}")
 runmanager.set_value(gf, 'scan', 'amplitude', '[0.1, 0.2, 0.3]')
 
+# A global in a zip group that refers to a global on another axis holds an error naming
+# that global; one that refers to a global in its own zip group evaluates
+runmanager.set_expansion(gf, 'fixed', 'derived', 'zip2')
+evaluated, _, _ = runmanager.evaluate_globals(
+    runmanager.get_globals(runmanager.get_all_groups(gf)), raise_exceptions=False)
+check(isinstance(evaluated['fixed']['derived'], ValueError) and 'amplitude' in str(evaluated['fixed']['derived']),
+      f"zipped global referring to an outer global holds an error: {evaluated['fixed']['derived']!r}",
+      known='runmanager #143')
+runmanager.set_value(gf, 'fixed', 'derived', 'array(offset) * 2')
+runmanager.set_expansion(gf, 'fixed', 'derived', 'zip1')
+evaluated, _, _ = runmanager.evaluate_globals(
+    runmanager.get_globals(runmanager.get_all_groups(gf)), raise_exceptions=False)
+check(np.array_equal(evaluated['fixed']['derived'], [20, 40]),
+      f"zipped global referring to its own zip group evaluates: {evaluated['fixed']['derived']!r}")
+runmanager.set_value(gf, 'fixed', 'derived', 'array(amplitude) * 2')
+runmanager.set_expansion(gf, 'fixed', 'derived', '')
+
 # Diff and tokenizer
 d = runmanager.dict_diff({'a': 1, 'b': 2}, {'a': 1, 'b': 3, 'c': 4})
 check(set(d) == {'b', 'c'}, f'dict_diff {d}')
