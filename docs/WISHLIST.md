@@ -30,6 +30,11 @@ another process to use.
 
 Look for more places where BLACS can be made faster.
 
+## BLACS: simpler and faster asynchronous architecture
+
+Overhaul the asynchronous architecture of BLACS, if possible, so that it is simpler and
+faster.
+
 ## runmanager: group and output status shown on the tabs
 
 The tab of each globals group shows the status of the group, for example an icon or bold
