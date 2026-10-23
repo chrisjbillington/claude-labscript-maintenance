@@ -5,8 +5,9 @@ Written 2026-10-23. Sections: 1 what exists, 2 goals, 3 the device and its proto
 9 differences from the current device, 10 testing, 11 implementation sequence,
 12 decisions.
 
-Decisions 1 to 3 of section 12 were taken by the maintainer on 2026-10-23; decision 4
-is open.
+The decisions of section 12 were taken by the maintainer on 2026-10-23, and the device
+was implemented the same day on the labscript-devices branch `narwhal-pulsegen`
+(section 13).
 
 ## 1. What exists
 
@@ -540,3 +541,29 @@ Open:
    first instruction starts at the hardware trigger plus the trigger delay, so no timing
    is shifted. Recommendation: support it that way, since the hardware allows it and
    the labscript limitation with wait monitors is separate.
+
+## 13. Implementation (2026-10-23)
+
+Branch `narwhal-pulsegen` of labscript-suite/labscript-devices, commit bf5cbc5 on master
+33e20e7: `labscript_devices/NarwhalPulseGenerator/` (`driver.py` 586 lines,
+`labscript_devices.py` 460, `blacs_workers.py` 350, `blacs_tabs.py` 423,
+`runviewer_parsers.py` 110, `register_classes.py`, `__init__.py`), the docs page
+`docs/source/devices/narwhalpulsegenerator.rst` and its toctree entry. Differences from
+the plan:
+
+- A wait at t=0 is supported (decision 5): the program begins with a one-cycle
+  instruction that waits, and the device property `wait_at_start` tells the worker to
+  fill its state from the front panel.
+- The status monitor is a state function allowed only in manual mode, so the timer does
+  not queue it during a shot; no `mode` setter override is needed (the timer checks the
+  tab's mode before queueing, `blacs/tab_base_classes.py:555`).
+- Errors that the device reports are raised in the worker, which puts the tab into its
+  error state, instead of being appended to the notification log. The log shows the
+  notifications only.
+- Manual controls go through two generic worker methods, `set_options` and
+  `set_powerline_options`, which pass keyword arguments to the driver.
+- The direct outputs device is named `{name}_direct_outputs`.
+
+The harness step `narwhal` (`harness/checks/check_narwhal.py`, fixtures in
+`harness/fixtures/narwhal/`) is as planned in section 10; its results are in
+`TESTING.md`. The hardware tests are a task in `LOCAL-TASKS.md`.
