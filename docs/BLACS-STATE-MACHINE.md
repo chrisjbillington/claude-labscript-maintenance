@@ -110,7 +110,7 @@ was not searched.
 
 ## 6. Prototype
 
-Branch `statemachine-main-thread` of labscript-suite/blacs, one commit (98d55a1) on
+Branch `statemachine-main-thread` of labscript-suite/blacs, one commit (4c0f058) on
 master c0c2322. `Tab.mainloop` and `StateQueue.check_for_next_item` are removed;
 `StateQueue.get()` replaces the latter.
 `tab_base_classes.py` has the same number of lines as before; the gain is in the

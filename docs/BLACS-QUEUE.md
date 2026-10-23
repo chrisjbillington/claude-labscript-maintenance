@@ -3,7 +3,7 @@
 Written 2026-10-23. Measurement of the delay between BLACS taking a shot from the queue
 and the tabs starting their transitions, and an experimental rewrite of the queue
 manager (`blacs/experiment_queue.py`) that removes most of it. The rewrite is blacs
-branch `queue-main-thread` (8794b42), one commit on `statemachine-main-thread` (98d55a1,
+branch `queue-main-thread` (4fa3b05), one commit on `statemachine-main-thread` (4c0f058,
 `BLACS-STATE-MACHINE.md`). It is experimental; no pull request is planned. Each fact is
 labelled with how it was verified (run, read or plausible), as in `REVIEW.md`.
 
@@ -20,7 +20,7 @@ cores the shot cycle went from 316 ms to 251 ms (run). The rest of the cycle und
 is mostly the tabs' worker round trips and the main thread's logging, which the queue
 manager does not control (plausible, from the sampled stacks in section 3).
 
-## 2. The present design (statemachine-main-thread, 98d55a1)
+## 2. The present design (statemachine-main-thread, 4c0f058)
 
 - **(read)** `QueueManager.manage()` runs in its own thread. Every loop iteration reads
   `manager_running` and `manager_paused` through `inmain`, and an empty or paused queue
