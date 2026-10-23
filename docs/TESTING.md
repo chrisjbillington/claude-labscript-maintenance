@@ -43,6 +43,28 @@ average 1.7). Medians of repeated calls in a warm process.
 - In sequence 0025 the FunctionRunner worker job took 76 ms (median), so reading the
   globals is about 3% of the job.
 
+## 2026-10-23: runmanager #139 and #140 rebased onto master 9770920
+
+#139 (`topological-evaluator`, now 2d8129d) was rebased onto master 9770920, which
+includes #141, #142 and #143; the only conflict was in `docs/source/usage.rst`, where
+#143's paragraph on zip groups and other axes is kept before #139's paragraph on the
+evaluation order. #140 (`expansion-settings`, now a658642) was rebased onto it without
+conflicts. Locally (Python 3.14.8, PySide6), on the #140 branch: a two-global cycle holds
+the cycle error, a conditional records both branches, a forward reference evaluates, and
+#143's example (a global zipped with `duration` that refers to two globals in zip group
+`clock`) holds the cross-axis error; `automatic_expansions` applied to the result and
+evaluated again gives the same settings, with the error kept.
+
+`test.yml` runs
+[39947299743](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39947299743)
+(`runmanager=pr/139`) and
+[39947310296](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/39947310296)
+(`runmanager=pr/140`): in each, the 25 jobs for Python 3.11 to 3.14 passed every step; the
+six Python 3.15 jobs failed at "Install the components", as on the masters. Both runs
+report `FIXED` for the #139 checks and for the #143 check "zipped global referring to an
+outer global holds an error"; the #140 run also reports `FIXED` for the #140 API presence
+check and for the labscript-devices #157 check.
+
 ## 2026-10-23: labscript-devices #159 (FunctionRunner opens the shot file once)
 
 `test.yml` run
