@@ -51,6 +51,43 @@ Run
 with D36 reported as KNOWN by `blacs-shot`; the six Python 3.15 jobs failed at "Install
 the components", as before.
 
+## 2026-10-24: h5py Linux wheels build their extension modules without optimisation
+
+h5py's `pyproject.toml` sets `CFLAGS = "-g1"` in `[tool.cibuildwheel.linux.environment]`
+(added in h5py #2444, 2024). Since pypa/distutils #322 (December 2024), setuptools uses
+`CFLAGS` from the environment in place of Python's `CFLAGS` instead of appending it, so
+the Cython extension modules are compiled with no `-O` flag and without `-DNDEBUG`
+(read). The compiler options recorded in the debug information of `h5d.*.so`:
+
+- h5py 3.12.1 wheel: `-g -g1 -O3 -fno-strict-overflow -fPIC`
+- h5py 3.13.0, 3.14.0, 3.15.1 and 3.16.0 wheels: `-g1 -fPIC`
+
+The bundled libhdf5, libhdf5_hl, libaec and libsz come from h5py's Docker images and
+are optimised: their code has no `-O0` frame-pointer pattern, which the extension
+modules and the unoptimised pyzmq libsodium do have (run). The macOS build sets no
+`CFLAGS` and builds HDF5 with CMake in Release mode; the Windows build uses MSVC (read).
+
+Benchmark on the laptop (Python 3.14.8, median of 5): the PyPI 3.16.0 wheel (bundled
+HDF5 2.0.0), and h5py 3.16.0 built from the sdist against Arch HDF5 2.2.0 with
+`CFLAGS="-g1"` and with `CFLAGS="-g1 -DNDEBUG -fwrapv -O3"`. Times in µs.
+
+| Operation | wheel | `-g1` | `-g1 -O3` | ratio |
+|---|---|---|---|---|
+| open and close a file | 48.6 | 50.6 | 29.8 | 1.70 |
+| read 250 attributes into a dict | 5855 | 5988 | 3757 | 1.59 |
+| read one attribute | 36.7 | 34.8 | 22.1 | 1.57 |
+| read one row of a 1000×1000 dataset | 58.0 | 62.6 | 42.3 | 1.48 |
+| read one element | 59.3 | 62.1 | 41.0 | 1.51 |
+| read 100 small datasets in a group | 6135 | 6874 | 4449 | 1.55 |
+| write 100 small datasets and 100 attributes | 9003 | 10525 | 7308 | 1.44 |
+| read an 8 MB float dataset | 979 | 1003 | 937 | 1.07 |
+| read 10000 rows of a compound with a vlen string | 1997 | 2939 | 2821 | 1.04 |
+| read 10000 vlen strings | 1708 | 2670 | 2606 | 1.02 |
+
+The `-g1` build matches the wheel apart from the vlen string reads, which depend on the
+HDF5 version. Calls with little data take 1.4 to 1.7 times as long as with an optimised
+build; bulk reads are not affected. No h5py issue reports this.
+
 ## 2026-10-24: pyzmq Linux wheels build libsodium without optimisation
 
 The libsodium in the pyzmq Linux wheels is compiled without `-O`. pyzmq's cibuildwheel
