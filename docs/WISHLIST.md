@@ -12,6 +12,11 @@ otherwise runs the multishot routines again.
 Use case: a multishot routine can do its processing in stages, so its plots update while
 it runs, and an error in an early stage shows up sooner.
 
+## lyse: lower overhead per shot
+
+Look for performance gains in the overhead of handling each shot in lyse, such as adding
+shot files and updating the dataframe.
+
 ## runmanager: recently used values for each global
 
 Each global has a drop-down menu that lists the values recently used for that global,
