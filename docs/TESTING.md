@@ -20,9 +20,9 @@ return the changed globals.
 
 ## 2026-10-23: shot cycle time on the lab machine diginuc, by configuration
 
-Sequences 0019 to 0028 of `drop_mot` on diginuc (4 cores, Linux), 100 shots each of
+Sequences 0019 to 0029 of `drop_mot` on diginuc (4 cores, Linux), 100 shots each of
 the same 50-point scan (shot duration 0.266 s, triggered on the mains line), run one
-after another between 18:45 and 19:40 (0027 and 0028 at about 21:00) with lyse running `gaussian_fit` and
+after another between 18:45 and 19:40 (0027 to 0029 between 21:00 and 21:18) with lyse running `gaussian_fit` and
 `yellow_spectroscopy`. Phase times are from the BLACS debug log; mean of shots 20 to 99
 (the first 20 shots of every sequence are 0.1 to 0.4 s slower). Standard error of each
 cycle mean about 0.008 s. "New suite" is the test-batch branches on Python 3.14.8; "old
@@ -39,6 +39,7 @@ suite" is the labscript-suite 3.3.0 release on Python 3.10.12.
 | 0026 | new | `statemachine-main-thread` (52b0383) | `labscript_devices.NarwhalPulseGenerator` | PySide6 | 0.724 | 0.219 | 0.322 | 0.171 | 0.012 |
 | 0027 | new | `queue-main-thread` (9cce66f) | `labscript_devices.NarwhalPulseGenerator` | PySide6 | 0.647 | 0.168 | 0.320 | 0.151 | 0.008 |
 | 0028 | new | `queue-main-thread` (9cce66f) | `labscript_devices.NarwhalPulseGenerator` | PyQt5 | 0.600 | 0.155 | 0.312 | 0.128 | 0.005 |
+| 0029 | new, logging disabled | `queue-main-thread` (9cce66f) | `labscript_devices.NarwhalPulseGenerator` | PyQt5 | 0.551 | | | | |
 
 - PySide6 adds 0.113 s per shot with the old state machine, 0.038 s with
   `statemachine-main-thread` and 0.047 s with `queue-main-thread`, all of it in the two
@@ -47,6 +48,10 @@ suite" is the labscript-suite 3.3.0 release on Python 3.10.12.
   0.37 to 0.41 in 0024 to 0026, so lyse used less CPU time per shot in 0027 and 0028.
   The FunctionRunner still ends the transition to buffered and the camera the
   transition to manual in 0027 and 0028 (94% to 99% of shots).
+- 0029 is 0028 with logging disabled in every component, so it has no phase times; its
+  cycle time is from the `run time` attributes of the shot files, which give the same
+  means as the BLACS log for 0025 to 0028. Disabling logging shortens the cycle by
+  0.049 ± 0.009 s.
 - CPU load from other processes changes the cycle by more than any of these software
   changes: in sequence 0013 (old suite, 15:26 to 15:58) the cycle went from 0.98 s to
   0.67 s at shot 1600 with no change of software, and lyse's `gaussian_fit` from 0.41 s
