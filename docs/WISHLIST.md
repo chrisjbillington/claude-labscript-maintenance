@@ -91,7 +91,7 @@ and connection tables written by older versions, which hold fixed-length or ASCI
 strings, must stay readable.
 
 The suite converts bytes to `str` after reading with a function `_ensure_str`, which is
-defined three times: `labscript_utils/connections.py:24` (labscript-utils a9dbff7, also
+defined four times: `labscript_utils/connections.py:24` (labscript-utils a9dbff7, also
 imported by `lyse/dataframe_utilities.py:24`, lyse 3edf99c),
 `runmanager/group_manager.py:29` (runmanager adc9777) and
 `blacs/front_panel_settings.py:26` and `blacs/plugins/progress_bar/__init__.py:44`
