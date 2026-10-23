@@ -81,9 +81,26 @@ called through ctypes, and the REQ/REP round trip of one 6.2 MB message on 127.0
 - libzmq without optimisation changes plain zmq little: 21.8 µs per round trip of 100 B
   messages with the wheel and 19.0 µs with pyzmq built on the Arch libzmq.
 - No pyzmq issue reports this; pyzmq #1491 (2021) about the wheel size led to the flag.
-- Not measured: the macOS wheels (`install_libzmq.sh` also sets `CFLAGS` there),
-  the Windows wheels (libsodium built with msbuild in a Release configuration, read) and
-  conda's pyzmq.
+- Not measured: conda's pyzmq.
+
+A fix, branch `libsodium-optimisation` of chrisjbillington/pyzmq (one commit on pyzmq
+main 1cbf63a), passes `-O3` to libsodium's `configure` and `-O2` to libzmq's in
+`tools/install_libzmq.sh`; the pull request is for the maintainer to post. The fork's
+wheel workflow (run 39982600069) built every wheel except win_arm64, which fails in the
+same way on pyzmq main at the same commit. Results for the PyPI 27.2.0 wheel and the
+wheel built from the branch, with the same measurements as above:
+
+| Machine | PyPI wheel | Branch wheel |
+|---|---|---|
+| laptop, Python 3.14 | 161 MB/s, CURVE 76 ms | 1908 MB/s, CURVE 11.9 ms |
+| diginuc, Python 3.14 (temporary venv in `/tmp`, removed) | 72 MB/s, CURVE 174 ms | 2009 MB/s, CURVE 17.3 ms |
+| GitHub `ubuntu-24.04`, Python 3.13 | 89 MB/s, CURVE 147 ms | 1503 MB/s, CURVE 13.9 ms |
+| GitHub `macos-14` (arm64), Python 3.13, universal2 wheel | 58 MB/s, CURVE 288 ms | 351 MB/s, CURVE 46 ms |
+| GitHub `windows-2022`, Python 3.13 | CURVE 24.5 ms (plain 5.4 ms); not affected | not changed by the branch |
+
+The branch's Linux libraries are smaller: libsodium 0.65 MB instead of 1.35 MB, libzmq
+0.67 MB instead of 0.95 MB. Plain zmq round trips of 100 B messages on the laptop: 21.8
+µs with the PyPI wheel, 18.7 µs with the branch wheel.
 
 ## 2026-10-24: labscript-devices `camera-image-ack` on diginuc
 
