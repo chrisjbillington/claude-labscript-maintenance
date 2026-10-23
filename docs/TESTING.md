@@ -5,6 +5,20 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-23: blacs `statemachine-main-thread` and `queue-main-thread` rebased onto master c0c2322
+
+`statemachine-main-thread` (now 98d55a1) was rebased onto master c0c2322, which includes
+blacs #131 to #134. Its deferred state label and tab icon update is replaced by
+master's, from #132. `queue-main-thread` (now 8794b42) was rebased onto it with its own
+`blacs/experiment_queue.py`, and the port of #131's `QueueManager.stop()` was folded
+into its commit. Locally (Python 3.14.8, PySide6, offscreen, labscript-utils master
+9e05c17 or later), the queue checks in `tools/blacs-queue/` pass all 60 checks on
+`queue-main-thread`, including those of `stop()`, and the state machine checks in
+`tools/blacs-statemachine/` pass all 23 on `statemachine-main-thread`. With the
+labscript-utils of the local harness venv, which is older than labscript-utils #136,
+the worker processes fail on start-up, because blacs #133 calls
+`labscript_utils.excepthook.install()` in them, and most queue checks fail.
+
 ## 2026-10-23: zprocess #38 rebased onto master 8582358
 
 #38 (`appnope-once`, now c0ff0bf) was rebased onto master 8582358, which includes #34,

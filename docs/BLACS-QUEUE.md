@@ -3,7 +3,7 @@
 Written 2026-10-23. Measurement of the delay between BLACS taking a shot from the queue
 and the tabs starting their transitions, and an experimental rewrite of the queue
 manager (`blacs/experiment_queue.py`) that removes most of it. The rewrite is blacs
-branch `queue-main-thread` (9cce66f), one commit on `statemachine-main-thread` (52b0383,
+branch `queue-main-thread` (8794b42), one commit on `statemachine-main-thread` (98d55a1,
 `BLACS-STATE-MACHINE.md`). It is experimental; no pull request is planned. Each fact is
 labelled with how it was verified (run, read or plausible), as in `REVIEW.md`.
 
@@ -20,7 +20,7 @@ cores the shot cycle went from 316 ms to 251 ms (run). The rest of the cycle und
 is mostly the tabs' worker round trips and the main thread's logging, which the queue
 manager does not control (plausible, from the sampled stacks in section 3).
 
-## 2. The present design (statemachine-main-thread, 52b0383)
+## 2. The present design (statemachine-main-thread, 98d55a1)
 
 - **(read)** `QueueManager.manage()` runs in its own thread. Every loop iteration reads
   `manager_running` and `manager_paused` through `inmain`, and an empty or paused queue
@@ -118,10 +118,9 @@ handler's `send`, which encrypts and sends each record.
   manual is counted as failed. Before, the restart was ignored and the queue manager
   waited for it indefinitely.
 - **(read)** `get_next_file`, `transition_device_to_buffered`, `get_device_error_state`,
-  `_abort_buffered_devices` and the attribute `current_queue` are removed. blacs #131
-  (abort the shot when BLACS closes, merged 2026-10-23) puts an abort to `current_queue`; its `stop()` is
-  ported to the main-thread queue in `patches/blacs-queue-main-thread-stop.patch`, for
-  when the two are combined (`LOCAL-TASKS.md`).
+  `_abort_buffered_devices` and the attribute `current_queue` are removed.
+  `QueueManager.stop()`, from blacs #131 (abort the shot when BLACS closes), aborts the
+  current shot through `Shot.abort()` and puts it back at the top of the queue.
 
 ## 6. Results of the rewrite
 
@@ -130,7 +129,8 @@ BLACS main window, three tabs with real worker processes and stand-ins for the r
 BLACS: group order, the order of plugin callbacks, what is saved to the shot file, and
 the status, pause, requeue and abort of the tabs after a failed or hung transition, a
 tab in an error state, a restart and an abort in each phase, and a failed front panel
-save. The rewrite passes all 55 checks. On `statemachine-main-thread` the two checks of
+save, and `stop()` in each phase. The rewrite passes all 60 checks. On
+`statemachine-main-thread` the two checks of
 start-up latency fail (0.50 s each, from the 1 s poll) and the others pass.
 
 **Shot cycle (run).** Same set-up as section 3, interleaved with those runs.
