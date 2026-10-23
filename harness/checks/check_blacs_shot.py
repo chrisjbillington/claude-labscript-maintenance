@@ -1,6 +1,8 @@
 """Run shots through BLACS with the profile's dummy devices. Start lyse and BLACS, submit
 a copy of the example shot to BLACS as runmanager does, and check that BLACS runs it and
-sends it to lyse. Submit the same file again, which BLACS runs as a repeat in a new file.
+sends it to lyse. The first shot is submitted as soon as BLACS listens on its port, and again while BLACS
+replies that it is starting. Submit the same file again, which BLACS runs as a repeat in
+a new file.
 Check the output of both applications for tracebacks, and BLACS.log for errors."""
 
 import shutil
@@ -27,8 +29,7 @@ shutil.copy(state['example_shot'], shot)
 with h5py.File(shot, 'r+') as f:
     del f.attrs['run time']
 
-# BLACS listens on its port before it has finished starting, and a shot submitted
-# before then is not queued (DEFECTS.md D36). BLACS logs this line when it has started.
+# BLACS logs this line when it has started.
 BLACS_LOG = profile_dir() / 'logs' / 'BLACS.log'
 BLACS_STARTED = 'BLACS instantiated'
 
@@ -71,6 +72,30 @@ def wait_for_blacs(count_before):
     return False, time.time() - t0
 
 
+def submit_while_starting(path, started_before):
+    """Submit the shot, and submit it again while BLACS replies that it is starting.
+    Return the first other response."""
+    global d36
+    starting_replies = 0
+    t0 = time.time()
+    while time.time() - t0 < APP_STARTUP_TIMEOUT:
+        try:
+            response = submit(path)
+        except NameError as e:
+            # A BLACS without the fix for D36 raises this before it has started.
+            d36 = True
+            check(False, f'BLACS replies to a shot submitted while it is starting: {str(e).strip().splitlines()[-1]}', known='D36')
+            up, seconds = wait_for_blacs(started_before)
+            check(up, f'BLACS logged {BLACS_STARTED!r} after a further {seconds:.0f} s')
+            return submit(path)
+        if 'BLACS is starting' not in response:
+            print(f'BLACS replied that it is starting {starting_replies} times')
+            return response
+        starting_replies += 1
+        time.sleep(0.2)
+    return response
+
+
 def check_run(path):
     with h5py.File(path, 'r') as f:
         check('run time' in f.attrs, f'{path.name} has a run time')
@@ -90,13 +115,8 @@ def run_shots():
         check(up, f'{app} started and is listening on port {p} after {seconds:.0f} s')
         if not up:
             return
-        if app == 'blacs':
-            up, seconds = wait_for_blacs(started_before)
-            check(up, f'BLACS logged {BLACS_STARTED!r} after a further {seconds:.0f} s')
-            if not up:
-                return
 
-    response = submit(shot)
+    response = submit_while_starting(shot, started_before)
     check('added successfully' in response, f'BLACS accepted the shot: {response.strip()!r}')
     received, seconds = wait_for_lyse(shot)
     check(received, f'BLACS ran the shot and lyse received it after {seconds:.0f} s')
@@ -114,6 +134,7 @@ def run_shots():
 
 
 blacs_log_start = len(blacs_log())
+d36 = False
 running = []
 try:
     run_shots()
@@ -126,7 +147,8 @@ finally:
 for app, _, _, _ in running:
     output = app_output(app)
     tracebacks = output.count('Traceback (most recent call last)')
-    check(tracebacks == 0, f'no traceback in the {app} output ({tracebacks} found)')
+    known = 'D36' if d36 and app == 'blacs' else None
+    check(tracebacks == 0, f'no traceback in the {app} output ({tracebacks} found)', known=known)
     if tracebacks:
         print(f'last lines of {app} output:')
         print('    ' + '\n    '.join(output.strip().splitlines()[-40:]))
@@ -134,7 +156,8 @@ for app, _, _, _ in running:
 # Errors in the device tabs and workers are logged in BLACS.log and not printed.
 errors = [line for line in blacs_log()[blacs_log_start:].splitlines()
           if ' ERROR ' in line or ' CRITICAL ' in line or 'Traceback' in line]
-check(not errors, f'no errors in BLACS.log during the step ({len(errors)} found)')
+check(not errors, f'no errors in BLACS.log during the step ({len(errors)} found)',
+      known='D36' if d36 else None)
 for line in errors[:20]:
     print('    ' + line)
 
