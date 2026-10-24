@@ -5,6 +5,57 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-24: per-shot compile time of drop_mot
+
+The lab's `drop_mot` experiment and connection table, with copies of its `user_devices`
+labscript classes and its 58 globals (taken from a shot of sequence 2026/10/24/0008),
+compiled on the laptop (i7-1270P) with Python 3.14.8, h5py 3.16.0, NumPy 2.5.4, pyzmq
+27.2.0 and PySide6 6.12.0: runmanager master adc9777, labscript c8441c1, labscript-utils
+a9dbff7, labscript-devices `narwhal-pulsegen` 54e36ea. The labconfig had a shared secret
+and no `allow_insecure`, as on diginuc, and `save_hg_info` and `save_git_info` off. The
+runmanager GUI ran offscreen and compiled the saved 100-shot scan, sending each shot to a
+stand-in for the BLACS request handler that parses the shot's connection table, compares
+it to the lab's and checks for `/data`. Times are medians per shot over 100 shots; the
+phases were timed by temporary timers in `compile_loop` and `batch_compiler.py`.
+
+| Phase | master | both changes below |
+|---|---|---|
+| runmanager: make the run file | 15.9 ms | 8.2 ms |
+| compile subprocess: `labscript_init` (reads the globals back) | 4.0 ms | 3.7 ms |
+| compile subprocess: run the script | 14.6 ms | 13.5 ms |
+| send to BLACS (stand-in handler 4 ms) | 5.2 ms | 4.5 ms |
+| time between shots arriving at the stand-in BLACS | 41.4 ms | 31.8 ms |
+| same, on 2 logical CPUs shared with 2 processes busy 70% of the time | 69.6 ms | 48.5 ms |
+
+- Changes measured: runmanager's `_make_run_files` writes the sequence globals (174
+  attributes in 24 groups) once per sequence to an in-memory HDF5 file and copies the
+  groups into each run file, and labscript's `set_passed_properties` binds the call
+  arguments with an `inspect.Signature` made once per decorated function instead of
+  `inspect.getcallargs`. The run files' globals groups, attributes and attribute dtypes
+  are identical to master's for all 100 shots, and 20 shots compiled with both labscript
+  versions are identical in every dataset and attribute with a fixed hash seed. Without
+  a fixed seed, the order of keys in the connection table `properties` JSON differs
+  between processes on master too, because `set_passed_properties` collects the names in
+  a set.
+- With the CPUs shared, every phase takes longer in proportion to its CPU time; no phase
+  is dominated by waiting for zlock or zmq. CPU time per shot on master: compile
+  subprocess 17.7 ms, runmanager compile thread 15.5 ms, runmanager main thread 4.8 ms.
+- On master, opening and closing an HDF5 file through `h5_lock` costs 0.5 to 1.2 ms more
+  than without it (one zlock acquire and release); a shot is opened five times between
+  runmanager and BLACS. Reading the 58 globals with `get_shot_globals` takes 1.5 ms of
+  `load_globals`' 3.5 ms. `save_labscripts` takes 2 ms, of which 0.6 ms is
+  `os.path.abspath` on each of the 948 modules in `sys.modules`. FunctionRunner's
+  `serialise_function` takes 1 ms for two functions.
+- On diginuc, sequence 0008 (100 shots, while BLACS and lyse were running) arrived at
+  BLACS every 227 ms on average (124 to 349 ms), and BLACS's request handler took 28.5 ms
+  (median). With diginuc idle, parsing the shot's connection table takes 1.9 ms,
+  comparing it 0.1 ms and the check for `/data` 0.9 ms, so most of the handler's time is
+  spent waiting for `inmain(self.BLACS.connection_table.compare_to, ...)` in
+  `experiment_queue.py:407` while the main thread is busy (plausible), and runmanager
+  waits for the reply before it compiles the next shot. zlock round trips on idle
+  diginuc take 0.47 ms, and attribute writes and reads take 92 and 24 µs, the same as on
+  the laptop.
+
 ## 2026-10-24: integration-testing branches on diginuc
 
 The `test-batch` branches on diginuc are replaced by `integration-testing` branches on
