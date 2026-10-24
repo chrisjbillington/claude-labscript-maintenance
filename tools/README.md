@@ -135,7 +135,9 @@ overridden `QApplication.notify` and samples the other threads' stacks; SIGUSR1 
 recording, SIGUSR2 writes it, and SIGHUP minimises or restores the BLACS window.
 `events.py EVENTS` summarises the event times and `timeline.py TIMELINE` splits each shot
 into the run and the gap between the end of the run and the next start, with the main
-thread's busy time in each. py-spy 0.4.2 cannot profile BLACS on Python 3.14: each
+thread's busy time in each. `submit_exp.py RUN ...`, run on the lab machine with BLACS,
+lyse and runmanager running, separates the effect of compilation from that of
+submission on the shot interval (`docs/TESTING.md`). py-spy 0.4.2 cannot profile BLACS on Python 3.14: each
 sample takes over a second, even at 10 samples per second.
 
 ## BLACS queue manager behaviour

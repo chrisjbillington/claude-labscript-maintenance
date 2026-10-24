@@ -5,6 +5,39 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-24: why BLACS runs shots more slowly while runmanager is compiling
+
+diginuc, the integration-testing branches as deployed (blacs cb292cb), BLACS, lyse and
+runmanager started normally on the lab's display, logging disabled suite-wide, the
+`drop_mot` scan. `tools/blacs-profile/submit_exp.py` runs four kinds of sequence and
+compares the median interval between shot starts while the disturbance lasts with the
+median after it, and probes zlock with an acquire and release every 20 ms:
+
+- A: runmanager compiles and submits each shot, as normal (window 7 to 8 s).
+- B: 100 precompiled shots submitted as fast as BLACS takes them (about 2 s).
+- C: 100 precompiled shots submitted at once, then runmanager compiles another 100
+  shots without submitting them (5 s).
+- D: 100 precompiled shots submitted at the rate of A, one every 75 to 80 ms, with no
+  compilation.
+
+Two runs of each, interleaved (sequences 2026/10/24/0061 to 0070):
+
+| Run | Interval during | Interval after | zlock median (90%) during | after | Machine CPU busy during |
+|---|---|---|---|---|---|
+| A, compile and submit | 442, 447 ms | 375, 372 ms | 3.2 (6.3) ms | 1.5 (4.4) ms | 90, 92% |
+| C, compile only | 416, 412 ms | 370, 373 ms | 2.8–3.1 (6) ms | 1.5 ms | 87% |
+| D, submissions only | 400, 390 ms | 372, 376 ms | 2.0–2.3 (5.2) ms | 1.5 ms | 73–75% |
+| B, burst of submissions | 573, 585 ms (4 shots) | 374, 376 ms | 2.9–3.3 ms | 1.5 ms | 85% |
+
+- **(run)** Compilation alone lengthens the shot interval by about 40 ms, the
+  submissions alone by about 20 ms, and both together by about 70 ms. runmanager and its
+  compile subprocess used 4.0 to 5.4 s of CPU in the 5 to 8 s windows; with the lab's
+  own GUI programs, the machine (2 cores, 4 threads) was 87 to 92% busy.
+- **(run)** The zlock server used 0.5 to 0.9 s of CPU in the same windows, under 12% of
+  one CPU. Its round trip doubled, from 1.5 to about 3 ms, with compilation, and rose to
+  2.0 to 2.3 ms with submissions only, following the machine's load rather than the
+  number of requests. Logging was disabled, so the zlog server had no traffic.
+
 ## 2026-10-24: BLACS on diginuc with `main-thread-per-shot`
 
 The integration-testing branches deployed to diginuc (blacs cb292cb with
