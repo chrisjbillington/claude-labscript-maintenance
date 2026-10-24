@@ -1,0 +1,17 @@
+# Branches merged into the integration-testing branch of each component, in this order.
+# Each line is a component (a directory under repos/) and a branch of its origin.
+
+zprocess interrupt-main-thread          # zprocess #35
+zprocess no-default-process-tree        # zprocess #39
+labscript-utils set-default-process-tree  # labscript-utils #138
+labscript-devices narwhal-pulsegen
+labscript-devices zprocess3-compat      # labscript-devices #160
+labscript-devices camera-image-ack      # labscript-devices #161
+blacs statemachine-main-thread          # blacs #135
+blacs queue-main-thread                 # blacs #136
+blacs submit-during-startup             # blacs #138
+lyse remove-routine-kill-lock           # lyse #151
+lyse abort-analysis                     # lyse #153
+lyse shot-overhead                      # lyse #157
+runmanager repack-globals-files         # runmanager #144
+runmanager value-history                # runmanager #145

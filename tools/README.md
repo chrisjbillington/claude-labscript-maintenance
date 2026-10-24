@@ -15,6 +15,35 @@ exhausted. The per-issue text files that `docs/ISSUE-TRIAGE.md` refers to as
 `scratchpad/issues/<repo>_<N>.txt` were made with these scripts and are not kept here.
 With `gh` authenticated, `gh issue view <N> --comments` is the simpler alternative.
 
+## Integration testing branches
+
+`integration-testing/build.sh WORKDIR [COMPONENT ...]` makes, for each component in
+`integration-testing/branches`, a branch `integration-testing` that is the component's
+master with the listed branches merged in the listed order, and force-pushes it to the
+component's origin. It deletes the `integration-testing` branch of a component that has
+no entries, and pushes nothing for a component in which master, the listed branches and
+the result are unchanged. The branch is rebuilt from master each time; do not commit to
+it. The script clones each component into `WORKDIR` from the origin of its clone under
+`repos/` (`REPOS` overrides the location of `repos/`).
+
+Merge conflicts are resolved with `git rerere`, and the recorded resolutions are kept in
+`integration-testing/rr-cache/COMPONENT`. At a conflict with no recorded resolution, the
+script stops with the merge in progress in `WORKDIR/COMPONENT`. Resolve it there, commit,
+commit the new files under `rr-cache/` to this repository and run the script again.
+After the merges, the patches in `integration-testing/patches/COMPONENT` are applied in
+name order. A patch is a change to a merged branch that another merged branch requires
+when there is no merge conflict:
+
+| Patch | Change | Needed by |
+|---|---|---|
+| `runmanager/value-history-repack.patch` | `record_history` and `_modify_history_entry` open the globals file with `_open_for_writing` | runmanager #144 with #145; the second of the two to be merged needs the change |
+
+`integration-testing/deploy.sh HOST DIR` checks out, in each git clone in `DIR` on
+`HOST`, `integration-testing` at the version on origin, or `master` (fast-forwarded to
+origin) if origin has no `integration-testing`. It does not update a clone that has
+uncommitted changes. The lab machine's clones are in `~/labscript-suite/dev`, and the
+components are installed from them in `~/labscript-suite/dev/.venv`.
+
 ## Smoke tests behind the release plan
 
 The scripts that produced the results in `docs/RELEASE-PLAN.md` section 3 have been

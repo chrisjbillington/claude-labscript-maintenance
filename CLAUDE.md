@@ -46,6 +46,13 @@ This repository holds the notes, plans and tooling for maintaining the labscript
   rebase or the force-push is blocked, stop and ask the maintainer to do it.
 - Delete a branch in a component repository once its pull request is merged, and record
   in `docs/LOCAL-TASKS.md` any branch that the session cannot delete itself.
+- The `integration-testing` branch of a component is its master with the unmerged
+  branches under test merged in, for the lab machine. `tools/integration-testing/`
+  lists the branches and rebuilds the branches (`tools/README.md`). When a listed
+  branch changes, run `build.sh`. When one is merged, remove it from `branches`; if a
+  patch in `patches/` adapts it to another listed branch, the patch's change goes into
+  the branch that is merged second, and the patch is deleted once that branch has it.
+  Deploy to the lab machine only when the maintainer asks.
 - Describe verification in commit messages and pull request descriptions in plain
   terms: what was run and what happened ("the module imports without a warning", "the
   example experiment compiles on NumPy 2.5.4"). Do not quote interpreter flags or the

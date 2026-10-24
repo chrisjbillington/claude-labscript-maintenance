@@ -5,6 +5,32 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-24: integration-testing branches on diginuc
+
+The `test-batch` branches on diginuc are replaced by `integration-testing` branches on
+GitHub, made by `tools/integration-testing/build.sh` from master and these branches:
+zprocess #35 and #39 (ef150f8), labscript-utils #138 (b8a5a49), labscript-devices
+`narwhal-pulsegen`, #160 and #161 (bd41d67), blacs #135, #136 and #138 (fa00b74), lyse
+#151, #153 and #157 (5d13bdf) and runmanager #144 and #145 (9e1807b). desktop-app,
+labscript, qtutils and runviewer have nothing unmerged and stay on master.
+
+- Conflicts: lyse `analysis_subprocess.py` (#157 with #153; #157's compile-on-change
+  around #153's `routine_running` flag and `KeyboardInterrupt` handler), runmanager
+  `group_manager.py` imports (#145 with #144) and zprocess `tests/test_zprocess.py` (#39
+  with #35, the same resolution as `test-batch`, with an identical tree).
+- runmanager #145's two history writes open the globals file with h5py directly, so
+  without a change the history written at each compile makes the file grow by 4 kB, as
+  before #144. The patch `value-history-repack.patch` makes them use
+  `_open_for_writing`. With it, 400 calls of `record_history` on one global left the
+  file at 18.5 kB, and it was repacked.
+- Locally (Python 3.14.8), the zprocess test suite passes on the zprocess branch, 44
+  tests, and blacs, lyse, runmanager, labscript-utils and labscript-devices import
+  from the branches.
+- `deploy.sh` checked out `integration-testing` or master in every clone in
+  `diginuc:~/labscript-suite/dev`, and every component imports from its clone in the
+  diginuc venv, including the Narwhal Devices and IMAQdx BLACS workers. The `test-batch`
+  branches on diginuc are deleted.
+
 ## 2026-10-24: lyse start-up time on diginuc
 
 lyse from `~/labscript-suite/dev` on diginuc (lyse 6a4f323, components installed from
