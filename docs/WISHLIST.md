@@ -147,3 +147,16 @@ that sends records to the zlog server, a handler for stdout and a handler for st
 and sets the logger level to `DEBUG`. The `[logging]` section of labconfig has only
 `maxBytes` and `backupCount`, which configure the zlog server's log files
 (`labscript_utils/ls_zprocess.py:114` and `:118`).
+
+## lyse: minimum interval between multishot runs
+
+A lyse setting gives a minimum time interval between runs of the multishot routines.
+When shots arrive more often than this interval, lyse runs the single-shot routines on
+each shot as now, and runs the multishot routines at most once per interval.
+
+Use case: lower CPU use when shots arrive quickly.
+
+In lyse 3edf99c the analysis loop runs the single-shot routines on every shot that is
+waiting, then runs the multishot routines once the queue of waiting shots is empty
+(`lyse/filebox.py:1012` to `:1033`). When single-shot analysis takes less time than the
+interval between shots, the multishot routines run after every shot.
