@@ -87,6 +87,23 @@ running BLACS and 20 to a free port, then starts a second BLACS.
   use` (Windows: `Address in use`) and created no device tabs, as the experiment server
   is created first on master; reported as KNOWN D40.
 
+## 2026-10-24: zprocess #40 (shared objects created under a lock)
+
+Branch `instance-locks` on chrisjbillington/zprocess (head 61ab980, one commit on master
+0fbd203).
+
+- `SecureContext.instance()` for a new shared secret, called from eight threads released
+  by a barrier at once, returned more than one context in five runs out of five on
+  master and the same context in every run with the branch (Python 3.14.8, harness venv
+  py3.14 with the branch first on the path). The zprocess test suite passed locally (78
+  tests).
+- `test.yml` run
+  [40050076666](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/40050076666)
+  with `zprocess=chrisjbillington/zprocess@instance-locks` and every step: the 25 jobs
+  for Python 3.11 to 3.14 passed every step, including `zprocess-tests`; the six Python
+  3.15 jobs failed at "Install the components" because h5py 3.16.0 has no wheels for
+  Python 3.15.
+
 ## 2026-10-24: lyse #158 (workers of both routine boxes started together)
 
 Branch `concurrent-config-workers` on labscript-suite/lyse (head 0546d6f, one commit on
