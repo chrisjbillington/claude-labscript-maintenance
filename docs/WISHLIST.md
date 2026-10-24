@@ -124,3 +124,14 @@ The horizontal header of the lyse shots table is not drawn when the table has on
 two initial columns, status and file path, at startup. The table and its header are
 created in `lyse/filebox.py:272` to `:314` (lyse 3edf99c), with
 `HorizontalHeaderViewWithWidgets` from labscript-utils.
+
+## lyse: option to not pause analysis on error
+
+A checkbox or button in lyse sets whether analysis pauses when a routine raises an
+error.
+
+lyse 3edf99c always pauses analysis when a single-shot routine raises an error and the
+shot file still exists (`lyse/filebox.py:1079`), when a multishot routine raises an
+error (`lyse/filebox.py:1094`), and when the analysis loop raises an unexpected
+exception (`lyse/filebox.py:1044`). The paused state is saved with the lyse
+configuration (`lyse/__main__.py:324`).
