@@ -61,6 +61,15 @@ under the offscreen platform, clears it through `clear_output()` and through the
 context menu, and checks the displayed text after each step. Both were written for
 labscript-c-extensions #13 and qtutils #36 (`docs/TESTING.md`, 2026-10-17).
 
+`narwhal_hwtest.py` runs the NarwhalPulseGenerator BLACS worker and driver against a
+connected pulse generator with BLACS closed: connecting, connecting while the port is
+held, the manual controls, and shots with no channels in use (a plain shot, waits that
+time out, `wait_for_powerline`, three waits, an abort during a wait, a wait at t=0). No
+channel changes level. It restores the device's settings at the end, but the device's
+instruction memory holds the last test shot. Run it with the Python of an environment
+that has labscript-devices #162 and a labconfig; it compiles in a temporary directory
+that it deletes. The serial number is `SN` at the top (`docs/TESTING.md`, 2026-10-24).
+
 ## BLACS shot cycle timing
 
 `blacs-timing/` measures the per-shot overhead of BLACS with dummy devices, for blacs

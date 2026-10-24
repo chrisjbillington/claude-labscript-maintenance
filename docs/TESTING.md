@@ -162,6 +162,45 @@ git clones), Python 3.14.8, PyQt5, three analysis routines, load average 1.8 to 
   0.16 s of it in labscript-utils. An install from a wheel reads the version from the
   package metadata instead and does not do this.
 
+## 2026-10-24: Narwhal Devices Pulse Generator on hardware (labscript-devices #162)
+
+diginuc, pulse generator serial number 12582921 (hardware version 5, firmware 1.002) on
+`/dev/ttyUSB3`, `~/labscript-suite/dev/.venv` (Python 3.14.8) with labscript-devices
+`integration-testing` bd41d67, which contains #162 at 54e36ea. BLACS was closed. The
+maintainer has run the lab's `drop_mot` experiment with the device; no hardware trigger
+source and no second unit are available. `tools/narwhal_hwtest.py`, with no channel in
+use in any shot, so channels 2 and 7 stayed high and the others low throughout:
+
+- `connect(12582921)` and `connect(None)` open the device. With the port held by
+  another process, both raise after 5.1 s with messages that name `/dev/ttyUSB3` as
+  "in use by another process".
+- Manual mode: `program_manual` with the current values reads back the same values;
+  each of the options run mode, accept hardware trigger, trigger-out length and delay,
+  the two notify options, powerline trigger and powerline delay reads back as set;
+  `disable_after_current_run` and `reset_run` on an idle device change nothing. The
+  powerline is locked, mains period 19.99 ms.
+- A 0.2 s shot finished 0.231 s after the software trigger.
+- Waits that time out, timeout 0.3 s, recorded in `/data/waits` with `timed_out`:
+  0.3176 s without `trigger_on_powerline`, 0.3299 s with it. In a shot with three waits
+  the two timed-out waits (timeouts 0.2 s and 0.1 s) lasted 0.2173 s and 0.1176 s. The
+  excess of 17.5 ms is the FTDI latency timer: `latency_timer` of the port is 16 ms, a
+  `get_state` round trip takes 15.9 to 16.2 ms (20 requests), and the worker requests
+  the state before the software trigger that resumes a timed-out wait. Every request
+  to the device takes this long on this machine.
+- `wait_for_powerline`: 13.3 ms with no delay and 18.6 ms with a 2 ms delay, both under
+  one mains period plus the delay; in the three-wait shot 8.5 ms.
+- An abort during a wait with a 5 s timeout: after 1 s the device is paused at the
+  waiting instruction; `abort_buffered` leaves it stopped at address 0 with the outputs
+  unchanged.
+- A wait at t=0 with `use_wait_monitor=False`: after 1 s the device is paused at address
+  0 with the outputs unchanged (there is no trigger to end the wait); `abort_buffered`
+  stops it.
+- The device's settings were restored afterwards; its instruction memory holds the last
+  test shot (final address 2) instead of the lab's last shot.
+
+Not tested: a wait ended by a hardware trigger, a wait of a few hundred nanoseconds
+(`wait_delay = 0`), the trigger-out pulse on a scope, and a secondary pulse generator.
+
 ## 2026-10-24: Narwhal Devices Pulse Generator documentation (labscript-devices `narwhal-pulsegen` 54e36ea)
 
 Branch `narwhal-pulsegen` at 54e36ea on master 5a5892c, Python 3.14.8, the py3.14 harness
