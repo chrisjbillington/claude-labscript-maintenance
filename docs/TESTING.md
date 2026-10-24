@@ -31,6 +31,34 @@ failed at install as before. Run
 passed; the check passed in every job except Ubuntu, Python 3.11, PySide6 (KNOWN D42).
 Run 40062621960, the same branch before the D42 marker, failed in that job only.
 
+## 2026-10-24: runmanager run files built in memory (runmanager #147)
+
+runmanager `copy-sequence-globals` changed from A (below) to build each run file in
+memory from an in-memory file image holding the sequence globals, and to write it to disk
+in one write without a zlock. Laptop, harness Python 3.14.8 venv, h5py 3.16.0 with HDF5
+2.0.0, the `drop_mot` scan (8 groups, 174 sequence global attributes, 58 shot globals),
+labscript master c8441c1 with B, run files made by `make_run_files` and compiled in a
+batch compiler subprocess, 60 shots:
+
+| runmanager | Make a run file (median) |
+|---|---|
+| master adc9777 | 8.6, 9.0 ms |
+| A (a0ba68f) | 4.2, 4.3 ms |
+| in memory (bc71818) | 2.1, 2.2 ms |
+
+- The 100 run files of the scan and a `make_single_run_file` file have the same groups,
+  attributes, attribute types and values as with master. Each file is 46.6 kB instead
+  of 42.7 kB.
+- Of the remaining 2.1 ms, about 1.6 ms is the 58 shot-global attribute writes; with
+  low-level `h5a` calls instead of `attrs[name] = value` they take 1.3 ms.
+- In labscript the per-shot file work is mostly shot-specific. With `generate_code`
+  writing the shot file through an in-memory image (an experiment, not a branch), a
+  compile took 15.4 ms instead of 16.0 to 16.6 ms. `load_globals` takes 3.3 ms,
+  `save_labscripts` 1.8 ms (about 1 ms of it is the `sys.modules` scan) and
+  `write_device_properties` 1.7 ms of the 15.4 ms.
+- The test workflow passed on Ubuntu and Windows for Python 3.11 to 3.14 with every Qt
+  binding (run 40069270747); the Python 3.15 jobs failed to install h5py, as before.
+
 ## 2026-10-24: drop_mot compile time on diginuc with the compile speed-ups
 
 The 100-shot `drop_mot` scan as saved in diginuc's runmanager configuration, run on the
