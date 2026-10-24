@@ -31,6 +31,41 @@ labscript, qtutils and runviewer have nothing unmerged and stay on master.
   diginuc venv, including the Narwhal Devices and IMAQdx BLACS workers. The `test-batch`
   branches on diginuc are deleted.
 
+## 2026-10-24: `labscript_utils.ports.port_in_use` (D40)
+
+The 0.1 s connection timeout of the first version of the BLACS check (below) costs about
+100 ms per start on Windows. A probe workflow on the workflow-sandbox fork (branch
+`probe-ports`, run 40048838452) timed 200 calls each on a free port, a ZMQ REP port and
+a plain listening socket, on windows-latest (Server 2025), windows-2022, macos-latest and
+ubuntu-latest with Python 3.11 and 3.14. Every call gave the right result.
+
+| Method | Windows free port | Windows ZMQ port | macOS and Ubuntu |
+|---|---|---|---|
+| connect with 0.1 s timeout | median 101–109 ms | median 15.5 ms | median under 0.1 ms |
+| SYN retransmission off (`SIO_TCP_INITIAL_RTO`), 1 s timeout | median 15.4–15.6 ms | median 15.3–15.6 ms | median under 0.1 ms |
+| SYN retransmission off, no timeout | median 0.04–0.11 ms, max 0.49 ms | median 0.08–0.18 ms, max 0.40 ms | median under 0.1 ms |
+
+A socket timeout on Windows costs about 15.6 ms, the Windows timer interval, even when the
+connection succeeds at once. A listener that does not accept connections and has a full
+backlog: Windows refuses the connection at once (so `port_in_use` returns False);
+Linux drops the SYN, and a connection attempt with a timeout times out (`port_in_use`
+returns True after its 1 s timeout); macOS accepts it.
+`port_in_use` in labscript-utils #140 uses no timeout on Windows and a 1 s timeout
+elsewhere.
+
+[Run 40049619223](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/40049619223)
+(labscript-utils `port-in-use` 0c71af0, blacs `submit-during-startup` 70091ce, lyse,
+runmanager and runviewer `exit-if-port-in-use`; Ubuntu and Windows, Python 3.11–3.14,
+three Qt bindings): all 25 jobs passed. In the `apps` step, `port_in_use` returned the
+right result in every call: on Windows median 0.05–0.37 ms, maximum 0.65 ms; on Ubuntu
+median 0.02–0.09 ms, maximum 0.27 ms. A second copy of each application reported its port
+in use after 1–3 s with no traceback, and the second BLACS created no device tabs.
+
+The masters push run 40049615503 for the same harness commit failed in one job, ubuntu
+py3.14 PySide6: lyse aborted in the `lyse-gui` step with `malloc_consolidate(): unaligned
+fastbin chunk detected` in `EditColumns.populate_model` (`lyse/filebox.py:111`), which is
+D39. The Python 3.15 jobs failed as before.
+
 ## 2026-10-24: blacs #138 port check at start-up (D40)
 
 blacs `submit-during-startup` 594723c checks for a process listening on the BLACS port
