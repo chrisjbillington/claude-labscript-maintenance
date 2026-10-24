@@ -219,6 +219,31 @@ git clones), Python 3.14.8, PyQt5, three analysis routines, load average 1.8 to 
   0.16 s of it in labscript-utils. An install from a wheel reads the version from the
   package metadata instead and does not do this.
 
+## 2026-10-24: `labscript_devices.usbserial` (labscript-devices #163)
+
+Branch `usbserial` at 47aa493 on master 5a5892c.
+
+- diginuc, the Narwhal pulse generator on `/dev/ttyUSB3` (FT2232H, second channel),
+  `~/labscript-suite/dev/.venv` (Python 3.14.8, pyserial 3.5), with the module loaded
+  from the branch: `latency_timer` was 16 before the first open and 1 after it. The first
+  open took 260 ms including the echo request, the second 7 ms. A `get_state` request
+  took 1.00 ms (median of 50; 0.36 to 1.51 ms) instead of 16 ms. A second exclusive open
+  raised `SerialException`; closing the driver, which calls `cancel_read()` and joins
+  its reader thread, took 5 to 7 ms. `tools/narwhal_hwtest.py` with `driver.open_port`
+  using `usbserial.Serial`: 0 failures; waits with timeouts 0.3 s, 0.2 s and 0.1 s
+  lasted 0.3021 s, 0.2015 s and 0.1020 s (17.5 ms over with `serial.Serial`), and the
+  0.2 s plain shot finished 0.202 s after the trigger instead of 0.231 s.
+  `tools/usbserial_check.py /dev/ttyUSB3` (no loopback): 0 failures; `cancel_read()`
+  ended a blocking read after 2.0 ms. The port stays in low-latency mode until the
+  device is unplugged or the driver is reloaded.
+- Locally on a pseudo-terminal: reads with a timeout, with timeout 0, after a
+  `cancel_read()` and `send_break()` behave as documented.
+- Run [40054817217](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/40054817217)
+  with `labscript-devices=labscript-suite/labscript-devices@usbserial`: the 25 jobs for
+  Python 3.11 to 3.14 passed; the six Python 3.15 jobs failed at "Install the
+  components", as on the masters.
+- Not run: the D2XX path on Windows and macOS.
+
 ## 2026-10-24: Narwhal Devices Pulse Generator on hardware (labscript-devices #162)
 
 diginuc, pulse generator serial number 12582921 (hardware version 5, firmware 1.002) on

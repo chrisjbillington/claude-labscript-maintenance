@@ -70,6 +70,13 @@ instruction memory holds the last test shot. Run it with the Python of an enviro
 that has labscript-devices #162 and a labconfig; it compiles in a temporary directory
 that it deletes. The serial number is `SN` at the top (`docs/TESTING.md`, 2026-10-24).
 
+`usbserial_check.py PORT [--loopback] [--baudrate N]` checks `labscript_devices.usbserial`
+(labscript-devices #163) on an FTDI adaptor: whether D2XX is loaded and used, that a
+second open raises `SerialException`, read timeouts, `cancel_read()`, and with the
+adaptor's TX and RX connected, loopback reads and the round-trip time compared with
+`serial.Serial`. It needs only pyserial, and loads `usbserial.py` from its own directory
+if labscript-devices #163 is not installed. Written to test the Windows and macOS paths.
+
 ## BLACS shot cycle timing
 
 `blacs-timing/` measures the per-shot overhead of BLACS with dummy devices, for blacs
