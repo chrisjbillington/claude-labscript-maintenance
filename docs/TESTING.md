@@ -5,6 +5,77 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-24: where BLACS spends its time on diginuc
+
+The lab's 100-shot `drop_mot` scan, run with the lab's hardware (Narwhal pulse
+generator, Thorlabs camera, Rigol scope, FunctionRunner) and engaged through
+`runmanager.remote`, with BLACS, lyse and runmanager started on the lab's display.
+Profiled with `tools/blacs-profile/`. The integration-testing branches as deployed
+(blacs e47dca2, labscript-utils bbe0d4f, labscript-devices 5680d70, zprocess 037510d,
+lyse 706f72f, runmanager 67564cc, qtutils master 844ad7b), Python 3.14.8, PyQt5 5.15.11
+(Qt 5.15.14), h5py 3.16.0, NumPy 2.5.4, pyqtgraph 0.14.0. Logging was disabled
+suite-wide by a `.pth` file that calls `logging.disable(logging.CRITICAL)`. diginuc has
+an i3-1115G4 (2 cores, 4 threads); two of the lab's own GUI programs used about 1.4
+CPUs throughout. The shot's `stop_time` is 0.268 s, and the BLACS window showed the
+pulse generator tab. "Load" is 4 busy-loop processes. Times per shot are means over
+the sequence from the shots' `run time` attributes. The runs made sequences
+2026/10/24/0023 to 0045 in the lab's shot storage.
+
+- **(run)** py-spy 0.4.2 cannot profile this BLACS: attached to it, every sample takes
+  over a second of mostly kernel time, at 200, 100 and 10 samples per second, with or
+  without `--subprocesses`. It works on runmanager and on a small script with the same
+  Python. The measurements below are from an in-process profiler that times every Qt
+  event in the main thread through `QApplication.notify`. With it recording, a shot
+  took 5% longer.
+- **(run)** Per shot without the profiler, in one BLACS session, alternating runs:
+
+  | BLACS window | no load | load |
+  |---|---|---|
+  | shown | 407, 405 ms | 529, 535 ms |
+  | minimised | 361, 359 ms | 435, 437 ms |
+
+  BLACS used 15.4 s of CPU per sequence with the window shown and 11.3 s minimised (the
+  workers about 6 s in total, lyse and runmanager under 2 s each). A minimised window
+  still receives paint events (same number of widget paints), so the difference is a
+  lower bound on the cost of drawing.
+- **(run)** The main thread does almost all of BLACS's work: 13.7 s of CPU per sequence
+  (137 ms per shot), against 2.7 s for all other Python threads. With the window shown
+  and no load, the shot cycle after the last submission has a median of 407 ms: 288 ms
+  from `Shot.start_run` until the run notification has been handled, and 118 ms from
+  then until the next `start_run`. In those 118 ms the main thread is handling events
+  for 102 ms (62 ms of CPU). Under load the gap is 243 ms, of which the main thread is
+  busy for 206 ms but uses only 63 ms of CPU; it is waiting for a CPU. Minimised and
+  without load, the gap is 60 ms and the main thread is busy for 54 ms of it. The gap is
+  therefore set by the main thread, not by the workers.
+- **(run)** Main thread in the gap, window shown, no load, per shot (wall, CPU):
+  repaints of the window (`UpdateRequest`, with the paint events nested in it) 44, 25 ms;
+  `Tab._update_state_display` (20 calls per shot across the four tabs; each sets the
+  hidden error browser's HTML, the state label and the tab icon and text colour) 15,
+  10 ms; the camera tab's `ImageReceiver.display` (a hidden tab; pyqtgraph `setImage`,
+  autorange and axis updates, then `sendPostedEvents`) 8, 6 ms; `OutputBox.add_text`
+  for the workers' printed output 6, 4 ms; layout requests about 8 ms; the queue view's
+  delayed item layout 3, 2 ms; `progress_bar.clear_bar` 3, 2 ms. During the run:
+  repaints 37, 22 ms, and `progress_bar.update_bar_value` 21, 15 ms (14 calls of 1.5 ms;
+  `QProgressBar.setValue` repaints the bar synchronously, at the 50 Hz update rate).
+- **(run)** Widget paints per shot: the queue view's viewport 2 (8.5 ms each, the full
+  list of long paths), the progress bar 30, the tab bar 14, the state labels 16, the tab
+  widget 17. The `UpdateRequest` handling outside the paint events (composition and the
+  transfer to the X server) is 56 ms per shot with the window shown and 34 ms minimised,
+  and doubles under load.
+- **(run)** `ExperimentServer.process` runs in the main thread and took 15 ms (8.4 ms
+  CPU) per submitted shot without load and 29 ms (9.1 ms CPU) with load. Of its
+  samples, about 38% are in `h5_lock`'s zlock acquire and release for the two opens of
+  the shot file, and about 28% in `DeviceOrders`, which reads every device property of
+  every device to get `start_order` and `stop_order`; parsing and comparing the
+  connection table is under 10%. While runmanager is still submitting shots (the
+  first 17 shots), the gap is 190 ms instead of 118 ms: each gap has two or three
+  submissions, and each insertion relays out and repaints the queue view.
+- **(run)** `QTreeView.setUniformRowHeights(True)` reduces the item layout after a row is
+  taken from and appended to a 100-row model from 1.4 ms to 0.05 ms on diginuc with
+  PyQt5 (0.6 to 0.04 ms on the laptop with PySide6). The queue view does not set it.
+  Its viewport repaint is the same with and without elision and with and without a
+  Python subclass (3 ms on the laptop, offscreen).
+
 ## 2026-10-24: lazy logging arguments (`lazy-logging` branches, no pull requests)
 
 Branches `lazy-logging` in zprocess (052733b), labscript-utils (7462277),

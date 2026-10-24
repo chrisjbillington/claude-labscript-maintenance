@@ -121,6 +121,23 @@ the previous shot to the first transition to buffered, the spread of the transit
 the run, and so on, from the queue manager's messages and the tabs' "Processing event"
 messages.
 
+## BLACS profile on the lab machine
+
+`blacs-profile/` profiles BLACS running the lab's own experiment with its hardware
+(`docs/TESTING.md`, 2026-10-24). Copy the directory to `$PROF_DIR` on the lab machine
+(default `/tmp/blacsprof`), start BLACS as `python $PROF_DIR/profile_blacs.py` with the
+lab's venv, and start lyse and runmanager. `run_sequence.sh`, run through `ssh HOST bash
+-s LABEL NLOAD PROFILE WAIT SEQUENCE_PARENT < run_sequence.sh`, engages runmanager's
+current sequence, optionally with busy-loop processes and the profiler, and prints the
+per-shot time from the shots' `run time` attributes (`seqtimes.py`) and the CPU time of
+each process. `profile_blacs.py` times every Qt event in the main thread through an
+overridden `QApplication.notify` and samples the other threads' stacks; SIGUSR1 starts a
+recording, SIGUSR2 writes it, and SIGHUP minimises or restores the BLACS window.
+`events.py EVENTS` summarises the event times and `timeline.py TIMELINE` splits each shot
+into the run and the gap between the end of the run and the next start, with the main
+thread's busy time in each. py-spy 0.4.2 cannot profile BLACS on Python 3.14: each
+sample takes over a second, even at 10 samples per second.
+
 ## BLACS queue manager behaviour
 
 `blacs-queue/queuetest.py` checks the behaviour of the queue manager with the BLACS main
