@@ -61,6 +61,12 @@ right result in every call: on Windows median 0.05–0.37 ms, maximum 0.65 ms; o
 median 0.02–0.09 ms, maximum 0.27 ms. A second copy of each application reported its port
 in use after 1–3 s with no traceback, and the second BLACS created no device tabs.
 
+[Run 40052712233](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/40052712233)
+(the same changes with the functions moved to `labscript_utils.ls_zprocess`:
+labscript-utils e62f2e5, blacs 21a7f56, lyse 1d6db44, runmanager bf33a4e, runviewer
+5b04c61): all 25 jobs passed, with every `port_in_use` call right (maximum 1.02 ms on
+Windows, 0.36 ms on Ubuntu) and every second copy reporting its port in use.
+
 The masters push run 40049615503 for the same harness commit failed in one job, ubuntu
 py3.14 PySide6: lyse aborted in the `lyse-gui` step with `malloc_consolidate(): unaligned
 fastbin chunk detected` in `EditColumns.populate_model` (`lyse/filebox.py:111`), which is
