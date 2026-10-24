@@ -7,6 +7,7 @@ zprocess lazy-logging                   # lazy logging arguments, no PR
 labscript-utils set-default-process-tree  # labscript-utils #138
 labscript-utils port-in-use             # labscript-utils #140
 labscript-utils lazy-logging            # lazy logging arguments, no PR
+labscript-utils connection-table-open-file  # needed by blacs main-thread-per-shot, no PR
 labscript set-passed-properties-bind    # labscript #132
 labscript-devices narwhal-pulsegen       # labscript-devices #162
 labscript-devices zprocess3-compat      # labscript-devices #160
@@ -15,6 +16,7 @@ labscript-devices usbserial             # labscript-devices #163
 labscript-devices lazy-logging          # lazy logging arguments, no PR
 blacs statemachine-main-thread          # blacs #135
 blacs queue-main-thread                 # blacs #136
+blacs main-thread-per-shot              # on top of #136, no PR
 blacs submit-during-startup             # blacs #138
 blacs lazy-logging                      # lazy logging arguments, no PR
 lyse remove-routine-kill-lock           # lyse #151

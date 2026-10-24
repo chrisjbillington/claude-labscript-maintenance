@@ -5,6 +5,34 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-24: blacs `main-thread-per-shot` and labscript-utils `connection-table-open-file`
+
+Changes from the BLACS profile below: blacs branch `main-thread-per-shot` (11b48ec, on
+top of #136) sets a tab's error HTML, icon and text colour only when they change,
+updates the progress bar at 10 Hz with one repaint per update, sets uniform row heights
+on the queue view, and opens a submitted shot file once; the last needs labscript-utils
+branch `connection-table-open-file` (f8fd8eb), with which `ConnectionTable` accepts an
+open `h5py.File`. #136 (now f190dae) reads only `start_order` and `stop_order` of each
+device instead of all of its properties: 0.18 ms instead of 0.78 ms for a three-device
+`drop_mot` shot. Both branches are in the integration-testing branches (labscript-utils
+e331dd7, blacs cb292cb); they are not deployed to diginuc. No test workflow was run.
+
+Laptop, harness venv (Python 3.14.8, PySide6), offscreen:
+
+- **(run)** `tools/blacs-queue/queuetest.py`: 60 checks, 0 failed.
+- **(run)** A `ConnectionTable` made from an open file of a shot has the same filepath,
+  table and master pseudoclock as one made from its path, they compare equal, and the
+  file is still open afterwards.
+- **(run)** `Tab.set_tab_icon_and_colour` on a `QTabWidget`: unchanged values are not
+  set again; a changed colour, a tab moved to another index and a tab put back after a
+  restart get the icon and colour.
+- **(run)** Progress bar update on a shown `QProgressBar`: one paint event per update
+  instead of two, none of them synchronous, with the same text.
+- **(run)** `tools/blacs-timing/bench.py`, 4 dummy tabs, 100 shots of 0.1 s: cycle
+  144, 144, 145, 146 ms with the branch and 146, 147 ms with #136 alone; all shots
+  queued and run. Offscreen drawing is cheap, so this does not show the saving measured
+  on diginuc.
+
 ## 2026-10-24: where BLACS spends its time on diginuc
 
 The lab's 100-shot `drop_mot` scan, run with the lab's hardware (Narwhal pulse
