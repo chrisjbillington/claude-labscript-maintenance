@@ -5,6 +5,32 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-24: D39, lyse's Edit columns dialog on PySide6 6.12.0, and D42
+
+Locally (Linux), a script that updates lyse's `EditColumns` dialog with one more column
+at a time crashed lyse master 3edf99c with labscript-utils master a9dbff7 after 15 to 31
+updates in five runs (Python 3.14.8, PySide6 6.12.0), in `QStandardItemModel.clear()` →
+`Shiboken::BindingManager::unregisterWrapper`. A PySide6-only script (300 rounds of
+`clear()`, `setHorizontalHeaderLabels`, one `horizontalHeaderItem(0)` and up to 300
+`appendRow` calls) crashed in three of three runs on PySide6 6.12.0 (Python 3.12 and
+3.14) and in none on 6.8.3, 6.9.3, 6.10.2, 6.11.0 and 6.11.2 (Python 3.12), PyQt5 and PyQt6.
+With labscript-utils `header-items-pyside612` 4964aa8 (DEFECTS.md D39), three 30 s runs
+did 6,500 to 10,000 updates each without a crash, and 40 runs of the harness's 200-update
+script on Python 3.14 passed. On Python 3.11.17 with PySide6 6.12.0 the 200-update script
+aborts in every run with the fix (`none_dealloc: deallocating None`): every PySide6 call
+that returns `None` lowers `sys.getrefcount(None)` by one (DEFECTS.md D42). On 6.11.2 it
+does not.
+
+The `lyse-gui` step now runs the 200 updates in a subprocess. Push run
+[40063713700](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/40063713700)
+(masters): the check crashed in all five Ubuntu PySide6 jobs (KNOWN D39 on 3.12 to 3.14,
+KNOWN D42 on 3.11) and passed on Windows and with PyQt5 and PyQt6; the Python 3.15 jobs
+failed at install as before. Run
+[40063716738](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/40063716738)
+(`labscript-utils=labscript-suite/labscript-utils@header-items-pyside612`): all 25 jobs
+passed; the check passed in every job except Ubuntu, Python 3.11, PySide6 (KNOWN D42).
+Run 40062621960, the same branch before the D42 marker, failed in that job only.
+
 ## 2026-10-24: drop_mot compile time on diginuc with the compile speed-ups
 
 The 100-shot `drop_mot` scan as saved in diginuc's runmanager configuration, run on the
