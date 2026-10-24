@@ -108,6 +108,22 @@ On the laptop, h5py 3.16.0 built with `-O2` in place of `-O3` has the same bench
 times (within 5%); its extension modules are 3.35 MB gzipped, compared with 3.62 MB for
 `-O3` and 2.99 MB for `-g1` alone.
 
+The branch was then changed to `-O2` (commit 55532179). Fork run 40037178550 built the
+same wheels; the Linux extension modules record `-g1 -O2 -fno-strict-overflow`. Mean
+size per wheel compared with master: manylinux x86_64 5495 → 5883 kB (+7%), manylinux
+aarch64 5304 → 5780 kB (+9%), musllinux x86_64 5512 → 5843 kB (+6%), musllinux aarch64
+5282 → 5717 kB (+8%); macOS and Windows unchanged. The first attempts of this run and of
+the 3.16.0 run below failed in the wheel test step because pypi.anaconda.org returned
+HTTP 503; the reruns passed.
+
+Wheels for profiling on diginuc, in `~/labscript-suite/dev/wheelhouse/` (Python 3.14,
+same tags as the PyPI wheels in `~/labscript-suite/dev/.venv`):
+
+- `pyzmq-27.2.0-cp312-abi3-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl` from pyzmq
+  fork run 39982600069. pyzmq main 1cbf63a has no changes under `zmq/` since v27.2.0.
+- `h5py-3.16.0-cp314-cp314-manylinux_2_28_x86_64.whl` from h5py fork run 40037875841,
+  built from the 3.16.0 tag with the `-O2` change (temporary branch, since deleted).
+
 ## 2026-10-24: pyzmq Linux wheels build libsodium without optimisation
 
 The libsodium in the pyzmq Linux wheels is compiled without `-O`. pyzmq's cibuildwheel
