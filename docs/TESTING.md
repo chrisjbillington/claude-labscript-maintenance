@@ -212,6 +212,20 @@ labscript, qtutils and runviewer have nothing unmerged and stay on master.
   diginuc venv, including the Narwhal Devices and IMAQdx BLACS workers. The `test-batch`
   branches on diginuc are deleted.
 
+## 2026-10-24: integration-testing branches on diginuc, second build
+
+blacs #138 was rewritten after the first build and now imports `exit_if_port_in_use`
+from labscript-utils #140, so #140 is added to `branches`, together with labscript #132,
+labscript-devices #163 and runmanager #147. `build.sh` merged them without new conflicts
+(the recorded lyse, runmanager and zprocess resolutions were reused, and
+`value-history-repack.patch` still applies) and pushed blacs a4d09a6, labscript 613e712
+(labscript's first integration-testing branch), labscript-devices a71fe95,
+labscript-utils 7049a80 and runmanager fa47a6c; lyse 5d13bdf and zprocess ef150f8 are
+unchanged. `deploy.sh` checked them out in `diginuc:~/labscript-suite/dev`, and in the
+diginuc venv labscript, runmanager, blacs, `labscript_devices.usbserial` and
+`labscript_utils.ls_zprocess` (with `exit_if_port_in_use`) import from the clones, as do
+the Narwhal Devices and IMAQdx BLACS workers. No shot was compiled or run.
+
 ## 2026-10-24: `labscript_utils.ls_zprocess.port_in_use` (D40)
 
 The 0.1 s connection timeout of the first version of the BLACS check (below) costs about

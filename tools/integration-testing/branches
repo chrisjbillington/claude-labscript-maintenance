@@ -4,9 +4,12 @@
 zprocess interrupt-main-thread          # zprocess #35
 zprocess no-default-process-tree        # zprocess #39
 labscript-utils set-default-process-tree  # labscript-utils #138
+labscript-utils port-in-use             # labscript-utils #140
+labscript set-passed-properties-bind    # labscript #132
 labscript-devices narwhal-pulsegen       # labscript-devices #162
 labscript-devices zprocess3-compat      # labscript-devices #160
 labscript-devices camera-image-ack      # labscript-devices #161
+labscript-devices usbserial             # labscript-devices #163
 blacs statemachine-main-thread          # blacs #135
 blacs queue-main-thread                 # blacs #136
 blacs submit-during-startup             # blacs #138
@@ -15,3 +18,4 @@ lyse abort-analysis                     # lyse #153
 lyse shot-overhead                      # lyse #157
 runmanager repack-globals-files         # runmanager #144
 runmanager value-history                # runmanager #145
+runmanager copy-sequence-globals        # runmanager #147
