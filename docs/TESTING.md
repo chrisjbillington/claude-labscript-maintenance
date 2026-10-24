@@ -30,7 +30,7 @@ labscript, qtutils and runviewer have nothing unmerged and stay on master.
   `diginuc:~/labscript-suite/dev`, and every component imports from its clone in the
   diginuc venv, including the Narwhal Devices and IMAQdx BLACS workers. The `test-batch`
   branches on diginuc are deleted.
-||||||| parent of 1f58584 (Record the BLACS port check timings on Ubuntu and Windows (blacs #138, D40))
+
 ## 2026-10-24: blacs #138 port check at start-up (D40)
 
 blacs `submit-during-startup` 594723c checks for a process listening on the BLACS port
@@ -339,7 +339,6 @@ A REQ/REP round trip of one 6.2 MB message (2x1080x1440 uint16) on 127.0.0.1 tak
 2.4 ms with plain zmq and 75 ms with a `labscript_utils.ls_zprocess.Context` socket,
 which uses CurveZMQ when a shared secret is configured; for 0.23 MB it is 0.1 ms and
 3.1 ms (libzmq 4.3.5, pyzmq 27.2.0).
-||||||| parent of 4885ad7 (Record the runmanager value history branch, its tests and the screenshot driver)
 
 ## 2026-10-24: shots run through BLACS; labscript-devices #160 and blacs #137
 
