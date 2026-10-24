@@ -76,6 +76,9 @@ second open raises `SerialException`, read timeouts, `cancel_read()`, and with t
 adaptor's TX and RX connected, loopback reads and the round-trip time compared with
 `serial.Serial`. It needs only pyserial, and loads `usbserial.py` from its own directory
 if labscript-devices #163 is not installed. Written to test the Windows and macOS paths.
+When D2XX is loaded it also prints D2XX's device list, and the result of opening the
+port's serial number as pyserial reports it and with its last character removed, with
+the COM port number that D2XX gives for each.
 
 ## BLACS shot cycle timing
 

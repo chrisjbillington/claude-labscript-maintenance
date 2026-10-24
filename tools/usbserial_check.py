@@ -59,6 +59,30 @@ for p in comports():
     print(f'  {p.device}: vid={p.vid and hex(p.vid)} pid={p.pid and hex(p.pid)} serial={p.serial_number} '
           f'location={p.location} description={p.description}')
 
+ftd2xx = usbserial._ftd2xx
+if ftd2xx is not None:
+    import ctypes
+    n = ctypes.c_ulong()
+    ftd2xx.FT_CreateDeviceInfoList(ctypes.byref(n))
+    print(f'D2XX device list ({n.value} devices):')
+    for i in range(n.value):
+        flags, dtype, dev_id, loc_id = (ctypes.c_ulong() for _ in range(4))
+        sn, desc, handle = ctypes.create_string_buffer(16), ctypes.create_string_buffer(64), ctypes.c_void_p()
+        rc = ftd2xx.FT_GetDeviceInfoDetail(i, ctypes.byref(flags), ctypes.byref(dtype), ctypes.byref(dev_id),
+                                           ctypes.byref(loc_id), sn, desc, ctypes.byref(handle))
+        print(f'  {i}: rc={rc} serial={sn.value.decode()!r} description={desc.value.decode()!r} '
+              f'type={dtype.value} id={dev_id.value:#010x} location={loc_id.value:#x} flags={flags.value:#x}')
+    pyserial_sn = next(p.serial_number for p in comports() if p.device == args.port)
+    for sn in [pyserial_sn, pyserial_sn[:-1]]:
+        handle = ctypes.c_void_p()
+        rc = ftd2xx.FT_OpenEx(sn.encode(), 1, ctypes.byref(handle))
+        com = ctypes.c_long(-2)
+        if rc == 0 and hasattr(ftd2xx, 'FT_GetComPortNumber'):
+            ftd2xx.FT_GetComPortNumber(handle, ctypes.byref(com))
+        if rc == 0:
+            ftd2xx.FT_Close(handle)
+        print(f'FT_OpenEx({sn!r}) returned {rc}' + (f', FT_GetComPortNumber gives {com.value}' if rc == 0 else ''))
+
 port = usbserial.Serial(args.port, args.baudrate, timeout=None, write_timeout=1.0, exclusive=True)
 print('opened as', type(port).__name__)
 if sys.platform in ('win32', 'darwin') and usbserial._ftd2xx is not None:
