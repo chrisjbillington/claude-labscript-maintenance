@@ -5,6 +5,29 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-24: Narwhal Devices Pulse Generator documentation (labscript-devices `narwhal-pulsegen` 54e36ea)
+
+Branch `narwhal-pulsegen` at 54e36ea on master 5a5892c, Python 3.14.8, the py3.14 harness
+venv with the branch first on the path.
+
+- The five code blocks of `docs/source/devices/narwhalpulsegenerator.rst` were assembled
+  into four scripts and compiled through `runmanager.compile_labscript_async`: the
+  connection table and experiment, the same with a secondary pulse generator, a wait,
+  and a powerline wait. Before the change to the page, the experiment failed to compile
+  because the NI-USB-6363 had one analog output (`NI_DAQmx` requires an even number);
+  the example now has two. The secondary, which has no direct outputs, then failed in
+  `_compile_program` with `TypeError: 'int' object is not subscriptable`: the direct
+  output states were the integer 0 when no output was connected. With the fix all four
+  compile; the secondary's program is two instructions, lasting the stop time plus one
+  cycle. The port listing block runs and prints nothing with no device connected.
+- Harness step `narwhal` with the new fixture `no_direct_outputs.py`: 1 failure before
+  the fix ("no_direct_outputs compile reported success"), 0 after. The step did not
+  record a compile failure before this change, because `compile_fixture` did not check
+  the result of the compile; it now does.
+- Sphinx 8.2.3, dirhtml, from `docs/`: exits 0; the 12 warnings and errors are in other
+  devices' pages and docstrings (NI_DAQmx, AlazarTechBoard, AD9959DDSSweeper,
+  PrawnBlaster), none from the Narwhal page or modules.
+
 ## 2026-10-24: runmanager value history
 
 runmanager branch `value-history` (2e41aa5) records the values of each global that are

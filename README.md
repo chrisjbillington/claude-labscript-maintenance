@@ -70,7 +70,7 @@ and the file:line evidence.
 ## State as of 2026-10-22
 
 - A labscript device for the Narwhal Devices Pulse Generator is written on the
-  labscript-devices branch `narwhal-pulsegen` (d749354), following
+  labscript-devices branch `narwhal-pulsegen` (54e36ea), following
   `docs/NARWHAL-PULSEGEN.md`: a bundled serial driver, the labscript device, BLACS tab
   and worker, and a runviewer parser, with a docs page. The harness step `narwhal` tests
   it on a simulated device; run 39919806120 passed on Python 3.11 to 3.14 with every Qt

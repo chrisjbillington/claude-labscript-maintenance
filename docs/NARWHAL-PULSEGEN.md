@@ -620,3 +620,7 @@ and refers to that file. `runviewer_parsers.py`, `register_classes.py` and
 `__init__.py` derive from no vendor code and keep the plain header. A wheel built from
 the branch contains the license file. The harness run in `TESTING.md` is for bf5cbc5;
 the branch needs a new run before the pull request.
+
+Commit 54e36ea (2026-10-24) adds Installation, wait and powerline wait examples to the
+documentation page, and fixes the compilation of a pulse generator with no direct
+outputs, which the secondary in the documentation's example has (`TESTING.md`).

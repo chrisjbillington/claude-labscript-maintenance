@@ -1,7 +1,7 @@
 """Compile shots with Narwhal Devices Pulse Generators, check their instruction tables,
 run the runviewer parser on them, and run the BLACS worker on a simulated device: a
-shot with waits as master and secondary, an abort, and a secondary that is never
-triggered."""
+shot with waits as master and secondary, an abort, a secondary that is never
+triggered, and a device with no direct outputs."""
 
 import logging
 import sys
@@ -53,6 +53,7 @@ def compile_fixture(name):
         script, config=config, increment_sequence_index=False)
     runmanager.make_single_run_file(run_file, {}, {}, sequence_attrs, 0, 1)
     ok, _ = attempt(f'{name} compiles', compile_script, script, run_file)
+    check(ok is True, f'{name} compile reported success')
     return run_file if ok is True else None
 
 
@@ -258,5 +259,19 @@ if run_file is not None:
     check(run_to_completion(worker), 'the run finished after the trigger that ends the wait')
     check(worker.transition_to_manual() is True, 'transition_to_manual')
     worker.shutdown()
+
+# ---- A pulse generator with no direct outputs
+
+run_file = compile_fixture('no_direct_outputs')
+if run_file is not None:
+    with h5py.File(run_file, 'r') as f:
+        program = f['devices/pulsegen/PULSE_PROGRAM'][:]
+        attrs = dict(f['devices/pulsegen'].attrs)
+    duration = program['duration'].astype(np.int64)
+    loops = program['goto_counter'] > 0
+    total = duration.sum() + (duration[loops] + duration[np.flatnonzero(loops) - 1]) @ program['goto_counter'][loops].astype(np.int64)
+    stop_cycles = int(round(attrs['stop_time'] / CYCLE))
+    check(attrs['used_channels'] == 1 and total == stop_cycles + 100,
+          f'no direct outputs: instructions last {total} cycles, stop time is {stop_cycles} cycles plus a final tick of 100')
 
 finish()
