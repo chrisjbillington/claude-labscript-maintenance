@@ -480,6 +480,31 @@ Branch `usbserial` at 47aa493 on master 5a5892c.
   write is delayed while another thread reads, consistent with D2XX allowing one call on
   a handle at a time and the writer getting the handle only between two reads (not
   verified). The Narwhal driver writes from one thread while its reader thread reads.
+- 73bcc60 changes the D2XX read: it reads only bytes that have already arrived
+  (`FT_GetQueueStatus`, then `FT_Read`), and otherwise waits with
+  `WaitForMultipleObjects` on the event that D2XX sets when data arrives
+  (`FT_SetEventNotification`, `FT_EVENT_RXCHAR`) and an event that `cancel_read()` sets;
+  on macOS it checks the queue every millisecond. Deadlines use `perf_counter()`. On
+  Windows, `tools/usbserial_timing.py` (300 samples each): `cancel_read()` ended a blocked
+  read after 0.04 ms median (max 1.9 ms); `read(1, timeout=0.05)` ran 13.9 ms past its
+  timeout (median; 0.9 to 27.6 ms); with another thread blocked in a read, 300 of 300
+  bytes were received, the write took 0.46 ms median (max 5.5 ms) and the read returned
+  0.69 ms median after the write; a round trip in one thread took 1.00 ms median. The
+  macOS path ran on Linux against a Python stand-in for D2XX that allows one call at a
+  time: `cancel_read()` 0.04 ms, writes 0.1 to 0.3 ms with a reader blocked. On diginuc
+  with the pulse generator (pyserial path): `get_state` 1.00 ms median, second exclusive
+  open refused, close 5 to 7 ms; `tools/narwhal_hwtest.py` with the driver on
+  `usbserial`: 0 failures, waits with timeouts 0.3, 0.2 and 0.1 s lasted 0.3013, 0.2016
+  and 0.1014 s. The same changes were made to `pcp_serial.py` in
+  portable-clocks-peripherals (uncommitted).
+- Run [40078376090](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/40078376090)
+  with `labscript-devices=pr/163` at 73bcc60: all 25 jobs for Python 3.11 to 3.14 failed
+  at `lyse-gui` on the pandas DeprecationWarning that master push run 40077636478 also
+  fails on (D43, lyse #160); on Ubuntu Python 3.11 PyQt6 `blacs-shot` also failed
+  because lyse could not bind its port ("Address already in use"), after the failed
+  `lyse-gui` step. Run [40079047556](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/40079047556)
+  with `labscript-devices=pr/163 lyse=pr/160`: the 25 jobs passed; the six Python 3.15
+  jobs failed at "Install the components", as on the masters.
 - Run [40076336986](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/40076336986)
   with `labscript-devices=pr/163` at c83cc6e: the 25 jobs for Python 3.11 to 3.14 passed;
   the six Python 3.15 jobs failed at "Install the components", as on the masters.

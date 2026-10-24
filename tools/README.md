@@ -80,14 +80,14 @@ if labscript-devices #163 is not installed. Written to test the Windows and macO
 When D2XX is loaded it also prints D2XX's device list, and the result of opening the
 port's serial number as pyserial reports it and with its last character removed, with
 the COM port number that D2XX gives for each.
-`tools/usbserial.py` is a copy of `labscript_devices/usbserial.py` from #163 at c83cc6e, so
+`tools/usbserial.py` is a copy of `labscript_devices/usbserial.py` from #163 at 73bcc60, so
 that the two files can be copied to a Windows or macOS machine together. Delete it once
 #163 is merged.
-`usbserial_timing.py` and `usbserial_diag.py` take no arguments and use an FTDI cable with
-TX connected to RX on COM3. The first measures the duration of one D2XX read with no
-data, the time from `cancel_read()` to the return of a blocked read, and the excess of a
-read over its timeout. The second compares a write followed by a read in one thread with
-a write while another thread is blocked in a read (`docs/TESTING.md`, 2026-10-24).
+`usbserial_timing.py` takes no arguments and uses an FTDI cable with TX connected to RX
+on COM3. It measures the time from `cancel_read()` to the return of a blocked read, the
+excess of a read over its timeout, the duration of a write while another thread is
+blocked in a read and the time until that read returns, and single-thread round trips
+(`docs/TESTING.md`, 2026-10-24).
 
 ## BLACS shot cycle timing
 

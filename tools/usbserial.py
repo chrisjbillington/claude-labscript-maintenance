@@ -95,13 +95,59 @@ def _set_low_latency_serial_linux(fd):
     time.sleep(0.255)
 
 
-class _FTD2xxSerialBase:
+
+if _WINDOWS:
+    from ctypes import wintypes
+
+    _kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
+    _kernel32.CreateEventW.restype = wintypes.HANDLE
+    _kernel32.CreateEventW.argtypes = [
+        ctypes.c_void_p, wintypes.BOOL, wintypes.BOOL, wintypes.LPCWSTR
+    ]
+    _kernel32.SetEvent.argtypes = [wintypes.HANDLE]
+    _kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+    _kernel32.WaitForSingleObject.restype = wintypes.DWORD
+    _kernel32.WaitForSingleObject.argtypes = [wintypes.HANDLE, wintypes.DWORD]
+    _kernel32.WaitForMultipleObjects.restype = wintypes.DWORD
+    _kernel32.WaitForMultipleObjects.argtypes = [
+        wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE), wintypes.BOOL, wintypes.DWORD
+    ]
+    _WAIT_OBJECT_0 = 0
+    _WAIT_TIMEOUT = 0x102
+    _INFINITE = 0xFFFFFFFF
+
+
+# Distinguishes timeout=None from no timeout argument to read():
+_UNSET = object()
+
+
+class _BreakMixin:
+    # pyserial's send_break() on Linux calls tcsendbreak() as if its argument were in
+    # units of 0.25 s, but Linux takes milliseconds and rounds up to 100 ms; macOS ignores
+    # the argument. Toggling the break condition with a sleep, as pyserial does on
+    # Windows, works on every platform.
+    def send_break(self, duration=0.25):
+        if not self.is_open:
+            raise serial.PortNotOpenError()
+        try:
+            self.break_condition = True
+            time.sleep(duration)
+        finally:
+            self.break_condition = False
+
+
+class _FTD2xxSerial(_BreakMixin):
     """A serial port opened through FTDI's D2XX library instead of the virtual COM port
-    driver, with the latency timer set to 1 ms. Implements the parts of the interface of
-    ``serial.Serial`` that :class:`_SoftwareTimeoutMixin` needs, and `port`,
-    `baudrate` and `break_condition`. The port is always opened exclusively."""
+    driver, with the latency timer set to 1 ms. The port is always opened exclusively.
+
+    A read calls the D2XX read function only for bytes that have already been received,
+    and otherwise waits for data without a D2XX call in progress, since on Windows a
+    D2XX write from another thread waits until a D2XX read returns. On Windows the wait
+    is on the event that D2XX sets when data arrives; on macOS the receive queue is
+    checked every millisecond."""
 
     _FT_OPEN_BY_SERIAL_NUMBER = 1
+    _FT_EVENT_RXCHAR = 1
     _WORD_LENGTH = {7: 7, 8: 8}
     _STOP_BITS = {1: 0, 1.5: 1, 2: 2}
     _PARITY = {'N': 0, 'O': 1, 'E': 2, 'M': 3, 'S': 4}
@@ -110,6 +156,7 @@ class _FTD2xxSerialBase:
     _FLOW_XONXOFF = 0x400
     _XON = 0x11
     _XOFF = 0x13
+    _MACOS_POLL_INTERVAL = 0.001
 
     _FT_STATUS = {
         0: "FT_OK",
@@ -148,6 +195,7 @@ class _FTD2xxSerialBase:
         exclusive=None,
     ):
         self.port = port
+        self._timeout = timeout
         self._baudrate = baudrate
         self._break_condition = False
         self._handle = None
@@ -172,7 +220,18 @@ class _FTD2xxSerialBase:
             self._raise_err(_ftd2xx.FT_OpenEx, rc)
 
         self._handle = handle
-        self._finalizer = weakref.finalize(self, _ftd2xx.FT_Close, handle)
+        if _WINDOWS:
+            self._rx_event = _kernel32.CreateEventW(None, False, False, None)
+            self._cancel_event = _kernel32.CreateEventW(None, False, False, None)
+            if not (self._rx_event and self._cancel_event):
+                _ftd2xx.FT_Close(handle)
+                raise ctypes.WinError(ctypes.get_last_error())
+            self._finalizer = weakref.finalize(
+                self, self._close_windows, handle, self._rx_event, self._cancel_event
+            )
+        else:
+            self._cancelled = threading.Event()
+            self._finalizer = weakref.finalize(self, _ftd2xx.FT_Close, handle)
         try:
             self._set_baudrate(baudrate)
             self._checkrc(
@@ -193,16 +252,30 @@ class _FTD2xxSerialBase:
             else:
                 flow = 0
             self._checkrc(_ftd2xx.FT_SetFlowControl, handle, flow, self._XON, self._XOFF)
+            # Reads are only of bytes already received, so the read timeout is not used.
             self._checkrc(
                 _ftd2xx.FT_SetTimeouts,
                 handle,
-                int(timeout * 1000) if timeout is not None else 0,
+                0,
                 int(write_timeout * 1000) if write_timeout is not None else 0,
             )
             self._checkrc(_ftd2xx.FT_SetLatencyTimer, handle, 1)
+            if _WINDOWS:
+                self._checkrc(
+                    _ftd2xx.FT_SetEventNotification,
+                    handle,
+                    self._FT_EVENT_RXCHAR,
+                    ctypes.c_void_p(self._rx_event),
+                )
         except:
             self.close()
             raise
+
+    @staticmethod
+    def _close_windows(handle, *events):
+        _ftd2xx.FT_Close(handle)
+        for event in events:
+            _kernel32.CloseHandle(event)
 
     def _raise_err(self, func, rc):
         msg = f"{func.__name__} error: {self._FT_STATUS.get(rc, f'unknown ({rc})')}"
@@ -224,11 +297,66 @@ class _FTD2xxSerialBase:
         )
         return written.value
 
-    def read(self, n):
+    def _read_received(self, n):
         buf = ctypes.create_string_buffer(n)
         read_n = ctypes.c_ulong()
         self._checkrc(_ftd2xx.FT_Read, self._handle, buf, n, ctypes.byref(read_n))
         return buf.raw[: read_n.value]
+
+    def _take_cancel(self):
+        """Whether `cancel_read` has been called since the last read that it ended.
+        Resets it."""
+        if _WINDOWS:
+            return _kernel32.WaitForSingleObject(self._cancel_event, 0) == _WAIT_OBJECT_0
+        if self._cancelled.is_set():
+            self._cancelled.clear()
+            return True
+        return False
+
+    def _wait(self, timeout):
+        """Wait until data may have been received, `cancel_read` is called, or `timeout`
+        seconds pass (forever if None). Returns whether `cancel_read` was called."""
+        if _WINDOWS:
+            events = (wintypes.HANDLE * 2)(self._rx_event, self._cancel_event)
+            ms = _INFINITE if timeout is None else int(timeout * 1000 + 1)
+            rc = _kernel32.WaitForMultipleObjects(2, events, False, ms)
+            return rc == _WAIT_OBJECT_0 + 1
+        if timeout is not None:
+            timeout = min(timeout, self._MACOS_POLL_INTERVAL)
+        else:
+            timeout = self._MACOS_POLL_INTERVAL
+        return self._take_cancel() if self._cancelled.wait(timeout) else False
+
+    def read(self, n=1, timeout=_UNSET):
+        if timeout is _UNSET:
+            timeout = self._timeout
+        if timeout is not None:
+            deadline = time.perf_counter() + timeout
+        chunks = []
+        nread = 0
+        while nread < n:
+            if self._take_cancel():
+                break
+            available = self.in_waiting
+            if available:
+                chunk = self._read_received(min(available, n - nread))
+                chunks.append(chunk)
+                nread += len(chunk)
+                continue
+            remaining = None
+            if timeout is not None:
+                remaining = deadline - time.perf_counter()
+                if remaining <= 0:
+                    break
+            if self._wait(remaining):
+                break
+        return b''.join(chunks)
+
+    def cancel_read(self):
+        if _WINDOWS:
+            _kernel32.SetEvent(self._cancel_event)
+        else:
+            self._cancelled.set()
 
     def _set_baudrate(self, baudrate):
         self._checkrc(_ftd2xx.FT_SetBaudRate, self._handle, baudrate)
@@ -270,23 +398,13 @@ class _FTD2xxSerialBase:
             self._handle = None
 
 
-class _SoftwareTimeoutMixin:
-    """Mixin for ``serial.Serial`` or :class:`_FTD2xxSerialBase` that implements read
-    timeouts in software and adds `cancel_read`. The underlying port has a fixed read
-    timeout of 10 ms.
-
-    This works around two problems:
-
-    a) on Windows, changing the timeouts of an FTDI adaptor after opening the port
-       corrupts data, see https://github.com/pyserial/pyserial/issues/394
-
-    b) pyserial's ``send_break()`` on Linux and macOS gets the duration wrong.
-
-    A read timeout can be passed when the port is created. Do not set the `timeout`
-    attribute afterwards; pass a `timeout` argument to `read` instead."""
-
-    # Distinguishes timeout=None from no timeout argument to read():
-    _UNSET = object()
+class _Serial(_BreakMixin, serial.Serial):
+    """``serial.Serial`` with read timeouts implemented in software, and `cancel_read`
+    for every platform. The port has a fixed read timeout of 10 ms, since on Windows
+    changing the timeouts of an FTDI adaptor after opening the port corrupts data, see
+    https://github.com/pyserial/pyserial/issues/394. A read timeout can be passed when
+    the port is created. Do not set the `timeout` attribute afterwards; pass a `timeout`
+    argument to `read` instead."""
 
     _MIN_NONZERO_TIMEOUT = 0.010
 
@@ -304,8 +422,8 @@ class _SoftwareTimeoutMixin:
         dsrdtr=False,
         exclusive=None,
     ):
-        self.__timeout = timeout
-        self.__cancelled = threading.Event()
+        self._read_timeout = timeout
+        self._cancelled = threading.Event()
         super().__init__(
             port,
             baudrate=baudrate,
@@ -321,61 +439,27 @@ class _SoftwareTimeoutMixin:
         )
 
     def read(self, n=1, timeout=_UNSET):
-        """Read up to `n` bytes, as ``serial.Serial.read()`` does, with the timeout
-        implemented in software. `timeout` replaces the timeout given when the port was
-        created.
-
-        * If `timeout` is None, block until `n` bytes are read.
-        * If `timeout` is 0, return up to `n` bytes that are available immediately.
-        * Otherwise return up to `n` bytes received within the timeout. The call may
-          block for up to about 16 ms longer than the timeout.
-
-        A call to `cancel_read` from another thread makes this method return the bytes
-        read so far within about 16 ms. If `cancel_read` is called when no read is in
-        progress, the next read returns immediately."""
-        if timeout is self._UNSET:
-            timeout = self.__timeout
+        if timeout is _UNSET:
+            timeout = self._read_timeout
         if timeout == 0:
             return super().read(min(n, self.in_waiting))
         if timeout is not None:
-            deadline = time.monotonic() + timeout
+            deadline = time.perf_counter() + timeout
         chunks = []
         nread = 0
         while nread < n:
-            if self.__cancelled.is_set():
-                self.__cancelled.clear()
+            if self._cancelled.is_set():
+                self._cancelled.clear()
                 break
             chunk = super().read(n - nread)
             chunks.append(chunk)
             nread += len(chunk)
-            if timeout is not None and time.monotonic() > deadline:
+            if timeout is not None and time.perf_counter() > deadline:
                 break
         return b''.join(chunks)
 
     def cancel_read(self):
-        """Make a `read` in another thread return within about 16 ms."""
-        self.__cancelled.set()
-
-    # pyserial's send_break() on Linux calls tcsendbreak() as if its argument were in
-    # units of 0.25 s, but Linux takes milliseconds and rounds up to 100 ms; macOS ignores
-    # the argument. Toggling the break condition with a sleep, as pyserial does on
-    # Windows, works on every platform.
-    def send_break(self, duration=0.25):
-        if not self.is_open:
-            raise serial.PortNotOpenError()
-        try:
-            self.break_condition = True
-            time.sleep(duration)
-        finally:
-            self.break_condition = False
-
-
-class _Serial(_SoftwareTimeoutMixin, serial.Serial):
-    pass
-
-
-class _FTD2xxSerial(_SoftwareTimeoutMixin, _FTD2xxSerialBase):
-    pass
+        self._cancelled.set()
 
 
 def Serial(
@@ -407,13 +491,18 @@ def Serial(
 
     * If `timeout` is None, ``read()`` blocks until `n` bytes are read.
     * If `timeout` is 0, it returns up to `n` bytes that are available immediately.
-    * Otherwise it returns up to `n` bytes received within the timeout, and may block
-      for up to about 16 ms longer than the timeout.
+    * Otherwise it returns up to `n` bytes received within the timeout.
 
     The timeout passed to ``read()`` replaces the one given here. Do not set the
     ``timeout`` attribute. ``cancel_read()`` makes a ``read()`` in another thread
-    return the bytes read so far within about 16 ms; if no read is in progress, the next
-    read returns immediately.
+    return the bytes read so far; if no read is in progress, the next read returns
+    immediately. Reads and writes may be made from different threads at the same time.
+
+    A read returns as soon as the requested bytes arrive. Through pyserial, a read waits
+    in steps of 10 ms, about 16 ms on Windows, so it may end up to that long after its
+    timeout or a call to ``cancel_read()``. Through D2XX, ``cancel_read()`` ends a read
+    immediately on Windows and within 1 ms on macOS, and on Windows a read may end up
+    to about 16 ms after its timeout.
     """
     usb_info = _get_usb_info(port)
     ftdi = usb_info is not None and usb_info[0] == _FTDI_VENDOR_ID
