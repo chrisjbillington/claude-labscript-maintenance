@@ -52,6 +52,40 @@ running BLACS and 20 to a free port, then starts a second BLACS.
   use` (Windows: `Address in use`) and created no device tabs, as the experiment server
   is created first on master; reported as KNOWN D40.
 
+## 2026-10-24: lyse #158 (workers of both routine boxes started together)
+
+Branch `concurrent-config-workers` on labscript-suite/lyse (head 0546d6f, one commit on
+master 3edf99c), Python 3.14.8, PySide6, harness venv py3.14 with the branch, labscript-utils
+master a9dbff7 and zprocess first on the path, offscreen, in the harness namespace.
+
+- The lyse in diginuc's start of 11:07 (6a4f323) already had #139, but started its
+  workers one after another: `load_configuration` called `add_routines` once per box, and
+  each call started its first worker on its own. With one singleshot and two multishot
+  routines no two workers started together.
+- A configuration with two singleshot and two multishot routines (one disabled, one
+  duplicate), loaded with `Lyse.load_configuration`:
+
+  | lyse | zprocess | first load | second load |
+  |---|---|---|---|
+  | master 3edf99c | 8582358 (before #38) | 3.81 s, four workers in turn | 3.93 s |
+  | branch, first worker alone on a new tree (earlier version of the commit) | 8582358 | 2.00 s | 1.23 s |
+  | branch, first worker alone (earlier version) | master 0fbd203 | 2.04 s | 1.28 s |
+  | branch 0546d6f, all workers together | master 0fbd203 (three runs) | 1.13 to 1.15 s | 1.24 to 1.28 s |
+  | branch 0546d6f | 8582358 | 1.19 s | 1.49 s |
+
+  In every run the rows and check states matched the configuration, the duplicate was
+  reported, every worker was running 10 s after the load, a shot was analysed by the
+  enabled singleshot routine and both multishot routines, a second load replaced the
+  routines, and a worker that failed to start reached the excepthook while the others
+  were added. With zprocess 8582358 the concurrent first starts can create more than one
+  broker and heartbeat server; lyse does not use events, and the workers kept running.
+- The harness `lyse-gui` step passed with the branch on both zprocess versions.
+- `test.yml` run
+  [40048985270](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/40048985270)
+  with `lyse=labscript-suite/lyse@concurrent-config-workers`: the 25 jobs for Python
+  3.11 to 3.14 passed every step; the six Python 3.15 jobs failed at "Install the
+  components" because h5py 3.16.0 has no wheels for Python 3.15, as on master.
+
 ## 2026-10-24: lyse start-up time on diginuc
 
 lyse from `~/labscript-suite/dev` on diginuc (lyse 6a4f323, components installed from

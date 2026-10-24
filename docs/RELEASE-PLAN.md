@@ -460,7 +460,11 @@ it:
 - zprocess #37: `start_daemon` raises `CalledProcessError` if the command cannot be
   started, instead of returning silently.
 - zprocess #38: on macOS, App Nap is disabled in every process that creates a
-  `ProcessTree`.
+  `ProcessTree`. #38 is merged into master (0fbd203), so the next release from master
+  carries it. lyse #158 requires `zprocess>=2.28.0` because it starts every analysis
+  worker concurrently, which needs the lock that #38 puts around the creation of the
+  broker and heartbeat server. If 2.28.0 is tagged without #38, lyse #158 must require
+  the release that has it.
 
 The goal is that zprocess 3 breaks compatibility for code outside the suite, but not for
 the suite: neither for the release set that requires zprocess 3 nor for an install of
@@ -522,7 +526,7 @@ Dependency order. Each is tagged on a `maintenance/x.y.x` branch per the release
 | 6 | labscript | 3.5.0 | #123, #52, #43, #104, #16 |
 | 7 | runmanager | 3.4.0 | #130 refactor plus fixes, #66, #123, #33, #30, #26; PRs #137 and #138 (merged 2026-10-21), #139 (topological evaluator), #140 (custom and automatic expansion settings), #141 (D11), #142 (D12) and #143 (D28), merged 2026-10-23 |
 | 8 | blacs | 3.3.0 | PR #123, #46, #52, #100, front-panel dtype, Qt6 work; PRs #131 (REVIEW.md B3), #132 (non-blocking state display), #133 (D12) and #134 (D32, D33), merged 2026-10-23 |
-| 9 | lyse | 3.4.0 | PR #132, #14, #90, #139, Qt6 work; PRs #148 (D12), #149, #150 (D13, D25), #152 (D16), #154 (D17), #155 (D29) and #156 (D34), merged 2026-10-23; Abort button (PR #153) |
+| 9 | lyse | 3.4.0 | PR #132, #14, #90, #139, Qt6 work; PR #158 (needs zprocess #38 in the zprocess release); PRs #148 (D12), #149, #150 (D13, D25), #152 (D16), #154 (D17), #155 (D29) and #156 (D34), merged 2026-10-23; Abort button (PR #153) |
 | 10 | runviewer | 3.3.0 | Qt6 work, c-extensions pin; PRs #78 and #79 (D12), merged 2026-10-23 |
 | 11 | labscript-devices | 3.4.0 | dtype fixes, #109, #79, #95, PRs #110, #126, #87, #63, #144; PRs #156 (D12), #157 (DummyIntermediateDevice runviewer parser), #158 (D30, D31) and #159 (FunctionRunner opens the shot file once), merged 2026-10-23 |
 | 12 | labscript-suite | 3.4.0 | pins, docs, `requires-python` |
