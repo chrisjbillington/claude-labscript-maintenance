@@ -1,7 +1,8 @@
 """Run the lyse GUI in this process under the offscreen platform. Check that a shot file
 that has not been run is not loaded; that the results of single-shot routines appear in
 the dataframe and the shots table when the shot is analysed, analysed again, and analysed
-with a routine that fails after saving a result; and exercise the Abort button: a routine
+with a routine that fails after saving a result; that lyse code issues no
+DeprecationWarning when the results add columns to the dataframe; and exercise the Abort button: a routine
 that loops in Python is interrupted and its worker survives, a routine that is blocked in
 a long sleep has its worker restarted, analysis is paused in both cases, and the
 interrupted worker then runs a routine to completion. In a subprocess, check that the
@@ -16,6 +17,7 @@ import shutil
 import subprocess
 import sys
 import time
+import warnings
 from pathlib import Path
 
 from _common import SHOTS, WORK, check, finish, load_state
@@ -173,7 +175,15 @@ try:
     box.add_routines([(str(path), QtCore.Qt.Checked) for path in results_scripts.values()])
     results_routines = dict(zip(results_scripts, box.routines))
     set_enabled(box, results_routines['results_c'], False)
-    check(analyse(mark_not_done=False), 'the shot is analysed by two of three routines')
+    with warnings.catch_warnings(record=True) as caught_warnings:
+        warnings.simplefilter('always', DeprecationWarning)
+        check(analyse(mark_not_done=False), 'the shot is analysed by two of three routines')
+    lyse_deprecations = [
+        f'{Path(w.filename).name}:{w.lineno}: {w.message}' for w in caught_warnings
+        if issubclass(w.category, DeprecationWarning) and 'lyse' in Path(w.filename).parts
+    ]
+    check(not lyse_deprecations,
+          f'adding the result columns issues no DeprecationWarning in lyse: {lyse_deprecations}')
     check(result('results_a') == (1.5, '1.5') and result('results_b') == ('x', 'x'),
           'the results of both enabled routines are in the dataframe and the shots table: '
           f'{result("results_a")}, {result("results_b")}')
