@@ -160,3 +160,13 @@ In lyse 3edf99c the analysis loop runs the single-shot routines on every shot th
 waiting, then runs the multishot routines once the queue of waiting shots is empty
 (`lyse/filebox.py:1012` to `:1033`). When single-shot analysis takes less time than the
 interval between shots, the multishot routines run after every shot.
+
+## labscript-devices: Thorlabs camera
+
+A labscript device and BLACS worker for Thorlabs cameras.
+
+labscript-devices 5a5892c has no Thorlabs device. Its other camera devices
+(`PylonCamera`, `SpinnakerCamera`, `FlyCapture2Camera`, `AndorSolis`) subclass the
+`IMAQdxCamera` device, BLACS tab and worker and replace the camera interface class.
+No open issue or pull request in the labscript-suite organisation asks for a Thorlabs
+camera.
