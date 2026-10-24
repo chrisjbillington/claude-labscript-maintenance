@@ -49,9 +49,10 @@ fix is made, in which case the row names the pull request. Importance uses the s
 | D36 | 2026-10-24 | blacs `blacs/__main__.py:813` (`ExperimentServer`) | BLACS starts its experiment server before it creates the `BLACS` window object, and the server handles a request in the main thread through `inmain`. A shot submitted after the port accepts connections but before start-up has finished is handled while `app` is undefined, and the client gets `NameError: name 'app' is not defined` instead of the shot being queued; runmanager reports that it could not submit the shot | 2 | run (a shot submitted as soon as the BLACS port accepted connections, Python 3.14.8, PySide6) | fixed in [blacs #138](https://github.com/labscript-suite/blacs/pull/138), open |
 | D37 | 2026-10-24 | runmanager `runmanager/group_manager.py:101`–`:311` (every function that opens a globals file with `h5py.File(filename, 'a')`) | Each open of a globals file that writes a string attribute makes the file 4096 bytes larger, and the space is never reclaimed: HDF5 allocates a new global heap collection, which is at least 4 kB, for the variable-length strings written in each open. 2000 edits of one global (`set_value` and `set_expansion`) grew a file from 128 kB to 16.5 MB; `h5repack` reduced it to 18.6 kB. Integer, boolean and fixed-length string attributes do not grow the file, nor do many writes in one open. `libver='latest'`, persistent free-space tracking (`fs_strategy` `'fsm'` or `'page'` with `fs_persist=True`) and a smaller `meta_block_size` make no difference | 3 | run (h5py 3.16.0, HDF5 2.0.0, Python 3.14.8) | fix in [runmanager #144](https://github.com/labscript-suite/runmanager/pull/144) (4c876e7, open): the file is repacked after a write once it has grown by 1 MB and to twice its repacked size |
 | D38 | 2026-10-24 | labscript-devices `labscript_devices/IMAQdxCamera/blacs_tabs.py:63` (`ImageReceiver.handler`) | `handler` runs in the main thread through `inmain_decorator(wait_for_return=True)`, called from the server thread. If `ImageReceiver.shutdown()`, which the tab calls in `restart`, is called in the main thread while an image is being received, the server thread waits for the main thread and the main thread waits in `shutdown()` to join the server thread, so the main thread hangs | 2 | run (a test script that sends a last image and then shuts the receiver down hung in one of three runs on master 5a5892c); read (the cause) | fixed in [labscript-devices #161](https://github.com/labscript-suite/labscript-devices/pull/161), open |
-| D39 | 2026-10-24 | lyse `lyse/filebox.py:111` (`EditColumns.populate_model`, `self.model.clear()`) | When an analysis routine adds columns, `update_rows` emits `columns_changed`, and the Edit columns dialog rebuilds its model with `clear()`. Sometimes this crashes lyse with a segmentation fault in `QStandardItem`'s destructor (`Shiboken::BindingManager::unregisterWrapper`, PySide6 6.12), with the dialog never shown. Seen with two routines that each add a column to one shot: once locally (Python 3.14.8) in about ten runs, on lyse master and on the `shot-overhead` branch, and once in 25 jobs (Ubuntu, Python 3.11, PySide6) of run 39969987453 on master. The cause is not known | 3 | run | open |
+| D39 | 2026-10-24 | labscript-utils `labscript_utils/qtwidgets/headerview_with_widgets.py:75` and `:120` (`HorizontalHeaderViewWithWidgets.setWidget`, `update_indents`); seen as a crash in lyse `lyse/filebox.py:111` (`EditColumns.populate_model`, `self.model.clear()`) | On PySide6 6.12.0, lyse crashes (segmentation fault in `Shiboken::BindingManager::unregisterWrapper`, or a glibc heap-corruption abort) when an analysis routine adds columns and the Edit columns dialog rebuilds its model. The header view retrieves the header items that `setHorizontalHeaderLabels` creates; `clear()` deletes them and their wrappers remain. Reproduced in a few dozen rebuilds; PySide6 6.8.3 to 6.11.2, PyQt5 and PyQt6 do not crash | 3 | run | fixed in labscript-utils branch `header-items-pyside612` (pull request to follow the test run) |
 | D40 | 2026-10-24 | blacs `blacs/__main__.py:813`, lyse `lyse/__main__.py:164`, runmanager `runmanager/__main__.py:3254`, runviewer `runviewer/__main__.py:1695` (the ZMQ server of each) | A second copy of BLACS, lyse, runmanager or runviewer, started while one is running, fails when it binds its labconfig port, with a `zmq.error.ZMQError: Address already in use` traceback in the graphical exception hook rather than a message. lyse and runmanager bind the port at the end of start-up, after lyse has created its routine boxes and runmanager has loaded its globals files; with the fix for D36, BLACS would also create its device tabs and start their workers first | 2 | run (harness steps `blacs-shot` and `apps` on master and on the fix, Ubuntu and Windows) | fixed in [labscript-utils #140](https://github.com/labscript-suite/labscript-utils/pull/140), [blacs #138](https://github.com/labscript-suite/blacs/pull/138), [lyse #159](https://github.com/labscript-suite/lyse/pull/159), [runmanager #146](https://github.com/labscript-suite/runmanager/pull/146) and [runviewer #80](https://github.com/labscript-suite/runviewer/pull/80), open |
 | D41 | 2026-10-24 | zprocess `zprocess/security.py:414` (`SecureContext.instance`), `zprocess/process_tree.py:58` (`KillLock.__new__`), `zprocess/process_tree.py:1355` (`RemoteOutputReceiver` in `ProcessTree.subprocess`) | Each checks for a shared object and creates it with no lock. Threads calling `SecureContext.instance()` at once for a new shared secret get different contexts, each with its own authenticator thread; `KillLock()` can create two instances and stored the new one before setting its attributes; concurrently started remote children can be given different output receivers | 2 | run (`SecureContext.instance` from eight threads returned different contexts in five runs of five); read (the other two) | fixed in [zprocess #40](https://github.com/chrisjbillington/zprocess/pull/40), open |
+| D42 | 2026-10-24 | PySide6 6.12.0 (upstream), on Python 3.10 and 3.11 | Every call of a PySide6 method that returns `None` decrements the reference count of `None` once more than it increments it. On Python 3.12 and later `None` is immortal and nothing happens; on 3.11, once the count reaches zero the process aborts with `Fatal Python error: none_dealloc: deallocating None` or crashes. lyse's Edit columns dialog makes several such calls per column, and 200 updates abort lyse every time; any long-running suite application with PySide6 6.12.0 on Python 3.11 will crash eventually. PySide6 6.11.2 on Python 3.11 does not do it | 4 | run (`sys.getrefcount(None)` before and after 2000 calls of `QObject.setObjectName`, `QWidget.setEnabled`, `QStandardItemModel.clear` and others: -1 per call on 6.12.0, 0 on 6.11.2, Python 3.11.17) | open; not fixable in the suite. Workaround: PySide6 other than 6.12.0 on Python 3.11 |
 
 ## Detail
 
@@ -557,6 +558,37 @@ for example after a connection table recompile.
 Fix: start the experiment server after `app` is created, as lyse does; done in blacs
 #138. A shot submitted before then waits for the server and is queued when it starts.
 
+### D39. lyse crashes on PySide6 6.12 when the Edit columns dialog is rebuilt
+
+`EditColumns.populate_model` (`lyse/filebox.py:110`) calls `self.model.clear()`, then
+`setHorizontalHeaderLabels(['', 'Name'])`, then `self.header.setWidget(0, checkbox)`.
+`HorizontalHeaderViewWithWidgets.setWidget` and `update_indents` call
+`self.model.horizontalHeaderItem(0)`, which gives Python a wrapper of the header item
+that Qt created. The wrapper is kept by the model and is not invalidated when the next
+`clear()` deletes the item. On PySide6 6.12.0, a later `clear()` that deletes
+Python-created row items then crashes in `QStandardItem::~QStandardItem` →
+`Shiboken::Object::destroy` → `BindingManager::unregisterWrapper`. lyse rebuilds the model
+each time `columns_changed` is emitted, which happens when a routine saves a result in a
+new column.
+
+The crash needs only PySide6: rebuilding a `QStandardItemModel` with `clear()`,
+`setHorizontalHeaderLabels`, one `horizontalHeaderItem(0)` call and a few rows of
+`QStandardItem`s crashes within 300 rebuilds on PySide6 6.12.0 (Python 3.12 and 3.14) and
+not on 6.8.3, 6.9.3, 6.10.2, 6.11.0 or 6.11.2, or on PyQt5 or PyQt6. The 6.12.0 change
+that is probably involved is pyside-setup 50ab3a831 (PYSIDE-3365), which stopped
+`clear()` from taking the rows and releasing their wrappers itself before Qt deletes them.
+With lyse's own `EditColumns` and updates that add one column at a time, lyse master
+crashed after 15 to 31 updates in five runs.
+
+Fix: `HorizontalHeaderViewWithWidgets` reads the header font with `headerData(...,
+FontRole)` and gives a section with no header item an empty label with `setHeaderData`,
+so it retrieves no header item. With the change, three 30 s runs did about 10,000 updates
+each without a crash, and the header labels and widget positions in a test with widgets
+on a section that has a header item and on one that has none are the same as on master
+under PySide6, PyQt6 and PyQt5. The `lyse-gui` harness step runs 200 updates in a
+subprocess and reports the check as known while the header view still calls
+`horizontalHeaderItem`.
+
 ### D40. A second copy of an application fails with a traceback
 
 BLACS, lyse, runmanager and runviewer each bind their labconfig port when they create
@@ -572,3 +604,21 @@ shows a message that another copy is probably running, and exits. Each applicati
 it with its port early in start-up; done in labscript-utils #140, blacs #138, lyse #159,
 runmanager #146 and runviewer #80. The harness step `apps` times `port_in_use` and starts
 a second copy of each application.
+
+### D42. PySide6 6.12.0 decrements the reference count of None on Python 3.11
+
+Found while testing the D39 fix: on Ubuntu, Python 3.11, PySide6 6.12.0, the `lyse-gui`
+check that updates the Edit columns dialog 200 times aborted with the fix in place.
+Locally on Python 3.11.17 the same script aborts in every run with `Fatal Python error:
+none_dealloc: deallocating None`. With only PySide6 imported, `sys.getrefcount(None)`
+falls by one per call of `QObject.setObjectName`, `QWidget.setEnabled`,
+`QStandardItemModel.clear`, `setHorizontalHeaderLabels` and `QStandardItem.setData`, and
+the process aborts after a few thousand calls. On PySide6 6.11.2 the count does not fall.
+On Python 3.12 and later `None` is immortal, its reference count is not changed, and the
+calls are harmless. The PySide6 6.12.0 wheels are built for Python 3.10 and later
+(`cp310-abi3`), so pip installs them on Python 3.11.
+
+The suite cannot work around this; an application that uses PySide6 6.12.0 on Python 3.11
+crashes after enough calls. lyse crashes fastest, because the Edit columns dialog makes
+several such calls per column each time a column is added. The applications use PyQt5
+unless PySide6 is chosen. Not reported to Qt yet.

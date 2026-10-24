@@ -9,6 +9,7 @@ Edit columns dialog survives being updated as 200 columns are added one at a tim
 lyse has no Abort button."""
 
 import faulthandler
+import importlib.metadata
 import inspect
 import logging
 import shutil
@@ -221,11 +222,17 @@ try:
                                   capture_output=True, text=True, timeout=300)
     if edit_columns.returncode != 0:
         print(edit_columns.stderr[-2000:], end='')
-    d39_known = (qtutils.qt.QT_ENV == 'PySide6'
-                 and 'horizontalHeaderItem' in inspect.getsource(HorizontalHeaderViewWithWidgets))
+    if (qtutils.qt.QT_ENV == 'PySide6' and sys.version_info < (3, 12)
+            and importlib.metadata.version('PySide6-Essentials') == '6.12.0'):
+        edit_columns_known = 'D42'
+    elif (qtutils.qt.QT_ENV == 'PySide6'
+          and 'horizontalHeaderItem' in inspect.getsource(HorizontalHeaderViewWithWidgets)):
+        edit_columns_known = 'D39'
+    else:
+        edit_columns_known = None
     check(edit_columns.returncode == 0,
           'the Edit columns dialog is updated 200 times as columns are added '
-          f'(exit code {edit_columns.returncode})', known='D39' if d39_known else None)
+          f'(exit code {edit_columns.returncode})', known=edit_columns_known)
 
     if not check(hasattr(filebox.ui, 'pushButton_abort'), 'the filebox has an Abort button',
                  known=ABORT_FEATURE):
