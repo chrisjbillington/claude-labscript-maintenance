@@ -58,6 +58,9 @@ batch compiler subprocess, 60 shots:
   `write_device_properties` 1.7 ms of the 15.4 ms.
 - The test workflow passed on Ubuntu and Windows for Python 3.11 to 3.14 with every Qt
   binding (run 40069270747); the Python 3.15 jobs failed to install h5py, as before.
+- labscript `set-passed-properties-bind` (labscript #132): the test workflow passed on
+  Ubuntu and Windows for Python 3.11 to 3.14 with every Qt binding (run 40072696263);
+  the Python 3.15 jobs failed to install h5py.
 
 ## 2026-10-24: drop_mot compile time on diginuc with the compile speed-ups
 
