@@ -4,12 +4,15 @@ the dataframe and the shots table when the shot is analysed, analysed again, and
 with a routine that fails after saving a result; and exercise the Abort button: a routine
 that loops in Python is interrupted and its worker survives, a routine that is blocked in
 a long sleep has its worker restarted, analysis is paused in both cases, and the
-interrupted worker then runs a routine to completion. The Abort checks are reported as KNOWN when
+interrupted worker then runs a routine to completion. In a subprocess, check that the
+Edit columns dialog survives being updated as 200 columns are added one at a time. The Abort checks are reported as KNOWN when
 lyse has no Abort button."""
 
 import faulthandler
+import inspect
 import logging
 import shutil
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -26,7 +29,9 @@ shot = state['example_shot']
 # starting lyse does; the application itself is created below.
 import lyse.__main__ as lyse_main
 import h5py
+import qtutils.qt
 from qtutils.qt import QtCore, QtWidgets
+from labscript_utils.qtwidgets.headerview_with_widgets import HorizontalHeaderViewWithWidgets
 
 qapplication = QtWidgets.QApplication.instance()
 
@@ -195,6 +200,32 @@ try:
     box.remove_selection(confirm=False)
     shots_model._view.selectAll()
     shots_model.remove_selection(confirm=False)
+
+    # In a subprocess, since the failure is a crash:
+    edit_columns_script = (
+        'from qtutils.qt import QtWidgets\n'
+        'app = QtWidgets.QApplication([])\n'
+        'from lyse.filebox import EditColumns\n'
+        'class Filebox:\n'
+        '    def set_columns_visible(self, columns_visible): pass\n'
+        'names = {0: "status", 1: "filepath"}\n'
+        'visible = {0: True, 1: True}\n'
+        'dialog = EditColumns(Filebox(), names, visible)\n'
+        'for i in range(200):\n'
+        '    names[i + 2] = ("routine", f"value_{i}", "")\n'
+        '    visible[i + 2] = True\n'
+        '    dialog.update_columns(names, visible)\n'
+        '    app.processEvents()\n'
+    )
+    edit_columns = subprocess.run([sys.executable, '-c', edit_columns_script],
+                                  capture_output=True, text=True, timeout=300)
+    if edit_columns.returncode != 0:
+        print(edit_columns.stderr[-2000:], end='')
+    d39_known = (qtutils.qt.QT_ENV == 'PySide6'
+                 and 'horizontalHeaderItem' in inspect.getsource(HorizontalHeaderViewWithWidgets))
+    check(edit_columns.returncode == 0,
+          'the Edit columns dialog is updated 200 times as columns are added '
+          f'(exit code {edit_columns.returncode})', known='D39' if d39_known else None)
 
     if not check(hasattr(filebox.ui, 'pushButton_abort'), 'the filebox has an Abort button',
                  known=ABORT_FEATURE):
