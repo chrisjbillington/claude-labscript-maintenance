@@ -170,3 +170,23 @@ labscript-devices 5a5892c has no Thorlabs device. Its other camera devices
 `IMAQdxCamera` device, BLACS tab and worker and replace the camera interface class.
 No open issue or pull request in the labscript-suite organisation asks for a Thorlabs
 camera.
+
+## zprocess 3: decide the scope and the compatibility breaks
+
+Decide what goes into zprocess 3, how much compatibility it breaks, and whether the
+legacy `labscript_devices/Camera.py` is removed from the suite. `Camera.py` is the last
+user in the suite of zprocess's insecure defaults.
+
+`RELEASE-PLAN.md` section 4.8 has the plan so far: the goal that zprocess 3 breaks
+compatibility only for code outside the suite, and the table of changes Z1 to Z13 with
+the status of each. Z4, Z5, Z10 and Z12 are still proposed. Z4 (the `ZMQServer` shim
+with `type=` and `allow_insecure=True`) and Z5 (the insecure default client of
+`zmq_get*` and `zmq_push*`) exist only for `Camera.py`, its server
+`labscript_devices/imaqdx_server.py` and labscript-utils `camera_server.py`
+(`REVIEW.md` labscript-utils C2). If these are removed from the suite, Z4 and Z5 can
+become removals in zprocess 3 only if the breakage of earlier 3.x releases that ship
+`Camera.py` is accepted; otherwise the shims stay until a later major version.
+
+Pull requests made so far for zprocess 3: zprocess #37 and #39 (open), #38 (merged), and
+the suite changes labscript-utils #138, blacs #137 and labscript-devices #160
+(`PULL-REQUESTS.md`).
