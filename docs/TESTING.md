@@ -5,6 +5,17 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-24: D9 rechecked on labscript-devices master
+
+A shot with a `PrawnBlaster` with `use_wait_monitor=False`, a `DummyIntermediateDevice`
+on its first clock line and one `wait()` between two digital output changes, compiled
+in-process on Linux with Python 3.14.8, NumPy 2.5.4 and h5py 3.16.0. On labscript-devices
+master 5a5892c the shot compiles and the pulse program has the two indefinite-wait rows
+(`half_period` 4294967295, `reps` 0) between the instructions before and after the wait.
+On 36ff62b, the parent of the fix a4a5f6b, `generate_code` raises `TypeError: string
+indices must be integers` at `instruction["reps"]`. D9 stays fixed. The harness does not
+compile a PrawnBlaster shot with a wait.
+
 ## 2026-10-24: per-shot compile time of drop_mot
 
 The lab's `drop_mot` experiment and connection table, with copies of its `user_devices`
