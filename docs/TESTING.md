@@ -406,6 +406,9 @@ Branch `usbserial` at 47aa493 on master 5a5892c.
   timeout. The same changes were made to `pcp_serial.py` in portable-clocks-peripherals
   (uncommitted).
 - Not run: the macOS D2XX path, a multi-channel FTDI device on Windows.
+- Run [40076336986](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/40076336986)
+  with `labscript-devices=pr/163` at c83cc6e: the 25 jobs for Python 3.11 to 3.14 passed;
+  the six Python 3.15 jobs failed at "Install the components", as on the masters.
 
 ## 2026-10-24: Narwhal Devices Pulse Generator on hardware (labscript-devices #162)
 
