@@ -624,3 +624,6 @@ the branch needs a new run before the pull request.
 Commit 54e36ea (2026-10-24) adds Installation, wait and powerline wait examples to the
 documentation page, and fixes the compilation of a pulse generator with no direct
 outputs, which the secondary in the documentation's example has (`TESTING.md`).
+
+Pull request labscript-devices #162 was opened on 2026-10-24 at 54e36ea, after run
+40047034755 passed.

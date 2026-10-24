@@ -98,6 +98,10 @@ venv with the branch first on the path.
 - Sphinx 8.2.3, dirhtml, from `docs/`: exits 0; the 12 warnings and errors are in other
   devices' pages and docstrings (NI_DAQmx, AlazarTechBoard, AD9959DDSSweeper,
   PrawnBlaster), none from the Narwhal page or modules.
+- Run [40047034755](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/40047034755)
+  with `labscript-devices=labscript-suite/labscript-devices@narwhal-pulsegen`: the 25 jobs
+  for Python 3.11 to 3.14 passed every step; the six Python 3.15 jobs failed at "Install
+  the components", as on the masters. labscript-devices #162 was opened after it.
 
 ## 2026-10-24: runmanager value history
 

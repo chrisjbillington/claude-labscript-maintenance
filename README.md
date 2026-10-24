@@ -69,17 +69,14 @@ and the file:line evidence.
 
 ## State as of 2026-10-22
 
-- A labscript device for the Narwhal Devices Pulse Generator is written on the
-  labscript-devices branch `narwhal-pulsegen` (54e36ea), following
-  `docs/NARWHAL-PULSEGEN.md`: a bundled serial driver, the labscript device, BLACS tab
-  and worker, and a runviewer parser, with a docs page. The harness step `narwhal` tests
-  it on a simulated device; run 39919806120 passed on Python 3.11 to 3.14 with every Qt
-  binding (`docs/TESTING.md`). The maintainer is testing it on the lab's hardware
-  (`docs/LOCAL-TASKS.md`) before a pull request is opened. Before the pull request is
-  opened, Rory Speirs (Narwhal Devices) must confirm that the MIT licence is acceptable
-  for the work that is derived from the vendor's code (`docs/NARWHAL-PULSEGEN.md`
-  section 14). He agreed to the most permissive licence on 2026-10-24;
-  Narwhal-Devices/userlib#2 adds the MIT licence to the vendor's driver repository.
+- A labscript device for the Narwhal Devices Pulse Generator is in labscript-devices
+  #162 (branch `narwhal-pulsegen`, 54e36ea), following `docs/NARWHAL-PULSEGEN.md`: a
+  bundled serial driver, the labscript device, BLACS tab and worker, a runviewer parser
+  and a documentation page. The maintainer has run it with the lab's hardware. Run
+  40047034755 passed on Python 3.11 to 3.14 with every Qt binding (`docs/TESTING.md`).
+  Rory Speirs (Narwhal Devices) agreed on 2026-10-24 to the most permissive licence for
+  the derived code; Narwhal-Devices/userlib#2 adds the MIT licence to the vendor's
+  driver repository, and the branch carries the MIT notices.
 - lyse #151 and #153 (kill lock not held for a whole routine; Abort button) showed that
   the suite has no safe way to end a busy subprocess: the kill lock has no effect on
   Windows, SIGTERM reaches only a worker that is executing Python, and Restart and

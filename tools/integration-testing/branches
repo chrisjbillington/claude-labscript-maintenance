@@ -4,7 +4,7 @@
 zprocess interrupt-main-thread          # zprocess #35
 zprocess no-default-process-tree        # zprocess #39
 labscript-utils set-default-process-tree  # labscript-utils #138
-labscript-devices narwhal-pulsegen
+labscript-devices narwhal-pulsegen       # labscript-devices #162
 labscript-devices zprocess3-compat      # labscript-devices #160
 labscript-devices camera-image-ack      # labscript-devices #161
 blacs statemachine-main-thread          # blacs #135
