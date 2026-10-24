@@ -135,3 +135,15 @@ shot file still exists (`lyse/filebox.py:1079`), when a multishot routine raises
 error (`lyse/filebox.py:1094`), and when the analysis loop raises an unexpected
 exception (`lyse/filebox.py:1044`). The paused state is saved with the lyse
 configuration (`lyse/__main__.py:324`).
+
+## All repositories: labconfig setting to disable logging
+
+A labconfig setting disables all logging in every application and subprocess of the
+suite.
+
+The applications and their subprocesses set up logging with `setup_logging`
+(`labscript_utils/setup_logging.py:31`, labscript-utils a9dbff7), which adds a handler
+that sends records to the zlog server, a handler for stdout and a handler for stderr,
+and sets the logger level to `DEBUG`. The `[logging]` section of labconfig has only
+`maxBytes` and `backupCount`, which configure the zlog server's log files
+(`labscript_utils/ls_zprocess.py:114` and `:118`).
