@@ -30,6 +30,27 @@ labscript, qtutils and runviewer have nothing unmerged and stay on master.
   `diginuc:~/labscript-suite/dev`, and every component imports from its clone in the
   diginuc venv, including the Narwhal Devices and IMAQdx BLACS workers. The `test-batch`
   branches on diginuc are deleted.
+||||||| parent of 1f58584 (Record the BLACS port check timings on Ubuntu and Windows (blacs #138, D40))
+## 2026-10-24: blacs #138 port check at start-up (D40)
+
+blacs `submit-during-startup` 594723c checks for a process listening on the BLACS port
+before it loads the connection table: a TCP connection attempt to `127.0.0.1` with a
+0.1 s timeout. The harness step `blacs-shot` times 20 such attempts to the BLACS port of a
+running BLACS and 20 to a free port, then starts a second BLACS.
+
+- [Run 40047021693](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/40047021693)
+  (the branch; Ubuntu and Windows, Python 3.11–3.14, PySide6, PyQt6 and PyQt5): all 25
+  jobs passed. Every attempt gave the correct result. The second BLACS logged the message
+  after 1–2 s and created no device tabs.
+- Time per attempt on Ubuntu: median 0.01–0.07 ms, maximum 0.16 ms, for both ports.
+- Time per attempt on Windows: a free port takes the full timeout, median 101–104 ms,
+  maximum 115 ms, because Windows retries a refused connection. The BLACS port of a running
+  BLACS takes median 15–16 ms (0.2 ms in one job), maximum 25.5 ms. So the check adds
+  about 0.1 s to every BLACS start on Windows.
+- [Run 40047010897](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/40047010897)
+  (masters, push): the second BLACS failed with `zmq.error.ZMQError: Address already in
+  use` (Windows: `Address in use`) and created no device tabs, as the experiment server
+  is created first on master; reported as KNOWN D40.
 
 ## 2026-10-24: lyse start-up time on diginuc
 
