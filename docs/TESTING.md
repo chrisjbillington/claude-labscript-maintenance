@@ -394,7 +394,10 @@ Branch `usbserial` at 47aa493 on master 5a5892c.
   `FT_GetComPortNumber` gives 3. The port opens through D2XX. A second open raises
   `SerialException` (D2XX: FT_DEVICE_NOT_OPENED; `serial.Serial`: access denied). A read
   with a 0.1 s timeout returns after 0.103 s; `cancel_read()` ends a blocking read after
-  15.4 ms, against 2 ms on Linux. Not run: loopback reads and the round-trip time.
+  15.4 ms, against 2 ms on Linux. With TX connected to RX (`--loopback`), a second run:
+  the same open results; `cancel_read()` took 9.7 ms; 5 bytes written are read back; 50
+  single-byte round trips took 0.77 to 1.19 ms (median 1.00 ms) through D2XX and 8.13
+  to 23.64 ms (median 15.99 ms) with `serial.Serial` on the virtual COM port.
 - After this, c83cc6e removes the check that the D2XX handle has the requested COM port
   number: pyserial's serial number on Windows comes from the FTDI driver's device ID,
   which ends in the channel letter, and D2XX names the channels of a multi-channel
