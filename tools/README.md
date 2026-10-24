@@ -37,6 +37,7 @@ when there is no merge conflict:
 | Patch | Change | Needed by |
 |---|---|---|
 | `runmanager/value-history-repack.patch` | `record_history` and `_modify_history_entry` open the globals file with `_open_for_writing` | runmanager #144 with #145; the second of the two to be merged needs the change |
+| `labscript-devices/narwhal-lazy-logging.patch` | The NarwhalPulseGenerator worker passes its connection log message arguments to the logger | labscript-devices #162 with the `lazy-logging` branch; the second of the two to be merged needs the change |
 
 `integration-testing/deploy.sh HOST DIR` checks out, in each git clone in `DIR` on
 `HOST`, `integration-testing` at the version on origin, or `master` (fast-forwarded to

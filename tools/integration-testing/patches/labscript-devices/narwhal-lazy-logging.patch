@@ -1,0 +1,33 @@
+From e4379c09e67d90f8f25c31645594126561270375 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 24 Oct 2026 19:32:29 +1100
+Subject: [PATCH] NarwhalPulseGenerator: pass logging arguments to the logger
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01EKehUUNVEzFp2hGpHnSgF7
+---
+ labscript_devices/NarwhalPulseGenerator/blacs_workers.py | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/labscript_devices/NarwhalPulseGenerator/blacs_workers.py b/labscript_devices/NarwhalPulseGenerator/blacs_workers.py
+index b3eec07..0821536 100644
+--- a/labscript_devices/NarwhalPulseGenerator/blacs_workers.py
++++ b/labscript_devices/NarwhalPulseGenerator/blacs_workers.py
+@@ -60,9 +60,11 @@ class NarwhalPulseGeneratorWorker(Worker):
+             "port": self.device.port,
+         }
+         self.logger.info(
+-            f"Connected to pulse generator {info.serial_number} on {self.device.port}, "
+-            f"hardware version {info.hardware_version}, firmware "
+-            f"{firmware_string(info.firmware_version)}"
++            "Connected to pulse generator %s on %s, hardware version %s, firmware %s",
++            info.serial_number,
++            self.device.port,
++            info.hardware_version,
++            self.device_info["firmware_version"],
+         )
+         # The device's settings are left as they are, so that restarting BLACS does not
+         # disturb a run in progress.
+-- 
+2.56.0
+
