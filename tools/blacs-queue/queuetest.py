@@ -423,10 +423,14 @@ class Driver(object):
         run = self.new_shot()
         with h5py.File(run, 'a') as f:
             f.create_group('data')
+            f.attrs['run time'] = '20261025T000000.000000'
         message = self.qm.process_request(run)
         run_rep = run.replace('.h5', '_rep00001.h5')
         check('submission: a shot that has been run is queued as a copy', 're-run' in message
               and wait_for(lambda: self.queued()[-1:] == [run_rep], 5), (message, self.queued()))
+        with h5py.File(run_rep, 'r') as f:
+            ok = 'data' not in f and 'run time' not in f.attrs
+        check('submission: the copy of a shot that has been run has no data or run time', ok)
         burst = [self.new_shot() for _ in range(20)]
         messages = [self.qm.process_request(p) for p in burst]
         check('submission: a burst of shots is queued in order',

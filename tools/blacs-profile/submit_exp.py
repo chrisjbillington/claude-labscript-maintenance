@@ -5,9 +5,11 @@
 EXPERIMENT_SHOTS is the directory of the experiment's shots, which holds the
 year/month/day/sequence directories. RUN is one of A (compile and submit, as normal), B
 (precompiled shots submitted in a burst), C (burst, then a compile that is not
-submitted), D (precompiled shots submitted at the rate of A) and E (the shots of the
+submitted), D (precompiled shots submitted at the rate of A), E (the shots of the
 previous run, which have been run, submitted again at the rate of A, so that BLACS
-queues a copy of each)."""
+queues a copy of each) and F (precompiled shots submitted at once, then this process
+checks the shot files of another precompiled sequence at the rate of A as BLACS does,
+without submitting them)."""
 import sys, os, glob, time, datetime, threading, subprocess, statistics as st
 import labscript_utils.h5_lock, h5py
 from labscript_utils.ls_zprocess import zmq_get, Lock
@@ -42,7 +44,7 @@ def submit(path):
     r = zmq_get(42517, 'localhost', data=shared_drive.path_to_agnostic(path))
     assert 'added successfully' in r, r
 
-def run_times(d, pattern='*.h5'):
+def run_times(d, pattern='*.h5', after=0):
     out = []
     for f in glob.glob(os.path.join(d, pattern)):
         with h5py.File(f, 'r') as h:
@@ -50,14 +52,22 @@ def run_times(d, pattern='*.h5'):
         if v is None:
             return None
         v = v.decode() if isinstance(v, bytes) else str(v)
-        out.append(datetime.datetime.strptime(v, '%Y%m%dT%H%M%S.%f').timestamp())
+        t = datetime.datetime.strptime(v, '%Y%m%dT%H%M%S.%f').timestamp()
+        # A copy of a shot that has been run has the run time of the original until it
+        # is run:
+        if t < after:
+            return None
+        out.append(t)
     return sorted(out)
 
-def wait_run(d, pattern='*.h5'):
+def wait_run(d, pattern='*.h5', after=0, timeout=300):
+    deadline = time.time() + timeout
     while True:
-        rt = run_times(d, pattern)
+        rt = run_times(d, pattern, after)
         if rt is not None:
             return rt
+        if time.time() > deadline:
+            raise RuntimeError('shots in %s not run within %d s' % (d, timeout))
         time.sleep(2)
 
 probe = []
@@ -101,7 +111,7 @@ def report(name, rt, t0, t1, cpu0, cpu1, pc0, pc1):
           st.median(iv_out) * 1e3, len(iv_out), q(pin, .5), q(pin, .9), q(pout, .5), q(pout, .9), busy * 100,
           ', '.join('%s %.1f' % (k, pc1[k] - pc0[k]) for k in pc0)), flush=True)
 
-GROUPS = {'blacs': 'python -m blacs', 'runmanager+compiler': 'runmanager', 'zlock': 'zlock', 'lyse': 'lyse'}
+GROUPS = {'blacs': 'profile_blacs.py|-m blacs', 'runmanager+compiler': 'runmanager', 'zlock': 'zlock', 'lyse': 'lyse'}
 def snap():
     return {k: proc_cpu(pids(v)) for k, v in GROUPS.items()}
 
@@ -112,14 +122,33 @@ def precompile():
     rm.set_run_shots(True)
     return d
 
+def check_like_blacs(path, blacs_table):
+    from labscript_utils.connections import ConnectionTable
+    import labscript_utils.properties
+    with h5py.File(path, 'r') as h5_file:
+        result, error = blacs_table.compare_to(ConnectionTable(h5_file))
+        assert result, error
+        orders = {}
+        for name, group in h5_file['devices'].items():
+            for key in ['start_order', 'stop_order']:
+                if key in group.attrs:
+                    orders[name, key] = labscript_utils.properties.get_attribute(group, key)
+        return 'data' in h5_file['/'], orders
+
 rate = [0.08]
 d = None
 for run in sys.argv[1:]:
     stop = threading.Event(); probe.clear()
-    if run in 'BCD':
+    if run in 'BCDF':
         d = precompile(); time.sleep(2)
+    if run == 'F':
+        other = precompile(); time.sleep(2)
+        from labscript_utils.connections import ConnectionTable
+        from labscript_utils.labconfig import LabConfig
+        blacs_table = ConnectionTable(LabConfig().get('paths', 'connection_table_h5'))
     th = threading.Thread(target=prober, args=(stop,), daemon=True); th.start()
     time.sleep(1)
+    t_start = time.time()
     if run == 'A':
         rm.set_run_shots(True)
         prev = newest(); t0 = time.time(); c0 = cpu_total(); p0 = snap()
@@ -139,6 +168,15 @@ for run in sys.argv[1:]:
         rm.engage()
         _, t1 = wait_compiled(prev)
         rm.set_run_shots(True)
+    elif run == 'F':
+        for f in sorted(glob.glob(d + '/*.h5')): submit(f)
+        files = sorted(glob.glob(other + '/*.h5'))
+        t0 = time.time(); c0 = cpu_total(); p0 = snap()
+        for i, f in enumerate(files):
+            check_like_blacs(f, blacs_table)
+            delay = t0 + (i + 1) * rate[0] - time.time()
+            if delay > 0: time.sleep(delay)
+        t1 = time.time()
     elif run in 'DE':
         if run == 'E':
             files = sorted(f for f in glob.glob(d + '/*.h5') if '_rep' not in f)
@@ -151,6 +189,6 @@ for run in sys.argv[1:]:
             if delay > 0: time.sleep(delay)
         t1 = time.time()
     c1 = cpu_total(); p1 = snap()
-    rt = wait_run(d, '*_rep*.h5' if run == 'E' else '*.h5')
+    rt = wait_run(d, '*_rep*.h5' if run == 'E' else '*.h5', after=t_start)
     stop.set(); th.join()
     report(run + ' ' + os.path.basename(d), rt, t0, t1, c0, c1, p0, p1)

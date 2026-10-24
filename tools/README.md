@@ -137,7 +137,9 @@ recording, SIGUSR2 writes it, and SIGHUP minimises or restores the BLACS window.
 into the run and the gap between the end of the run and the next start, with the main
 thread's busy time in each. `submit_exp.py RUN ...`, run on the lab machine with BLACS,
 lyse and runmanager running, separates the effect of compilation from that of
-submission on the shot interval (`docs/TESTING.md`). py-spy 0.4.2 cannot profile BLACS on Python 3.14: each
+submission on the shot interval (`docs/TESTING.md`); its runs are listed in its
+docstring. `PROF_SWITCH_INTERVAL`, if set, is passed to `sys.setswitchinterval()` in
+`profile_blacs.py`. py-spy 0.4.2 cannot profile BLACS on Python 3.14: each
 sample takes over a second, even at 10 samples per second.
 
 ## BLACS queue manager behaviour

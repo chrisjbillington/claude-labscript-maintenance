@@ -1,7 +1,7 @@
 """Run BLACS with a profiler. SIGUSR1 starts recording (clearing previous data); SIGUSR2
 stops it and writes $PROF_DIR/events<n>.txt, $PROF_DIR/timeline<n>.txt and
 $PROF_DIR/prof<n>.txt. SIGHUP minimises the BLACS window, or restores it if it is
-minimised.
+minimised. PROF_SWITCH_INTERVAL, if set, is passed to sys.setswitchinterval().
 
 events: every Qt event delivered in the main thread through QApplication.notify, with its
 wall and thread CPU time, inclusive for outermost events and exclusive of nested events.
@@ -154,6 +154,9 @@ def toggle_minimized(*a):
             else:
                 w.showMinimized()
             print('BLACS window minimized:', w.isMinimized(), flush=True)
+
+if os.environ.get('PROF_SWITCH_INTERVAL'):
+    sys.setswitchinterval(float(os.environ['PROF_SWITCH_INTERVAL']))
 
 signal.signal(signal.SIGHUP, toggle_minimized)
 signal.signal(signal.SIGUSR1, start)

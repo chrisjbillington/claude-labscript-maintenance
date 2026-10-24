@@ -5,6 +5,64 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-25: submitted shots checked in the request thread (blacs `submit-in-request-thread`), on diginuc
+
+blacs branch `submit-in-request-thread` (c80fe59, 75883b7; on top of
+`main-thread-per-shot`) handles a shot submitted to BLACS's server in the server's thread:
+it opens and checks the shot file, decides whether to queue a copy and makes it, and only
+the append to the queue view runs in the main thread, as one posted call for any number
+of files. The queue manager keeps the paths of the queued files in a `Counter` that any
+thread can read, updated from the model's row signals. A copy (a shot that has been run
+or is already queued) is made from the open shot file, in memory, and written to the new
+file at once without a zlock. A second commit leaves the `run time` attribute out of a
+cleaned copy (D44).
+
+Locally (laptop, harness venv, PySide6, offscreen): `tools/blacs-queue/queuetest.py`
+passes all 69 checks, including new ones for a shot submitted twice, a shot that has
+been run, a burst of 20 submissions from another thread and a submission from the main
+thread; BLACS with dummy devices runs 100 shots submitted through its server.
+
+On diginuc, with the integration-testing branches deployed (blacs 7321bb6, then 6bcb606
+with the second commit), BLACS started with `tools/blacs-profile/profile_blacs.py`
+(profiler not recording), and the runs of `tools/blacs-profile/submit_exp.py`. For
+comparison the blacs clone was checked out at cb292cb (the previous integration-testing
+build, without the branch) in the same night. The lab's own GUI programs used 1.4 to 1.5
+CPUs throughout. Median interval between shot starts while the disturbance lasts, ms;
+the interval after it was 370 to 386 ms in every run:
+
+| Run | branch | cb292cb |
+|---|---|---|
+| A: compile and submit | 434, 447, 446, 457, 462, 455, 469 | 462, 477 |
+| C: compile only | 435, 426 | 422, 427 |
+| D: precompiled shots submitted at the rate of A | 403, 409, 404, 393, 409, 400, 410 | 406, 409 |
+| E: shots that have been run, submitted again at the rate of A | 420, 411, 416, 420, 421, 415, 407 | 441, 425 |
+| F: the checks of D done by another process, nothing submitted | 385, 384, 400 | |
+
+- **(run)** In a profiled normal sequence, the main thread spends 0.26 ms per submission
+  (0.16 ms of CPU) instead of 10.6 ms (5.6 ms of CPU), and its CPU time in the gaps
+  between shots while shots arrive falls from 88 to 78 ms per shot. The gap itself
+  does not shorten (197 ms before, 203 and 192 ms with the branch), because the main
+  thread is busy for as long as before: its events take longer while the request thread
+  holds the GIL. BLACS used 17.8 s of CPU per sequence in both versions.
+- **(run)** Submitting shots (D) lengthens the interval by about 25 ms with either
+  version. The same checks done at the same rate by another process (F) lengthen it by
+  about 8 ms, so most of the cost of a submission comes from its being handled inside
+  the BLACS process, whichever thread does it.
+- **(run)** Resubmitting shots that have been run (E) is about 15 ms per shot faster with
+  the branch: the copy is made from the file that is already open and is written without
+  a zlock. With 6bcb606, the 100 copies of a resubmitted sequence ran, and each has a
+  `data` group, `run repeat` 1 and its own run time.
+- **(run)** `sys.setswitchinterval(0.0005)` in BLACS (with the branch) made no
+  difference: A 452 and 449 ms, D 402 and 412 ms, E 409 and 416 ms.
+- **(run)** Lowering the priority of runmanager and its compile subprocess (every thread
+  reniced to 10) made no difference: A 483, 482, 487, 486 ms niced against 476, 487, 487,
+  486 ms not niced, C 438, 453, 443, 452 ms against 447, 442, 458, 440 ms, alternating
+  blocks with runmanager restarted between them. diginuc has 2 cores with 2 threads
+  each and was 92 to 95% busy during compilation, with about 20% idle overall, so the
+  slowdown during compilation is not a matter of BLACS waiting to be scheduled.
+- The runs made sequences 2026/10/24/0071 to 0099 and 2026/10/25/0000 to 0055 in the lab's
+  shot storage (about 1.2 GB for 25 October).
+
 ## 2026-10-24: why BLACS runs shots more slowly while runmanager is compiling
 
 diginuc, the integration-testing branches as deployed (blacs cb292cb), BLACS, lyse and
