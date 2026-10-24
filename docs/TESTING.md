@@ -5,6 +5,41 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-24: BLACS on diginuc with `main-thread-per-shot`
+
+The integration-testing branches deployed to diginuc (blacs cb292cb with
+`main-thread-per-shot` and the device-order change in #136, labscript-utils e331dd7 with
+`connection-table-open-file`, labscript-devices c8086ef), and the runs of the BLACS
+profile below repeated with the same set-up. As a control, the blacs and labscript-utils
+clones were then checked out at the commits of that profile (e47dca2, bbe0d4f) with the
+same labscript-devices, and the clones were put back on integration-testing afterwards.
+The runs made sequences 2026/10/24/0047 to 0060.
+
+- **(run)** Per shot without the profiler (means over each sequence):
+
+  | Code | Window | No load | Load |
+  |---|---|---|---|
+  | profile below (e47dca2) | shown | 407, 405 ms | 529, 535 ms |
+  | control (e47dca2, today's labscript-devices) | shown | 409, 407 ms | 524, 528 ms |
+  | `main-thread-per-shot` | shown | 390, 392 ms | 508, 502 ms |
+  | profile below | minimised | 361, 359 ms | 435, 437 ms |
+  | `main-thread-per-shot` | minimised | 358, 358 ms | 428, 426 ms |
+
+  BLACS used 12.1 s of CPU per sequence with the window shown instead of 15.4 to 15.6 s,
+  and 9.3 s minimised instead of 11.3 s.
+- **(run)** With the profiler, no load, after the last submission: gap between the end
+  of a run and the next start 107 ms (118 ms before), with the main thread busy for
+  91 ms of it (102 ms). Under load the gap is 230 ms (243 ms).
+- **(run)** Per event, no load: `ExperimentServer.process` 9.4 ms (15.4 ms), 5.3 ms of
+  CPU (8.4 ms); the queue view's delayed item layout 0.28 ms (1.46 ms);
+  `Tab._update_state_display` 0.73 ms (0.95 ms). Progress bar updates: 5 per shot
+  instead of 14, 1.1 ms of main-thread time per shot instead of 24 ms, and 9 bar paints
+  per shot instead of 30. Window repaints (`UpdateRequest`): 22 per shot instead of 42.
+- **(run)** The tab bar is repainted about as often as before (13 instead of 14 times
+  per shot): a tab's icon changes between the busy and idle icons with each worker job,
+  so most of the icon updates are not redundant. Painting the window is still the
+  largest item in the gap, 44 ms of the 91 ms.
+
 ## 2026-10-24: blacs `main-thread-per-shot` and labscript-utils `connection-table-open-file`
 
 Changes from the BLACS profile below: blacs branch `main-thread-per-shot` (11b48ec, on
