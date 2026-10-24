@@ -50,7 +50,7 @@ fix is made, in which case the row names the pull request. Importance uses the s
 | D37 | 2026-10-24 | runmanager `runmanager/group_manager.py:101`–`:311` (every function that opens a globals file with `h5py.File(filename, 'a')`) | Each open of a globals file that writes a string attribute makes the file 4096 bytes larger, and the space is never reclaimed: HDF5 allocates a new global heap collection, which is at least 4 kB, for the variable-length strings written in each open. 2000 edits of one global (`set_value` and `set_expansion`) grew a file from 128 kB to 16.5 MB; `h5repack` reduced it to 18.6 kB. Integer, boolean and fixed-length string attributes do not grow the file, nor do many writes in one open. `libver='latest'`, persistent free-space tracking (`fs_strategy` `'fsm'` or `'page'` with `fs_persist=True`) and a smaller `meta_block_size` make no difference | 3 | run (h5py 3.16.0, HDF5 2.0.0, Python 3.14.8) | fix in [runmanager #144](https://github.com/labscript-suite/runmanager/pull/144) (4c876e7, open): the file is repacked after a write once it has grown by 1 MB and to twice its repacked size |
 | D38 | 2026-10-24 | labscript-devices `labscript_devices/IMAQdxCamera/blacs_tabs.py:63` (`ImageReceiver.handler`) | `handler` runs in the main thread through `inmain_decorator(wait_for_return=True)`, called from the server thread. If `ImageReceiver.shutdown()`, which the tab calls in `restart`, is called in the main thread while an image is being received, the server thread waits for the main thread and the main thread waits in `shutdown()` to join the server thread, so the main thread hangs | 2 | run (a test script that sends a last image and then shuts the receiver down hung in one of three runs on master 5a5892c); read (the cause) | fixed in [labscript-devices #161](https://github.com/labscript-suite/labscript-devices/pull/161), open |
 | D39 | 2026-10-24 | lyse `lyse/filebox.py:111` (`EditColumns.populate_model`, `self.model.clear()`) | When an analysis routine adds columns, `update_rows` emits `columns_changed`, and the Edit columns dialog rebuilds its model with `clear()`. Sometimes this crashes lyse with a segmentation fault in `QStandardItem`'s destructor (`Shiboken::BindingManager::unregisterWrapper`, PySide6 6.12), with the dialog never shown. Seen with two routines that each add a column to one shot: once locally (Python 3.14.8) in about ten runs, on lyse master and on the `shot-overhead` branch, and once in 25 jobs (Ubuntu, Python 3.11, PySide6) of run 39969987453 on master. The cause is not known | 3 | run | open |
-| D40 | 2026-10-24 | blacs `blacs/__main__.py:813` (`ExperimentServer(port)`) | A second copy of BLACS, started while one is running, fails when it binds the BLACS port, with a `zmq.error.ZMQError: Address already in use` traceback in the graphical exception hook rather than a message. With the server started after `app` is created (D36), the second copy also creates its device tabs and starts their workers before it fails | 2 | run (harness step `blacs-shot` on master and on the fix, Ubuntu and Windows, Python 3.11–3.14) | fixed in [blacs #138](https://github.com/labscript-suite/blacs/pull/138), open |
+| D40 | 2026-10-24 | blacs `blacs/__main__.py:813`, lyse `lyse/__main__.py:164`, runmanager `runmanager/__main__.py:3254`, runviewer `runviewer/__main__.py:1695` (the ZMQ server of each) | A second copy of BLACS, lyse, runmanager or runviewer, started while one is running, fails when it binds its labconfig port, with a `zmq.error.ZMQError: Address already in use` traceback in the graphical exception hook rather than a message. lyse and runmanager bind the port at the end of start-up, after lyse has created its routine boxes and runmanager has loaded its globals files; with the fix for D36, BLACS would also create its device tabs and start their workers first | 2 | run (harness steps `blacs-shot` and `apps` on master and on the fix, Ubuntu and Windows) | fixed in [blacs #138](https://github.com/labscript-suite/blacs/pull/138) and lyse, runmanager and runviewer branches `exit-if-port-in-use`, with `labscript_utils.ports` in labscript-utils branch `port-in-use` |
 
 ## Detail
 
@@ -556,14 +556,17 @@ for example after a connection table recompile.
 Fix: start the experiment server after `app` is created, as lyse does; done in blacs
 #138. A shot submitted before then waits for the server and is queued when it starts.
 
-### D40. A second BLACS fails with a traceback
+### D40. A second copy of an application fails with a traceback
 
-BLACS binds its port when it creates the `ExperimentServer`. A second copy started while
-one is running gets `zmq.error.ZMQError: Address already in use` there, which is shown by
-the graphical exception hook. The fix for D36 moves the server to after the device tabs
-are created, so the second copy would also start device workers, which open the same
-hardware as the running copy.
-Fix: before it loads the connection table, BLACS makes a TCP connection attempt to its
-port with a 0.1 s timeout. If the connection succeeds, BLACS logs and shows a message
-that another copy is probably running, and exits; done in blacs #138. The harness step
-`blacs-shot` times the connection attempt and starts a second BLACS.
+BLACS, lyse, runmanager and runviewer each bind their labconfig port when they create
+their ZMQ server. A second copy started while one is running gets `zmq.error.ZMQError:
+Address already in use` there, which is shown by the graphical exception hook. runviewer
+binds first; lyse and runmanager bind at the end of start-up. The fix for D36 moves the
+BLACS server to after the device tabs are created, so a second BLACS would also start
+device workers, which open the same hardware as the running copy.
+Fix: `labscript_utils.ports.port_in_use` attempts a TCP connection to the port on
+127.0.0.1; on Windows it disables SYN retransmission on the socket so that a refused
+connection fails at once, and uses no socket timeout. `exit_if_port_in_use` logs and
+shows a message that another copy is probably running, and exits. Each application calls
+it with its port early in start-up. The harness step `apps` times `port_in_use` and starts
+a second copy of each application.
