@@ -1,0 +1,116 @@
+From a0ba68f6d3e78e04ea5daeacc5562051885126d6 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 24 Oct 2026 15:13:20 +1100
+Subject: [PATCH] Write the sequence globals once per sequence and copy them
+ into each run file
+
+make_run_files wrote every sequence global's expression, units and expansion
+as separate HDF5 attributes in every run file. They are now written once per
+sequence to an in-memory HDF5 file, and its groups are copied into each run
+file. make_single_run_file uses the same path.
+
+For the 100-shot scan of a lab's drop_mot experiment (174 sequence global
+attributes), making a run file takes 24 ms instead of 45 ms on the lab's
+computer while BLACS and lyse run, and 8 ms instead of 16 ms on a laptop. The
+globals groups, attributes and attribute types of all 100 run files are the
+same as before.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_012E5FGDFW9HEH6h6shrHpsD
+---
+ runmanager/compiler.py | 53 ++++++++++++++++++++++++++++--------------
+ 1 file changed, 36 insertions(+), 17 deletions(-)
+
+diff --git a/runmanager/compiler.py b/runmanager/compiler.py
+index a51a41b..2ad6a1c 100644
+--- a/runmanager/compiler.py
++++ b/runmanager/compiler.py
+@@ -24,6 +24,7 @@ import random
+ import sys
+ import threading
+ import traceback
++import uuid
+ 
+ import h5py
+ import numpy as np
+@@ -166,12 +167,32 @@ def _make_run_files(output_folder, sequence_globals, shots, sequence_attrs, file
+     ndigits = int(np.ceil(np.log10(nruns)))
+     if shuffle:
+         random.shuffle(shots)
+-    for i, shot_globals in enumerate(shots):
+-        runfilename = ('%s_%0' + str(ndigits) + 'd.h5') % (basename, i)
+-        make_single_run_file(
+-            runfilename, sequence_globals, shot_globals, sequence_attrs, i, nruns
+-        )
+-        yield runfilename
++    with _sequence_globals_file(sequence_globals) as template:
++        for i, shot_globals in enumerate(shots):
++            runfilename = ('%s_%0' + str(ndigits) + 'd.h5') % (basename, i)
++            _write_run_file(runfilename, template, shot_globals, sequence_attrs, i, nruns)
++            yield runfilename
++
++
++def _sequence_globals_file(sequence_globals):
++    """Return an in-memory HDF5 file with the globals group of a run file, holding the
++    sequence globals but no shot globals."""
++    fapl = h5py.h5p.create(h5py.h5p.FILE_ACCESS)
++    fapl.set_fapl_core(backing_store=False)
++    # The name must differ from that of any open file. A file opened from an identifier
++    # is not locked with zlock.
++    f = h5py.File(h5py.h5f.create(f'sequence_globals_{uuid.uuid4()}'.encode(), fapl=fapl))
++    globals_group = f.create_group('globals')
++    if sequence_globals is not None:
++        for groupname, groupvars in sequence_globals.items():
++            group = globals_group.create_group(groupname)
++            unitsgroup = group.create_group('units')
++            expansiongroup = group.create_group('expansion')
++            for name, (value, units, expansion) in groupvars.items():
++                group.attrs[name] = value
++                unitsgroup.attrs[name] = units
++                expansiongroup.attrs[name] = expansion
++    return f
+ 
+ 
+ def make_single_run_file(filename, sequenceglobals, runglobals, sequence_attrs, run_no, n_runs):
+@@ -182,6 +203,11 @@ def make_single_run_file(filename, sequenceglobals, runglobals, sequence_attrs,
+     new_sequence_details. run_no and n_runs must be provided, if this run file is part
+     of a sequence, then they should reflect how many run files are being generated in
+     this sequence, all of which must have identical sequence_attrs."""
++    with _sequence_globals_file(sequenceglobals) as template:
++        _write_run_file(filename, template, runglobals, sequence_attrs, run_no, n_runs)
++
++
++def _write_run_file(filename, template, runglobals, sequence_attrs, run_no, n_runs):
+     directory = os.path.dirname(filename)
+     if directory:
+         os.makedirs(directory, exist_ok=True)
+@@ -189,22 +215,15 @@ def make_single_run_file(filename, sequenceglobals, runglobals, sequence_attrs,
+         f.attrs.update(sequence_attrs)
+         f.attrs['run number'] = run_no
+         f.attrs['n_runs'] = n_runs
+-        f.create_group('globals')
+-        if sequenceglobals is not None:
+-            for groupname, groupvars in sequenceglobals.items():
+-                group = f['globals'].create_group(groupname)
+-                unitsgroup = group.create_group('units')
+-                expansiongroup = group.create_group('expansion')
+-                for name, (value, units, expansion) in groupvars.items():
+-                    group.attrs[name] = value
+-                    unitsgroup.attrs[name] = units
+-                    expansiongroup.attrs[name] = expansion
++        globals_group = f.create_group('globals')
++        for groupname in template['globals']:
++            template.copy(template['globals'][groupname], globals_group, groupname)
+         for name, value in runglobals.items():
+             if value is None:
+                 # Store it as a null object reference:
+                 value = h5py.Reference()
+             try:
+-                f['globals'].attrs[name] = value
++                globals_group.attrs[name] = value
+             except Exception as e: # noqa: BLE001 all global exceptions are value errors
+                 message = (f'Global {name} cannot be saved as an hdf5 attribute. ' +
+                            'Globals can only have relatively simple datatypes, with no nested structures. ' +
+-- 
+2.56.0
+

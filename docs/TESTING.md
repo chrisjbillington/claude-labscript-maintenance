@@ -5,6 +5,67 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-24: drop_mot compile time on diginuc with the compile speed-ups
+
+The 100-shot `drop_mot` scan as saved in diginuc's runmanager configuration, run on the
+lab's hardware with BLACS, lyse and runmanager started on the lab's display and the scan
+engaged through `runmanager.remote`. Python 3.14.8, h5py 3.16.0, NumPy 2.5.4, pyzmq
+27.2.0, PyQt5 5.15.11; the integration-testing branches as deployed (blacs fa00b74,
+runmanager 9e1807b, labscript-utils b8a5a49, zprocess ef150f8, lyse 5d13bdf,
+labscript-devices bd41d67, labscript master c8441c1). Changed modules were put ahead of
+the installed packages on `PYTHONPATH`, and the apps were restarted for each code
+version; two sequences were run per start. Two of the lab's own GUI programs used about
+1.4 of the machine's 4 logical CPUs throughout.
+
+- A: runmanager `copy-sequence-globals` (sequence globals written once per sequence and
+  copied into each run file; `patches/runmanager-copy-sequence-globals.patch`).
+- B: labscript `set-passed-properties-bind` (`inspect.Signature.bind` instead of
+  `getcallargs`; `patches/labscript-set-passed-properties-bind.patch`).
+- E: blacs `ExperimentServer.process` run in the zmq request thread instead of the main
+  thread, with `compare_to` called directly and the queue check and append done in one
+  main-thread call. Not kept.
+
+Time per shot is the time from the first to the last shot arriving at BLACS divided by
+99. The handler time is from BLACS's `received filepath` log line to its `Request
+handler` line.
+
+| Code | lyse | Sequences | Time per shot | Handler (median) | runmanager CPU per shot |
+|---|---|---|---|---|---|
+| deployed | paused | 0009, 0010 | 109.3, 107.9 ms | 15, 14 ms | 67, 68 ms |
+| A + B + E | paused | 0011, 0012 | 100.6, 95.7 ms | 22, 22 ms | 53, 53 ms |
+| A + B | paused | 0013, 0014 | 95.7, 89.5 ms | 14, 14 ms | 54, 53 ms |
+| deployed, with timers | analysing | 0015, 0016 | 146.5, 147.1 ms | 20, 20 ms | 71, 73 ms |
+| A + B, with timers | analysing | 0017, 0018 | 121.4, 126.6 ms | 20, 21 ms | 55, 57 ms |
+
+runmanager CPU is that of the runmanager process and its compile subprocess while the
+sequence was being compiled. Phases from the timers (medians, the two sequences of each
+row):
+
+| Phase | deployed | A + B |
+|---|---|---|
+| runmanager: make the run file | 44.8, 44.9 ms | 24.5, 24.3 ms |
+| compile subprocess: `labscript_init` | 13.9, 13.4 ms | 14.9, 14.9 ms |
+| compile subprocess: run the script | 47.7, 42.8 ms | 44.3, 43.9 ms |
+| compile round trip from runmanager | 67.6, 62.1 ms | 62.1, 63.4 ms |
+| send to BLACS | 30.8, 29.1 ms | 29.5, 33.7 ms |
+
+- lyse's state was not chosen. In sequences 0009 to 0014 the multishot routine
+  `yellow_spectroscopy.py` failed on its first run (two shots) and lyse paused analysis
+  for the rest of that start; in 0015 to 0018 it succeeded and lyse analysed every shot,
+  using about 55 s of CPU per sequence instead of about 10 s. Rows are comparable only
+  with the same lyse state.
+- A shortens making a run file by about 20 ms on diginuc under load, and the time per
+  shot by 13 to 25 ms. B's saving (1.3 ms on the laptop) is within the variation here.
+- E made no shot faster: with E the handler time includes waiting for the main thread
+  and was 22 ms instead of 14 ms, and the time per shot was 5 ms longer than with A + B
+  alone. Moving the work to the request thread does not shorten the main thread's
+  turnaround while the main thread is busy (plausible: the request thread also waits
+  for the GIL).
+- BLACS took 41 to 42 s (lyse paused) or 50 s (lyse analysing) from engage to sending
+  the last shot to lyse, 0.41 to 0.50 s per shot, so compilation of every sequence
+  finished 30 to 40 s before BLACS finished running it.
+- The runs made sequences 2026/10/24/0009 to 0018 in the lab's shot storage.
+
 ## 2026-10-24: D9 rechecked on labscript-devices master
 
 A shot with a `PrawnBlaster` with `use_wait_monitor=False`, a `DummyIntermediateDevice`
@@ -60,12 +121,13 @@ phases were timed by temporary timers in `compile_loop` and `batch_compiler.py`.
 - On diginuc, sequence 0008 (100 shots, while BLACS and lyse were running) arrived at
   BLACS every 227 ms on average (124 to 349 ms), and BLACS's request handler took 28.5 ms
   (median). With diginuc idle, parsing the shot's connection table takes 1.9 ms,
-  comparing it 0.1 ms and the check for `/data` 0.9 ms, so most of the handler's time is
-  spent waiting for `inmain(self.BLACS.connection_table.compare_to, ...)` in
-  `experiment_queue.py:407` while the main thread is busy (plausible), and runmanager
-  waits for the reply before it compiles the next shot. zlock round trips on idle
-  diginuc take 0.47 ms, and attribute writes and reads take 92 and 24 µs, the same as on
-  the laptop.
+  comparing it 0.1 ms and the check for `/data` 0.9 ms. The whole of
+  `ExperimentServer.process` runs in the main thread (`@inmain_decorator` at
+  `blacs/__main__.py:759`), and the logged handler time starts in the main thread, so the
+  28.5 ms is main-thread time, not time spent waiting for the main thread (read; the
+  section above has runs with the handler moved out of the main thread). runmanager waits
+  for the reply before it compiles the next shot. zlock round trips on idle diginuc take
+  0.47 ms, and attribute writes and reads take 92 and 24 µs, the same as on the laptop.
 
 ## 2026-10-24: integration-testing branches on diginuc
 
