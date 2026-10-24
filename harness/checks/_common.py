@@ -95,10 +95,10 @@ def listening(p):
         return False
 
 
-def start_app(app):
-    """Start a suite application with its output in logs/app-<app>.log. Return the
-    process and the open log file."""
-    log = open(WORK / 'logs' / f'app-{app}.log', 'w', encoding='utf8', errors='replace')
+def start_app(app, name=None):
+    """Start a suite application with its output in logs/app-<name>.log, where name
+    defaults to the application name. Return the process and the open log file."""
+    log = open(WORK / 'logs' / f'app-{name or app}.log', 'w', encoding='utf8', errors='replace')
     proc = subprocess.Popen([sys.executable, '-X', 'utf8', '-m', app], stdout=log, stderr=subprocess.STDOUT)
     return proc, log
 
