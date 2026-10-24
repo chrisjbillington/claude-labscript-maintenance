@@ -35,7 +35,7 @@ the sequence from the shots' `run time` attributes. The runs made sequences
   | minimised | 361, 359 ms | 435, 437 ms |
 
   BLACS used 15.4 s of CPU per sequence with the window shown and 11.3 s minimised (the
-  workers about 6 s in total, lyse and runmanager under 2 s each). A minimised window
+  four workers 6.5 s in total, runmanager 1.9 s). A minimised window
   still receives paint events (same number of widget paints), so the difference is a
   lower bound on the cost of drawing.
 - **(run)** The main thread does almost all of BLACS's work: 13.7 s of CPU per sequence
