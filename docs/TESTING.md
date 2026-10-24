@@ -5,6 +5,30 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-24: lyse start-up time on diginuc
+
+lyse from `~/labscript-suite/dev` on diginuc (lyse 6a4f323, components installed from
+git clones), Python 3.14.8, PyQt5, three analysis routines, load average 1.8 to 2.5.
+
+- In `lyse.log` and `lyse.log.1` (16 starts on 23 and 24 October), lyse takes 4 to 11 s
+  from its first log line until the last analysis worker is ready. Loading the UI, the
+  routine boxes, the server and the configuration takes 0.03 to 0.25 s. The rest is the
+  three workers, which are started one after another, each taking 1.2 to 4.6 s. Shots
+  that arrive during this time are queued and not analysed until all workers are ready.
+- Starting a worker through `ProcessTree.subprocess()` as lyse does took 1.17 to 1.49 s
+  (four starts). The parent waits until the worker connects back, which the worker does
+  after all of its module-level imports and `import pylab`, so the start time is
+  almost all import time.
+- Import time of `analysis_subprocess.py` (three runs, 1.29 to 1.62 s in total), by
+  package: matplotlib 0.28 to 0.33 s, pandas 0.28 to 0.32 s (imported by `lyse/__init__.py`
+  through `lyse.utils`), numpy 0.15 to 0.25 s, qtutils 0.05 to 0.08 s, and under 0.06 s
+  for each other package.
+- The `__version__` modules of labscript-utils, qtutils, desktop-app, lyse and zprocess
+  call `setuptools_scm.get_version()` when the package is in a git clone. In the worker
+  this imports setuptools_scm and runs 20 `git` commands: 0.29 s of a profiled start,
+  0.16 s of it in labscript-utils. An install from a wheel reads the version from the
+  package metadata instead and does not do this.
+
 ## 2026-10-24: Narwhal Devices Pulse Generator documentation (labscript-devices `narwhal-pulsegen` 54e36ea)
 
 Branch `narwhal-pulsegen` at 54e36ea on master 5a5892c, Python 3.14.8, the py3.14 harness
