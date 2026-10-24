@@ -406,6 +406,23 @@ Branch `usbserial` at 47aa493 on master 5a5892c.
   timeout. The same changes were made to `pcp_serial.py` in portable-clocks-peripherals
   (uncommitted).
 - Not run: the macOS D2XX path, a multi-channel FTDI device on Windows.
+- Windows timing, same VM and cable, `tools/usbserial_timing.py` (300 samples each): one
+  D2XX read with its 10 ms timeout and no data took 11.1 to 25.9 ms, median 15.98 ms
+  (288 of 300 between 14 and 18 ms). `cancel_read()` to the return of the blocked read:
+  0.05 to 60 ms, median 8.2 ms, 90% 15.2 ms, spread evenly up to 16 ms. A
+  `read(1, timeout=0.05)` with no data ran 13.7 ms past its timeout (median), from 2.6 ms
+  early to 63.5 ms late. `time.monotonic()`, which computes the deadline, has a
+  resolution of 15.6 ms on Python 3.12 on Windows (`GetTickCount64`); `perf_counter()`
+  has 0.1 us. A byte written while another thread was blocked in `read(1, timeout=1)`
+  was not received within the timeout.
+- `tools/usbserial_diag.py`: a write followed by a read in one thread: the write took 0.14
+  to 0.27 ms and the read returned 0.5 to 0.8 ms later. With another thread blocked in
+  `usbserial` `read(1, timeout=1)`, or calling the D2XX read with its 10 ms timeout in a
+  loop, a write took 15 to 524 ms (roughly multiples of 16 ms) and the read returned 0.04
+  to 1 ms after the write returned; 20 of 20 reads received the byte in both cases. The
+  write is delayed while another thread reads, consistent with D2XX allowing one call on
+  a handle at a time and the writer getting the handle only between two reads (not
+  verified). The Narwhal driver writes from one thread while its reader thread reads.
 - Run [40076336986](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/40076336986)
   with `labscript-devices=pr/163` at c83cc6e: the 25 jobs for Python 3.11 to 3.14 passed;
   the six Python 3.15 jobs failed at "Install the components", as on the masters.

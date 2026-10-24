@@ -82,6 +82,11 @@ the COM port number that D2XX gives for each.
 `tools/usbserial.py` is a copy of `labscript_devices/usbserial.py` from #163 at c83cc6e, so
 that the two files can be copied to a Windows or macOS machine together. Delete it once
 #163 is merged.
+`usbserial_timing.py` and `usbserial_diag.py` take no arguments and use an FTDI cable with
+TX connected to RX on COM3. The first measures the duration of one D2XX read with no
+data, the time from `cancel_read()` to the return of a blocked read, and the excess of a
+read over its timeout. The second compares a write followed by a read in one thread with
+a write while another thread is blocked in a read (`docs/TESTING.md`, 2026-10-24).
 
 ## BLACS shot cycle timing
 
