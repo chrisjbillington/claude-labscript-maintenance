@@ -1,6 +1,6 @@
 """Start each application under the offscreen Qt platform, wait for its ZMQ server port
 to accept connections, and exercise the runmanager remote API. Time
-`labscript_utils.ports.port_in_use` on the port and on a free port. Start a second copy
+`labscript_utils.ls_zprocess.port_in_use` on the port and on a free port. Start a second copy
 of the application, check that it reports the port in use, and for BLACS that it does so
 before it creates device tabs. Stop both copies."""
 
@@ -13,7 +13,7 @@ from _common import (APP_STARTUP_TIMEOUT, WORK, app_output, attempt, check, fini
                      wait_for_port_release)
 
 try:
-    from labscript_utils.ports import port_in_use
+    from labscript_utils.ls_zprocess import port_in_use
 except ImportError:
     port_in_use = None
 
@@ -118,7 +118,7 @@ def check_second_copy(app):
 
 
 if port_in_use is None:
-    print('labscript_utils.ports is not installed; port_in_use is not timed')
+    print('labscript_utils.ls_zprocess has no port_in_use; it is not timed')
 else:
     time_port_in_use(free_port(), False, 'a free port')
 

@@ -31,7 +31,7 @@ labscript, qtutils and runviewer have nothing unmerged and stay on master.
   diginuc venv, including the Narwhal Devices and IMAQdx BLACS workers. The `test-batch`
   branches on diginuc are deleted.
 
-## 2026-10-24: `labscript_utils.ports.port_in_use` (D40)
+## 2026-10-24: `labscript_utils.ls_zprocess.port_in_use` (D40)
 
 The 0.1 s connection timeout of the first version of the BLACS check (below) costs about
 100 ms per start on Windows. A probe workflow on the workflow-sandbox fork (branch

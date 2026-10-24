@@ -450,8 +450,11 @@ this list.
 
 ### 4.8 zprocess 3
 
-The maintainer plans a zprocess 3 release. These zprocess pull requests are intended for
-it:
+zprocess 3 will be released (maintainer, 2026-10-24). Work in the suite may rely on any
+change that is merged or in a pull request in zprocess, or in any other repository of
+the suite: before anything is released, every dependency of a release on the suite's own
+repositories is merged and released first. These zprocess pull requests are intended for
+zprocess 3:
 
 - zprocess #39: no default `ProcessTree` is created on import. `Event`, `Process` and
   `subprocess_with_queues()` without a tree raise `RuntimeError` until

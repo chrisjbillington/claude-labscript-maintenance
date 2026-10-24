@@ -565,7 +565,7 @@ Address already in use` there, which is shown by the graphical exception hook. r
 binds first; lyse and runmanager bind at the end of start-up. The fix for D36 moves the
 BLACS server to after the device tabs are created, so a second BLACS would also start
 device workers, which open the same hardware as the running copy.
-Fix: `labscript_utils.ports.port_in_use` attempts a TCP connection to the port on
+Fix: `labscript_utils.ls_zprocess.port_in_use` attempts a TCP connection to the port on
 127.0.0.1; on Windows it disables SYN retransmission on the socket so that a refused
 connection fails at once, and uses no socket timeout. `exit_if_port_in_use` logs and
 shows a message that another copy is probably running, and exits. Each application calls
