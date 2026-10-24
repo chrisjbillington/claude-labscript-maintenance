@@ -1,18 +1,24 @@
 """Separate the effects of compilation and of submission on BLACS's shot cycle.
-usage: SEQUENCE_PARENT=<directory of the day's sequences> python submit_exp.py RUN [RUN ...] with RUN one of A (compile and submit, as
-normal), B (precompiled shots submitted in a burst), C (burst, then a compile that is not
-submitted), D (precompiled shots submitted at the rate of A)."""
+
+    EXPERIMENT_SHOTS=<directory> python submit_exp.py RUN [RUN ...]
+
+EXPERIMENT_SHOTS is the directory of the experiment's shots, which holds the
+year/month/day/sequence directories. RUN is one of A (compile and submit, as normal), B
+(precompiled shots submitted in a burst), C (burst, then a compile that is not
+submitted), D (precompiled shots submitted at the rate of A) and E (the shots of the
+previous run, which have been run, submitted again at the rate of A, so that BLACS
+queues a copy of each)."""
 import sys, os, glob, time, datetime, threading, subprocess, statistics as st
 import labscript_utils.h5_lock, h5py
 from labscript_utils.ls_zprocess import zmq_get, Lock
 from labscript_utils import shared_drive
 import runmanager.remote
 
-PARENT = os.path.expanduser(os.environ["SEQUENCE_PARENT"])
+SHOTS = os.path.expanduser(os.environ['EXPERIMENT_SHOTS'])
 rm = runmanager.remote.Client()
 
 def newest():
-    return sorted(glob.glob(PARENT + '/[0-9][0-9][0-9][0-9]'))[-1]
+    return sorted(glob.glob(SHOTS + '/[0-9]*/[0-9]*/[0-9]*/[0-9][0-9][0-9][0-9]'))[-1]
 
 def wait_compiled(prev):
     while newest() == prev:
@@ -36,9 +42,9 @@ def submit(path):
     r = zmq_get(42517, 'localhost', data=shared_drive.path_to_agnostic(path))
     assert 'added successfully' in r, r
 
-def run_times(d):
+def run_times(d, pattern='*.h5'):
     out = []
-    for f in glob.glob(d + '/*.h5'):
+    for f in glob.glob(os.path.join(d, pattern)):
         with h5py.File(f, 'r') as h:
             v = h.attrs.get('run time')
         if v is None:
@@ -47,9 +53,9 @@ def run_times(d):
         out.append(datetime.datetime.strptime(v, '%Y%m%dT%H%M%S.%f').timestamp())
     return sorted(out)
 
-def wait_run(d):
+def wait_run(d, pattern='*.h5'):
     while True:
-        rt = run_times(d)
+        rt = run_times(d, pattern)
         if rt is not None:
             return rt
         time.sleep(2)
@@ -107,6 +113,7 @@ def precompile():
     return d
 
 rate = [0.08]
+d = None
 for run in sys.argv[1:]:
     stop = threading.Event(); probe.clear()
     if run in 'BCD':
@@ -132,8 +139,11 @@ for run in sys.argv[1:]:
         rm.engage()
         _, t1 = wait_compiled(prev)
         rm.set_run_shots(True)
-    elif run == 'D':
-        files = sorted(glob.glob(d + '/*.h5'))
+    elif run in 'DE':
+        if run == 'E':
+            files = sorted(f for f in glob.glob(d + '/*.h5') if '_rep' not in f)
+        else:
+            files = sorted(glob.glob(d + '/*.h5'))
         t0 = time.time(); c0 = cpu_total(); p0 = snap()
         for i, f in enumerate(files):
             submit(f)
@@ -141,6 +151,6 @@ for run in sys.argv[1:]:
             if delay > 0: time.sleep(delay)
         t1 = time.time()
     c1 = cpu_total(); p1 = snap()
-    rt = wait_run(d)
+    rt = wait_run(d, '*_rep*.h5' if run == 'E' else '*.h5')
     stop.set(); th.join()
     report(run + ' ' + os.path.basename(d), rt, t0, t1, c0, c1, p0, p1)

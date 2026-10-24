@@ -301,6 +301,7 @@ class Driver(object):
                 self.test_shot_without_callbacks,
                 self.test_idle_queue_starts_promptly,
                 self.test_pause,
+                self.test_submissions,
                 self.test_ttb_fail,
                 self.test_ttb_error_state,
                 self.test_restart_in_ttb,
@@ -401,6 +402,44 @@ class Driver(object):
         wait_for(lambda: first(t1, ('analysis', path)) is not None)
         dt = (first(t1, ('pc', 'ttb')) or float('inf')) - t1
         check('unpaused: the shot starts within 0.2 s', dt < 0.2, dt)
+
+    def test_submissions(self):
+        self.qm.manager_paused = True
+        self.wait_status('Queue paused', 5)
+        path = self.new_shot()
+        message = self.qm.process_request(path)
+        check('submission: a new shot is queued', 'added successfully' in message
+              and 're-run' not in message and wait_for(lambda: self.queued() == [path], 5),
+              (message, self.queued()))
+        check('submission: is_in_queue', self.qm.is_in_queue(path))
+        message = self.qm.process_request(path)
+        rep = path.replace('.h5', '_rep00001.h5')
+        check('submission: a queued shot is queued again as a copy', 're-run' in message
+              and wait_for(lambda: self.queued() == [path, rep], 5), (message, self.queued()))
+        with h5py.File(rep, 'r') as f:
+            ok = 'devices' in f and 'data' not in f and f.attrs['run repeat'] == 1
+            ok = ok and sorted(f['devices']) == sorted(DEVICES)
+        check('submission: the copy has the devices, no data and its repeat number', ok)
+        run = self.new_shot()
+        with h5py.File(run, 'a') as f:
+            f.create_group('data')
+        message = self.qm.process_request(run)
+        run_rep = run.replace('.h5', '_rep00001.h5')
+        check('submission: a shot that has been run is queued as a copy', 're-run' in message
+              and wait_for(lambda: self.queued()[-1:] == [run_rep], 5), (message, self.queued()))
+        burst = [self.new_shot() for _ in range(20)]
+        messages = [self.qm.process_request(p) for p in burst]
+        check('submission: a burst of shots is queued in order',
+              all('added successfully' in m for m in messages)
+              and wait_for(lambda: self.queued()[3:] == burst, 5), self.queued())
+        main = self.new_shot()
+        in_queue = inmain(lambda: (self.qm.process_request(main),
+                                   self.qm._model.item(self.qm._model.rowCount() - 1).text())[1])
+        check('submission: a shot submitted in the main thread is queued at once', in_queue == main,
+              in_queue)
+        inmain(self.qm._toggle_clear)
+        check('submission: the cleared queue is empty', not self.qm.is_in_queue(path)
+              and not self.qm.is_in_queue(main), self.queued())
 
     def check_paused_and_requeued(self, label, path):
         check(label + ': queue paused', wait_for(lambda: self.qm.manager_paused, 5))

@@ -17,6 +17,7 @@ labscript-devices lazy-logging          # lazy logging arguments, no PR
 blacs statemachine-main-thread          # blacs #135
 blacs queue-main-thread                 # blacs #136
 blacs main-thread-per-shot              # on top of #136, no PR
+blacs submit-in-request-thread          # on top of main-thread-per-shot, no PR
 blacs submit-during-startup             # blacs #138
 blacs lazy-logging                      # lazy logging arguments, no PR
 lyse remove-routine-kill-lock           # lyse #151
