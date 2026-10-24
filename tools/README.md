@@ -79,7 +79,7 @@ if labscript-devices #163 is not installed. Written to test the Windows and macO
 When D2XX is loaded it also prints D2XX's device list, and the result of opening the
 port's serial number as pyserial reports it and with its last character removed, with
 the COM port number that D2XX gives for each.
-`tools/usbserial.py` is a copy of `labscript_devices/usbserial.py` from #163 at 47aa493, so
+`tools/usbserial.py` is a copy of `labscript_devices/usbserial.py` from #163 at c83cc6e, so
 that the two files can be copied to a Windows or macOS machine together. Delete it once
 #163 is merged.
 

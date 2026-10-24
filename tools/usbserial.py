@@ -157,9 +157,9 @@ class _FTD2xxSerialBase:
         rc = _ftd2xx.FT_OpenEx(
             sn.encode(), self._FT_OPEN_BY_SERIAL_NUMBER, ctypes.byref(handle)
         )
-        # On Windows, pyserial reports the serial number of a single-channel FTDI
-        # device with an "A" appended, see
-        # https://github.com/pyserial/pyserial/issues/61
+        # On Windows, pyserial reports the serial number in the device ID that FTDI's
+        # driver assigns to each channel, which ends in the channel's letter. D2XX
+        # includes the letter only for devices with more than one channel.
         if rc == 2:  # FT_DEVICE_NOT_FOUND
             sn = sn[:-1]
             self._checkrc(
@@ -174,18 +174,6 @@ class _FTD2xxSerialBase:
         self._handle = handle
         self._finalizer = weakref.finalize(self, _ftd2xx.FT_Close, handle)
         try:
-            if _WINDOWS:
-                # Check that the device opened is the one with this COM port, and not
-                # another channel of the same adaptor.
-                com_port = ctypes.c_long()
-                self._checkrc(
-                    _ftd2xx.FT_GetComPortNumber, handle, ctypes.byref(com_port)
-                )
-                if f'COM{com_port.value}' != port.upper():
-                    raise serial.SerialException(
-                        f"FTDI device with serial number {sn} is COM{com_port.value}, "
-                        f"not {port}"
-                    )
             self._set_baudrate(baudrate)
             self._checkrc(
                 _ftd2xx.FT_SetDataCharacteristics,
@@ -340,10 +328,10 @@ class _SoftwareTimeoutMixin:
         * If `timeout` is None, block until `n` bytes are read.
         * If `timeout` is 0, return up to `n` bytes that are available immediately.
         * Otherwise return up to `n` bytes received within the timeout. The call may
-          block for up to 10 ms longer than the timeout.
+          block for up to about 16 ms longer than the timeout.
 
         A call to `cancel_read` from another thread makes this method return the bytes
-        read so far within 10 ms. If `cancel_read` is called when no read is in
+        read so far within about 16 ms. If `cancel_read` is called when no read is in
         progress, the next read returns immediately."""
         if timeout is self._UNSET:
             timeout = self.__timeout
@@ -365,7 +353,7 @@ class _SoftwareTimeoutMixin:
         return b''.join(chunks)
 
     def cancel_read(self):
-        """Make a `read` in another thread return within 10 ms."""
+        """Make a `read` in another thread return within about 16 ms."""
         self.__cancelled.set()
 
     # pyserial's send_break() on Linux calls tcsendbreak() as if its argument were in
@@ -420,11 +408,11 @@ def Serial(
     * If `timeout` is None, ``read()`` blocks until `n` bytes are read.
     * If `timeout` is 0, it returns up to `n` bytes that are available immediately.
     * Otherwise it returns up to `n` bytes received within the timeout, and may block
-      for up to 10 ms longer than the timeout.
+      for up to about 16 ms longer than the timeout.
 
     The timeout passed to ``read()`` replaces the one given here. Do not set the
     ``timeout`` attribute. ``cancel_read()`` makes a ``read()`` in another thread
-    return the bytes read so far within 10 ms; if no read is in progress, the next
+    return the bytes read so far within about 16 ms; if no read is in progress, the next
     read returns immediately.
     """
     usb_info = _get_usb_info(port)

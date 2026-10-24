@@ -386,7 +386,23 @@ Branch `usbserial` at 47aa493 on master 5a5892c.
   with `labscript-devices=labscript-suite/labscript-devices@usbserial`: the 25 jobs for
   Python 3.11 to 3.14 passed; the six Python 3.15 jobs failed at "Install the
   components", as on the masters.
-- Not run: the D2XX path on Windows and macOS.
+- Windows (the maintainer's VM, Python 3.12.7, pyserial 3.5, D2XX installed), FTDI
+  TTL-232R-3V3 cable on COM3, `tools/usbserial_check.py COM3` without loopback: 0
+  failures. pyserial reports the serial number `FTD421K0A`; D2XX lists the device as
+  `FTD421K0` (type 5, id 0x04036001). `FT_OpenEx('FTD421K0A')` returns 2
+  (FT_DEVICE_NOT_FOUND) and `FT_OpenEx('FTD421K0')` opens it, and
+  `FT_GetComPortNumber` gives 3. The port opens through D2XX. A second open raises
+  `SerialException` (D2XX: FT_DEVICE_NOT_OPENED; `serial.Serial`: access denied). A read
+  with a 0.1 s timeout returns after 0.103 s; `cancel_read()` ends a blocking read after
+  15.4 ms, against 2 ms on Linux. Not run: loopback reads and the round-trip time.
+- After this, c83cc6e removes the check that the D2XX handle has the requested COM port
+  number: pyserial's serial number on Windows comes from the FTDI driver's device ID,
+  which ends in the channel letter, and D2XX names the channels of a multi-channel
+  device by the same letters, so the serial number cannot select another channel. The
+  docstrings now give about 16 ms for `cancel_read()` and for the excess over a read
+  timeout. The same changes were made to `pcp_serial.py` in portable-clocks-peripherals
+  (uncommitted).
+- Not run: the macOS D2XX path, a multi-channel FTDI device on Windows.
 
 ## 2026-10-24: Narwhal Devices Pulse Generator on hardware (labscript-devices #162)
 
