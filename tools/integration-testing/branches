@@ -21,6 +21,7 @@ lyse remove-routine-kill-lock           # lyse #151
 lyse abort-analysis                     # lyse #153
 lyse shot-overhead                      # lyse #157
 lyse lazy-logging                       # lazy logging arguments, no PR
+lyse pandas-new-columns                 # lyse #160
 runmanager repack-globals-files         # runmanager #144
 runmanager value-history                # runmanager #145
 runmanager copy-sequence-globals        # runmanager #147

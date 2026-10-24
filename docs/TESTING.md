@@ -5,6 +5,32 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-24: pandas 3.1.0 and lyse #160 (D43)
+
+pandas 3.1.0 (released 2026-10-22) issues a `Pandas4Warning` when `.at` sets a value with
+a column key that is not in the dataframe; pandas 3.0.6 and 2.3.3 issue none. Setting an
+existing cell with `.at` issues no warning. On pandas 3.1.0, with three-level column
+labels, creating a column takes 0.34 to 0.41 ms with `.at` and 0.28 to 0.38 ms with `.loc`
+for dataframes from 100 rows × 200 columns to 10000 × 1000; setting an existing cell
+takes 13 to 14 µs with `.at` and 60 to 70 µs with `.loc`. For 18 value types (scalars,
+strings, `None`, lists, tuples, 0-d, 1-d and 2-d arrays, bytes, complex, timestamps),
+lyse's `_set_dataframe_value` with `.loc` for new columns gives the same column values and
+dtypes as with `.at` on pandas 2.3.3, 3.0.6 and 3.1.0. The `catch_warnings(record=True)`
+in lyse's shot-loading thread also records warnings that the main thread issues while a
+shot is loading (checked with a two-thread script on Python 3.14.8).
+
+The `lyse-gui` step now fails when lyse code issues a `DeprecationWarning` while results
+add columns. Locally (Python 3.14.8, PySide6 6.12.0, pandas 3.1.0) every step passed with
+lyse `pandas-new-columns` 061ce1f, and `lyse-gui` failed on master 3edf99c with the
+warning from `filebox.py:570`. `test.yml` run
+[40077643154](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/40077643154)
+(`lyse=labscript-suite/lyse@pandas-new-columns`): the 25 jobs for Python 3.11 to 3.14
+passed every step; the six Python 3.15 jobs failed at install (h5py 3.16.0 does not
+build). Run
+[40077636478](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/40077636478)
+(push of the check, masters): `lyse-gui` failed with the warning in the 25 jobs for Python
+3.11 to 3.14.
+
 ## 2026-10-24: D39, lyse's Edit columns dialog on PySide6 6.12.0, and D42
 
 Locally (Linux), a script that updates lyse's `EditColumns` dialog with one more column
