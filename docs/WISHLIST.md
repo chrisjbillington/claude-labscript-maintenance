@@ -107,3 +107,20 @@ imported by `lyse/dataframe_utilities.py:24`, lyse 3edf99c),
 (blacs c0c2322). labscript writes with `h5py.special_dtype(vlen=str)`
 (`labscript/labscript.py:267`, labscript 33cdb31). labscript-devices has about 25 more
 sites that use NumPy byte-string dtypes or similar.
+
+## All repositories: lazy formatting in logging calls
+
+Change every logging call that formats its message before the call, with an f-string,
+`%` or `str.format`, to pass the format string and its arguments to the logger, as in
+`logger.info('Shot %s done', name)`.
+
+A count of such calls on 2026-10-24 found 108 in blacs (10 files), 21 in
+labscript-devices (6 files), 17 in runmanager (1 file), 13 in lyse (4 files), 7 in
+runviewer (1 file), 4 in labscript-utils (3 files) and 1 in zprocess.
+
+## lyse: shots table header not drawn when it has two columns at startup
+
+The horizontal header of the lyse shots table is not drawn when the table has only its
+two initial columns, status and file path, at startup. The table and its header are
+created in `lyse/filebox.py:272` to `:314` (lyse 3edf99c), with
+`HorizontalHeaderViewWithWidgets` from labscript-utils.
