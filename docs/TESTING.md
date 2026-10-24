@@ -218,6 +218,38 @@ Run
 with D36 reported as KNOWN by `blacs-shot`; the six Python 3.15 jobs failed at "Install
 the components", as before.
 
+## 2026-10-24: drop_mot on diginuc with the optimised pyzmq and h5py wheels
+
+Sequences 2026/10/24/0004 to 0008 of drop_mot on diginuc, 100 shots each, Python 3.14.8,
+with the wheels in `~/labscript-suite/dev/wheelhouse/`. lyse, runmanager and BLACS were
+restarted between sequences; the zlock and zlog servers were restarted only before 0007.
+
+- 0004: PyPI pyzmq 27.2.0 and h5py 3.16.0
+- 0005: optimised h5py
+- 0006: optimised h5py and pyzmq (zlock and zlog still on the PyPI wheels)
+- 0007: as 0006 with zlock and zlog restarted; lyse paused after 3 shots on a fitting
+  error, so it did no analysis for the rest of the sequence
+- 0008: as 0007, with lyse analysing every shot
+
+Mean BLACS cycle time (time between master pseudoclock starts) ± standard error, split at
+the creation time of the last shot file, which is the time when runmanager finished
+compiling:
+
+| Sequence | while runmanager compiles | after compiling (63 to 71 cycles) |
+|---|---|---|
+| 0004 | 673 ± 10 ms | 567 ± 5 ms |
+| 0005 | 678 ± 11 ms | 566 ± 5 ms |
+| 0006 | 612 ± 10 ms | 537 ± 5 ms |
+| 0007 (lyse idle) | 577 ± 9 ms | 445 ± 3 ms |
+| 0008 | 647 ± 9 ms | 527 ± 5 ms |
+
+The optimised h5py made no measurable difference to the cycle time. The optimised pyzmq
+reduced it by 29 ± 7 ms, and restarting zlock and zlog on it by a further 10 ± 7 ms. The
+largest change in the median BLACS worker job times from 0005 to 0006 is motcam
+`transition_to_manual`, 81 → 64 ms. With lyse idle the cycle is 82 ms shorter than in
+0008. runmanager's compile time per shot (from file creation times: 255, 221, 195, 172
+and 226 ms) and lyse's per-shot times show no consistent trend.
+
 ## 2026-10-24: h5py Linux wheels build their extension modules without optimisation
 
 h5py's `pyproject.toml` sets `CFLAGS = "-g1"` in `[tool.cibuildwheel.linux.environment]`
