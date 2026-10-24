@@ -496,7 +496,7 @@ Branch `usbserial` at 47aa493 on master 5a5892c.
   open refused, close 5 to 7 ms; `tools/narwhal_hwtest.py` with the driver on
   `usbserial`: 0 failures, waits with timeouts 0.3, 0.2 and 0.1 s lasted 0.3013, 0.2016
   and 0.1014 s. The same changes were made to `pcp_serial.py` in
-  portable-clocks-peripherals (uncommitted).
+  portable-clocks-peripherals (2199123).
 - Run [40078376090](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/40078376090)
   with `labscript-devices=pr/163` at 73bcc60: all 25 jobs for Python 3.11 to 3.14 failed
   at `lyse-gui` on the pandas DeprecationWarning that master push run 40077636478 also
@@ -505,6 +505,19 @@ Branch `usbserial` at 47aa493 on master 5a5892c.
   `lyse-gui` step. Run [40079047556](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/40079047556)
   with `labscript-devices=pr/163 lyse=pr/160`: the 25 jobs passed; the six Python 3.15
   jobs failed at "Install the components", as on the masters.
+- 5e5c45a removes the macOS D2XX path, on the maintainer's decision: on macOS
+  `Serial()` uses pyserial and does not change the latency timer. Reason: pyserial on
+  macOS reports the USB serial number without a channel letter (`list_ports_osx.py`,
+  "USB Serial Number"), while D2XX names the channels of a two-channel device `…A` and
+  `…B`, so the pulse generator could not be opened through D2XX; whether D2XX can open
+  a device that the macOS driver has claimed is not known. The vendor's `ndpulsegen`
+  opens the device with plain pyserial and works on macOS. The pyserial path was
+  rechecked on a pseudo-terminal. Run [40082408503](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/40082408503)
+  with `labscript-devices=pr/163 lyse=pr/160`: 24 of the 25 jobs for Python 3.11 to 3.14
+  passed; Ubuntu Python 3.14 PySide6 failed when lyse aborted in `lyse-gui` in
+  `QSortFilterProxyModel.columnCount` during a model reset (D39). The six Python 3.15
+  jobs failed at "Install the components". The same change was made to `pcp_serial.py`
+  in portable-clocks-peripherals (ee06ae2; 2199123 has the earlier changes).
 - Run [40076336986](https://github.com/chrisjbillington/claude-labscript-maintenance/actions/runs/40076336986)
   with `labscript-devices=pr/163` at c83cc6e: the 25 jobs for Python 3.11 to 3.14 passed;
   the six Python 3.15 jobs failed at "Install the components", as on the masters.

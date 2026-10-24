@@ -16,10 +16,9 @@ adaptors to 1 ms and implements read timeouts in software.
 An FTDI adaptor holds received data for up to its latency timer before sending it to the
 computer, 16 ms by default, so every reply from a device takes at least that long. On
 Linux the low-latency mode of the ``ftdi_sio`` driver sets the timer to 1 ms. On Windows
-and macOS the timer can only be set through FTDI's D2XX library, so for FTDI adaptors
-:func:`Serial` uses D2XX instead of the virtual COM port driver if the library is
-installed. D2XX is installed with FTDI's driver on Windows; on macOS it is available from
-https://ftdichip.com/drivers/d2xx-drivers/.
+the timer can only be set through FTDI's D2XX library, which is installed with FTDI's
+driver, so for FTDI adaptors :func:`Serial` uses D2XX instead of the virtual COM port
+driver. On macOS the latency timer is not changed.
 """
 
 import ctypes
@@ -35,22 +34,16 @@ from serial.tools.list_ports import comports
 
 _LINUX = sys.platform.startswith('linux')
 _WINDOWS = sys.platform == 'win32'
-_MACOS = sys.platform == 'darwin'
 
 _FTDI_VENDOR_ID = 0x0403
 
 _FTD2XX_WARNING = """FTDI D2XX library not found. Serial communication with FTDI
-adaptors will have up to 16 ms of added latency. The D2XX library for Windows and macOS
-is available from https://ftdichip.com/drivers/d2xx-drivers/"""
+adaptors will have up to 16 ms of added latency. The D2XX library is available from
+https://ftdichip.com/drivers/d2xx-drivers/"""
 
 if _WINDOWS:
     try:
         _ftd2xx = ctypes.WinDLL("ftd2xx.dll")
-    except OSError:
-        _ftd2xx = None
-elif _MACOS:
-    try:
-        _ftd2xx = ctypes.CDLL("libftd2xx.dylib")
     except OSError:
         _ftd2xx = None
 else:
@@ -141,10 +134,8 @@ class _FTD2xxSerial(_BreakMixin):
     driver, with the latency timer set to 1 ms. The port is always opened exclusively.
 
     A read calls the D2XX read function only for bytes that have already been received,
-    and otherwise waits for data without a D2XX call in progress, since on Windows a
-    D2XX write from another thread waits until a D2XX read returns. On Windows the wait
-    is on the event that D2XX sets when data arrives; on macOS the receive queue is
-    checked every millisecond."""
+    and otherwise waits on the event that D2XX sets when data arrives, since a D2XX write
+    from another thread waits until a D2XX read returns."""
 
     _FT_OPEN_BY_SERIAL_NUMBER = 1
     _FT_EVENT_RXCHAR = 1
@@ -156,7 +147,6 @@ class _FTD2xxSerial(_BreakMixin):
     _FLOW_XONXOFF = 0x400
     _XON = 0x11
     _XOFF = 0x13
-    _MACOS_POLL_INTERVAL = 0.001
 
     _FT_STATUS = {
         0: "FT_OK",
@@ -220,18 +210,14 @@ class _FTD2xxSerial(_BreakMixin):
             self._raise_err(_ftd2xx.FT_OpenEx, rc)
 
         self._handle = handle
-        if _WINDOWS:
-            self._rx_event = _kernel32.CreateEventW(None, False, False, None)
-            self._cancel_event = _kernel32.CreateEventW(None, False, False, None)
-            if not (self._rx_event and self._cancel_event):
-                _ftd2xx.FT_Close(handle)
-                raise ctypes.WinError(ctypes.get_last_error())
-            self._finalizer = weakref.finalize(
-                self, self._close_windows, handle, self._rx_event, self._cancel_event
-            )
-        else:
-            self._cancelled = threading.Event()
-            self._finalizer = weakref.finalize(self, _ftd2xx.FT_Close, handle)
+        self._rx_event = _kernel32.CreateEventW(None, False, False, None)
+        self._cancel_event = _kernel32.CreateEventW(None, False, False, None)
+        if not (self._rx_event and self._cancel_event):
+            _ftd2xx.FT_Close(handle)
+            raise ctypes.WinError(ctypes.get_last_error())
+        self._finalizer = weakref.finalize(
+            self, self._close, handle, self._rx_event, self._cancel_event
+        )
         try:
             self._set_baudrate(baudrate)
             self._checkrc(
@@ -260,19 +246,18 @@ class _FTD2xxSerial(_BreakMixin):
                 int(write_timeout * 1000) if write_timeout is not None else 0,
             )
             self._checkrc(_ftd2xx.FT_SetLatencyTimer, handle, 1)
-            if _WINDOWS:
-                self._checkrc(
-                    _ftd2xx.FT_SetEventNotification,
-                    handle,
-                    self._FT_EVENT_RXCHAR,
-                    ctypes.c_void_p(self._rx_event),
-                )
+            self._checkrc(
+                _ftd2xx.FT_SetEventNotification,
+                handle,
+                self._FT_EVENT_RXCHAR,
+                ctypes.c_void_p(self._rx_event),
+            )
         except:
             self.close()
             raise
 
     @staticmethod
-    def _close_windows(handle, *events):
+    def _close(handle, *events):
         _ftd2xx.FT_Close(handle)
         for event in events:
             _kernel32.CloseHandle(event)
@@ -306,26 +291,15 @@ class _FTD2xxSerial(_BreakMixin):
     def _take_cancel(self):
         """Whether `cancel_read` has been called since the last read that it ended.
         Resets it."""
-        if _WINDOWS:
-            return _kernel32.WaitForSingleObject(self._cancel_event, 0) == _WAIT_OBJECT_0
-        if self._cancelled.is_set():
-            self._cancelled.clear()
-            return True
-        return False
+        return _kernel32.WaitForSingleObject(self._cancel_event, 0) == _WAIT_OBJECT_0
 
     def _wait(self, timeout):
         """Wait until data may have been received, `cancel_read` is called, or `timeout`
         seconds pass (forever if None). Returns whether `cancel_read` was called."""
-        if _WINDOWS:
-            events = (wintypes.HANDLE * 2)(self._rx_event, self._cancel_event)
-            ms = _INFINITE if timeout is None else int(timeout * 1000 + 1)
-            rc = _kernel32.WaitForMultipleObjects(2, events, False, ms)
-            return rc == _WAIT_OBJECT_0 + 1
-        if timeout is not None:
-            timeout = min(timeout, self._MACOS_POLL_INTERVAL)
-        else:
-            timeout = self._MACOS_POLL_INTERVAL
-        return self._take_cancel() if self._cancelled.wait(timeout) else False
+        events = (wintypes.HANDLE * 2)(self._rx_event, self._cancel_event)
+        ms = _INFINITE if timeout is None else int(timeout * 1000 + 1)
+        rc = _kernel32.WaitForMultipleObjects(2, events, False, ms)
+        return rc == _WAIT_OBJECT_0 + 1
 
     def read(self, n=1, timeout=_UNSET):
         if timeout is _UNSET:
@@ -353,10 +327,7 @@ class _FTD2xxSerial(_BreakMixin):
         return b''.join(chunks)
 
     def cancel_read(self):
-        if _WINDOWS:
-            _kernel32.SetEvent(self._cancel_event)
-        else:
-            self._cancelled.set()
+        _kernel32.SetEvent(self._cancel_event)
 
     def _set_baudrate(self, baudrate):
         self._checkrc(_ftd2xx.FT_SetBaudRate, self._handle, baudrate)
@@ -477,9 +448,9 @@ def Serial(
 ):
     """Open a serial port. Takes the same arguments as ``serial.Serial``.
 
-    For an FTDI adaptor, the latency timer is set to 1 ms. On Linux this uses the
-    low-latency mode of the ``ftdi_sio`` driver; enabling the mode the first time that
-    a port is opened takes 255 ms. On Windows and macOS the port is opened through
+    For an FTDI adaptor on Linux or Windows, the latency timer is set to 1 ms. On Linux
+    this uses the low-latency mode of the ``ftdi_sio`` driver; enabling the mode the
+    first time that a port is opened takes 255 ms. On Windows the port is opened through
     FTDI's D2XX library if it is installed, and a warning is issued if it is not. A
     port opened through D2XX is always exclusive, has the methods and attributes of
     ``serial.Serial`` that are listed below, and raises ``serial.SerialException``.
@@ -501,14 +472,13 @@ def Serial(
     A read returns as soon as the requested bytes arrive. Through pyserial, a read waits
     in steps of 10 ms, about 16 ms on Windows, so it may end up to that long after its
     timeout or a call to ``cancel_read()``. Through D2XX, ``cancel_read()`` ends a read
-    immediately on Windows and within 1 ms on macOS, and on Windows a read may end up
-    to about 16 ms after its timeout.
+    immediately, and a read may end up to about 16 ms after its timeout.
     """
     usb_info = _get_usb_info(port)
     ftdi = usb_info is not None and usb_info[0] == _FTDI_VENDOR_ID
 
     cls = _Serial
-    if ftdi and (_WINDOWS or _MACOS):
+    if ftdi and _WINDOWS:
         if _ftd2xx is not None:
             cls = _FTD2xxSerial
         else:

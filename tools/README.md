@@ -76,11 +76,11 @@ that it deletes. The serial number is `SN` at the top (`docs/TESTING.md`, 2026-1
 second open raises `SerialException`, read timeouts, `cancel_read()`, and with the
 adaptor's TX and RX connected, loopback reads and the round-trip time compared with
 `serial.Serial`. It needs only pyserial, and loads `usbserial.py` from its own directory
-if labscript-devices #163 is not installed. Written to test the Windows and macOS paths.
+if labscript-devices #163 is not installed. Written to test the Windows path.
 When D2XX is loaded it also prints D2XX's device list, and the result of opening the
 port's serial number as pyserial reports it and with its last character removed, with
 the COM port number that D2XX gives for each.
-`tools/usbserial.py` is a copy of `labscript_devices/usbserial.py` from #163 at 73bcc60, so
+`tools/usbserial.py` is a copy of `labscript_devices/usbserial.py` from #163 at 5e5c45a, so
 that the two files can be copied to a Windows or macOS machine together. Delete it once
 #163 is merged.
 `usbserial_timing.py` takes no arguments and uses an FTDI cable with TX connected to RX
