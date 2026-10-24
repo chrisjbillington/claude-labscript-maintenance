@@ -609,5 +609,14 @@ On 2026-10-24 Rory Speirs told the maintainer to assume the most permissive lice
 Narwhal-Devices/userlib#2 (from the fork chrisjbillington/narwhal-pulsegen-userlib,
 branch `mit-license`) adds an MIT `LICENSE` with copyright Rory Speirs 2020, covering
 the repository except `help_resources_not_an_actual_part_of_userlib` and files that
-state their own licence. Once it is merged, the labscript-devices files that derive
-from the vendor's code need the MIT notice of `ndpulsegen` and of userlib.
+state their own licence.
+
+On 2026-10-24 the branch was rebased onto master 5a5892c as commit d749354, which adds
+`labscript_devices/NarwhalPulseGenerator/NARWHAL-DEVICES-MIT-LICENSE.txt` with the MIT
+license and both copyright lines ("2023 RorySpeirs" from `ndpulsegen`, "2020 Rory
+Speirs" from userlib), and a paragraph in the headers of `driver.py`,
+`labscript_devices.py`, `blacs_workers.py` and `blacs_tabs.py` that names the source
+and refers to that file. `runviewer_parsers.py`, `register_classes.py` and
+`__init__.py` derive from no vendor code and keep the plain header. A wheel built from
+the branch contains the license file. The harness run in `TESTING.md` is for bf5cbc5;
+the branch needs a new run before the pull request.
