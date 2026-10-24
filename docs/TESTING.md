@@ -5,6 +5,37 @@ branches, and the defects that the runs found. Newest first. Each run is identif
 the date, the platform, the Python version and the commits in the report's component
 table.
 
+## 2026-10-24: lazy logging arguments (`lazy-logging` branches, no pull requests)
+
+Branches `lazy-logging` in zprocess (111d879), labscript-utils (7462277),
+labscript-devices (40e1c77), blacs (0f1c11d), lyse (5a3c252), runmanager (76c6d09) and
+runviewer (f51c472) change every logging call that formatted its message with `%`,
+`str.format`, an f-string or concatenation to pass a format string and arguments; about
+180 calls, found by parsing the sources. labscript, qtutils, desktop-app and
+labscript-c-extensions have none. Calls with arguments that do work beyond attribute
+access are few: the zlock server's decoding of client IDs and keys on every acquire and
+release (now done when the record is formatted), lyse's join of the added shot paths
+(now behind `isEnabledFor(INFO)`), version lookups at application start, and traceback
+formatting in error paths. blacs #136 adds two `', '.join(sorted(self.pending))`
+arguments per transition, which are left as they are. A static check found no call in
+which the number of placeholders differs from the number of arguments.
+
+The branches are added to `integration-testing/branches`. `build.sh` needed new
+resolutions for blacs (`experiment_queue.py` and `tab_base_classes.py` with #135 and
+#136) and lyse (`routines.py` with #153 and #157), and the patch
+`narwhal-lazy-logging.patch` changes the connection message of labscript-devices #162.
+The rebuilt branches are blacs e47dca2, labscript-devices 5680d70, labscript-utils
+bbe0d4f, lyse de7bf03 (later 706f72f with #160), runmanager 67564cc, runviewer 5012009
+and zprocess a399e6f; a second build of blacs reproduced the hand resolution exactly.
+
+Locally (Python 3.14.8, PySide6) the harness passed every step on these branches,
+including `apps`, `lyse-gui` and `blacs-shot`, with no logging errors in the step logs.
+The zprocess tests passed outside the namespace; inside it, `test_cant_create_files`
+fails because the mapped root user can create the file. `deploy.sh` checked the branches
+out in `diginuc:~/labscript-suite/dev`, and in the diginuc venv the changed modules of
+every component import from the clones (the NI_DAQmx worker is not importable there: no
+NI-DAQmx library). No shot was run on diginuc.
+
 ## 2026-10-24: pandas 3.1.0 and lyse #160 (D43)
 
 pandas 3.1.0 (released 2026-10-22) issues a `Pandas4Warning` when `.at` sets a value with
